@@ -1,6 +1,10 @@
 {
   "compilerOptions": {
     // Enable latest features
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./app/*"]
+    },
     "lib": ["ESNext", "DOM"],
     "target": "ES2022",
     "module": "ESNext",
