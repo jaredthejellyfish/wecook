@@ -1,6 +1,6 @@
 // app/routes/index.tsx
 import { createFileRoute } from "@tanstack/react-router";
-
+import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -19,6 +19,7 @@ import {
   Youtube,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { SignedIn, SignedOut, SignInButton } from "@clerk/tanstack-start";
 
 export const Route = createFileRoute("/")({
   component: Home,
@@ -201,7 +202,16 @@ function Home() {
             </a>
           </nav>
           <div className="hidden md:block">
-            <Button>Get Started</Button>
+            <SignedIn>
+              <Link to="/dashboard">
+                <Button>Dashboard</Button>
+              </Link>
+            </SignedIn>
+            <SignedOut>
+              <SignInButton>
+                <Button>Get Started</Button>
+              </SignInButton>
+            </SignedOut>
           </div>
           <button
             className="md:hidden"
@@ -279,7 +289,9 @@ function Home() {
                 variants={itemVariants}
                 className="mt-10 flex items-center justify-center gap-x-6"
               >
-                <Button size="lg">Start Cooking Smarter</Button>
+                <Button size="lg" id="start-cooking" className="rounded-xl">
+                  Start Cooking Smarter
+                </Button>
                 <a
                   href="#how-it-works"
                   className="text-sm font-semibold leading-6 text-gray-900"
