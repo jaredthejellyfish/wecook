@@ -8,7 +8,7 @@ import { Meta, Scripts } from "@tanstack/start";
 import type { ReactNode } from "react";
 import appCss from "@/styles/app.css?url";
 import Devtools from "@/components/Devtools";
-import { ClerkProvider } from '@clerk/tanstack-start'
+import { ClerkProvider } from "@clerk/tanstack-start";
 
 export const Route = createRootRoute({
   notFoundComponent: () => <div>Not Found</div>,

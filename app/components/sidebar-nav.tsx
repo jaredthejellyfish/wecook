@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   Sidebar,
   SidebarContent,
@@ -9,8 +9,20 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
-import { LayoutDashboard, GraduationCap, Clock, CalendarDays, Bookmark, ShoppingBag, UserCircle, CookingPot, HelpCircle, LogOut, PlusCircle } from 'lucide-react'
+} from "@/components/ui/sidebar";
+import {
+  LayoutDashboard,
+  GraduationCap,
+  Clock,
+  CalendarDays,
+  Bookmark,
+  ShoppingBag,
+  UserCircle,
+  CookingPot,
+  HelpCircle,
+  LogOut,
+  PlusCircle,
+} from "lucide-react";
 
 export function SidebarNav() {
   return (
@@ -99,6 +111,5 @@ export function SidebarNav() {
         </SidebarGroup>
       </SidebarContent>
     </Sidebar>
-  )
+  );
 }
-
