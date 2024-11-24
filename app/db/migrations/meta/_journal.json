@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1732388737771,
+      "tag": "0000_clear_champions",
+      "breakpoints": true
+    }
+  ]
+}

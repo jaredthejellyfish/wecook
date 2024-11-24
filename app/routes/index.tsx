@@ -1,7 +1,7 @@
 // app/routes/index.tsx
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Sparkles,
@@ -20,14 +20,41 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SignedIn, SignedOut, SignInButton } from "@clerk/tanstack-start";
+import { getAuth } from "@clerk/tanstack-start/server";
+import { createServerFn } from "@tanstack/start";
+import { getWebRequest } from "vinxi/http";
+
+const authStateFn = createServerFn({ method: "GET" }).handler(async () => {
+  const { userId } = await getAuth(getWebRequest());
+
+  if (userId) {
+    // This will error because you're redirecting to a path that doesn't exist yet
+    // You can create a sign-in route to handle this
+    throw redirect({
+      to: "/dashboard",
+    });
+  }
+
+  return { userId };
+});
 
 export const Route = createFileRoute("/")({
   component: Home,
+  beforeLoad: () => authStateFn(),
 });
 
 function Home() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 0);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const features = [
     {
@@ -264,7 +291,7 @@ function Home() {
           initial="hidden"
           animate="visible"
           variants={containerVariants}
-          className="relative overflow-hidden bg-gradient-to-b from-primary/10 to-white py-20 sm:py-32"
+          className="relative overflow-hidden bg-gradient-to-b from-primary/10 to-white h-[calc(100vh-5vh)] flex items-center justify-center"
         >
           <div className="container mx-auto px-4">
             <motion.div
@@ -299,6 +326,23 @@ function Home() {
                   Learn more <span aria-hidden="true">→</span>
                 </a>
               </motion.div>
+            </motion.div>
+            <motion.div
+              className="absolute bottom-10 left-1/2 -translate-x-1/2"
+              animate={{
+                rotate: isScrolled ? 180 : 0,
+                scale: isScrolled ? 1.2 : 0.9,
+              }}
+            >
+              <ChevronDown
+                className="h-6 w-6"
+                onClick={() => {
+                  window.scrollTo({
+                    top: window.innerHeight,
+                    behavior: "smooth",
+                  });
+                }}
+              />
             </motion.div>
           </div>
           <motion.div

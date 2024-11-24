@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Header from "@/components/header";
 
+import authStateFn from "@/reusable-fns/auth-redirect";
+
 interface Recipe {
   id: string;
   title: string;
@@ -18,6 +20,7 @@ interface Recipe {
 
 export const Route = createFileRoute("/dashboard/")({
   component: DashboardPage,
+  beforeLoad: () => authStateFn(),
 });
 export default function DashboardPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -77,8 +80,8 @@ export default function DashboardPage() {
 
   return (
     <SidebarProvider>
+      <Header />
       <div className="relative flex min-h-screen flex-col top-16 w-full bg-gradient-to-tr from-neutral-200/20 to-zinc-50/20">
-        <Header />
         <div className="flex-1 items-start md:grid md:grid-cols-[240px_minmax(0,1fr)] md:gap-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-10">
           <SidebarNav />
           <motion.div
