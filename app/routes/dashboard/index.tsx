@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Clock, Bookmark } from "lucide-react";
+import { Clock, Bookmark, Sun, Moon } from 'lucide-react';
 import { createFileRoute } from "@tanstack/react-router";
 import { SidebarNav } from "@/components/sidebar-nav";
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -22,8 +22,8 @@ export const Route = createFileRoute("/dashboard/")({
   component: DashboardPage,
   beforeLoad: () => authStateFn(),
 });
+
 export default function DashboardPage() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const recipes: Recipe[] = [
     {
@@ -81,7 +81,7 @@ export default function DashboardPage() {
   return (
     <SidebarProvider>
       <Header />
-      <div className="relative flex min-h-screen flex-col top-16 w-full bg-gradient-to-tr from-neutral-200/20 to-zinc-50/20">
+      <div className="relative flex min-h-screen flex-col top-16 w-full bg-gradient-to-tr from-neutral-200/20 to-zinc-50/20 dark:from-gray-800/20 dark:to-gray-900/20 dark:text-white">
         <div className="flex-1 items-start md:grid md:grid-cols-[240px_minmax(0,1fr)] md:gap-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-10">
           <SidebarNav />
           <motion.div
@@ -95,10 +95,10 @@ export default function DashboardPage() {
               className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
             >
               <div>
-                <h2 className="text-2xl font-bold tracking-tight">
+                <h2 className="text-2xl font-bold tracking-tight dark:text-white">
                   Saved Recipes
                 </h2>
-                <p className="text-muted-foreground">8 recipes</p>
+                <p className="text-muted-foreground dark:text-gray-400">8 recipes</p>
               </div>
               <div className="flex items-center gap-2">
                 <Button>Filters</Button>
@@ -133,7 +133,7 @@ export default function DashboardPage() {
                 <motion.div
                   key={recipe.id}
                   variants={itemVariants}
-                  className="group relative overflow-hidden rounded-lg border bg-white shadow-md transition-all hover:shadow-lg"
+                  className="group relative overflow-hidden rounded-lg border bg-white dark:bg-gray-800 shadow-md transition-all hover:shadow-lg"
                 >
                   <div className="aspect-video overflow-hidden">
                     <img
@@ -144,15 +144,15 @@ export default function DashboardPage() {
                   </div>
                   <div className="p-4">
                     <div className="flex items-center gap-2">
-                      <div className="flex items-center text-sm text-muted-foreground">
+                      <div className="flex items-center text-sm text-muted-foreground dark:text-gray-400">
                         <Clock className="mr-1 h-4 w-4" />
                         {recipe.time}
                       </div>
-                      <div className="text-sm text-muted-foreground">
+                      <div className="text-sm text-muted-foreground dark:text-gray-400">
                         {recipe.category}
                       </div>
                     </div>
-                    <h3 className="mt-2 font-semibold leading-none tracking-tight">
+                    <h3 className="mt-2 font-semibold leading-none tracking-tight dark:text-white">
                       {recipe.title}
                     </h3>
                   </div>
@@ -173,3 +173,4 @@ export default function DashboardPage() {
     </SidebarProvider>
   );
 }
+

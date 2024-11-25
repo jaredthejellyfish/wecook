@@ -1,4 +1,3 @@
-// app/routes/index.tsx
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
@@ -17,19 +16,22 @@ import {
   Instagram,
   Twitter,
   Youtube,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SignedIn, SignedOut, SignInButton } from "@clerk/tanstack-start";
 import { getAuth } from "@clerk/tanstack-start/server";
 import { createServerFn } from "@tanstack/start";
 import { getWebRequest } from "vinxi/http";
+import { Skeleton } from "@/components/ui/skeleton";
+import HamburgerButton from "@/components/hamburger-buttont";
+import {ThemeToggle} from "@/components/theme-toggle";
 
 const authStateFn = createServerFn({ method: "GET" }).handler(async () => {
   const { userId } = await getAuth(getWebRequest());
 
   if (userId) {
-    // This will error because you're redirecting to a path that doesn't exist yet
-    // You can create a sign-in route to handle this
     throw redirect({
       to: "/dashboard",
     });
@@ -190,99 +192,150 @@ function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50 text-gray-900">
+    <div
+      className={
+        "min-h-screen bg-neutral-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100"
+      }
+    >
       {/* Header */}
       <motion.header
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ type: "spring", stiffness: 100 }}
-        className="sticky top-0 z-50 bg-white/80 backdrop-blur-md"
+        className="sticky top-0 z-50 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md"
       >
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <a href="/" className="text-2xl font-bold text-primary">
+          <a
+            href="/"
+            className="text-2xl font-bold text-primary dark:text-primary-dark"
+          >
             WeCook
           </a>
           <nav className="hidden md:flex space-x-6">
             <a
               href="#features"
-              className="text-gray-600 hover:text-primary transition-colors"
+              className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary-dark transition-colors"
             >
               Features
             </a>
             <a
               href="#how-it-works"
-              className="text-gray-600 hover:text-primary transition-colors"
+              className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary-dark transition-colors"
             >
               How It Works
             </a>
             <a
               href="#testimonials"
-              className="text-gray-600 hover:text-primary transition-colors"
+              className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary-dark transition-colors"
             >
               Testimonials
             </a>
             <a
               href="#faq"
-              className="text-gray-600 hover:text-primary transition-colors"
+              className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary-dark transition-colors"
             >
               FAQ
             </a>
           </nav>
-          <div className="hidden md:block">
-            <SignedIn>
-              <Link to="/dashboard">
-                <Button>Dashboard</Button>
-              </Link>
-            </SignedIn>
-            <SignedOut>
-              <SignInButton>
-                <Button>Get Started</Button>
-              </SignInButton>
-            </SignedOut>
+          <div className="hidden md:flex items-center space-x-4">
+            <div className="relative w-[104px] h-9">
+              <SignedIn>
+                <Link to="/dashboard">
+                  <Button className="absolute top-0 bottom-0 right-0 left-0 z-10">
+                    Dashboard
+                  </Button>
+                </Link>
+              </SignedIn>
+              <SignedOut>
+                <SignInButton>
+                  <Button className="absolute top-0 bottom-0 right-0 left-0 z-10">
+                    Get Started
+                  </Button>
+                </SignInButton>
+              </SignedOut>
+              <Skeleton className="absolute top-0 bottom-0 right-0 left-0 z-0 bg-black dark:bg-white flex items-center justify-center text-white dark:text-black">
+                <span>Loading...</span>
+              </Skeleton>
+            </div>
+            <ThemeToggle />
           </div>
-          <button
-            className="md:hidden"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            aria-label="Toggle menu"
-          >
-            {isMenuOpen ? (
-              <X className="h-6 w-6" />
-            ) : (
-              <Menu className="h-6 w-6" />
-            )}
-          </button>
+          <HamburgerButton
+            isOpen={isMenuOpen}
+            toggleMenu={() => setIsMenuOpen((o) => !o)}
+          />
         </div>
-        {isMenuOpen && (
-          <div className="md:hidden bg-white py-4">
-            <nav className="flex flex-col space-y-4 px-4">
-              <a
-                href="#features"
-                className="text-gray-600 hover:text-primary transition-colors"
-              >
-                Features
-              </a>
-              <a
-                href="#how-it-works"
-                className="text-gray-600 hover:text-primary transition-colors"
-              >
-                How It Works
-              </a>
-              <a
-                href="#testimonials"
-                className="text-gray-600 hover:text-primary transition-colors"
-              >
-                Testimonials
-              </a>
-              <a
-                href="#faq"
-                className="text-gray-600 hover:text-primary transition-colors"
-              >
-                FAQ
-              </a>
-              <Button className="w-full">Get Started</Button>
-            </nav>
-          </div>
-        )}
+        <motion.div
+          className="md:hidden bg-white dark:bg-gray-800 overflow-hidden border-y border-gray-200 dark:border-gray-700"
+          initial={false}
+          animate={isMenuOpen ? "open" : "closed"}
+          variants={{
+            open: {
+              height: "auto",
+              opacity: 1,
+              padding: "1rem 0",
+              transition: {
+                height: { duration: 0.2, ease: "easeOut" },
+                opacity: { duration: 0.3, ease: "easeIn" },
+              },
+            },
+            closed: {
+              height: 0,
+              opacity: 0,
+              padding: 0,
+              transition: {
+                height: { duration: 0.2, ease: "easeIn" },
+                opacity: { duration: 0.3, ease: "easeOut" },
+              },
+            },
+          }}
+        >
+          <nav className="flex flex-col space-y-4 px-4">
+            <a
+              href="#features"
+              className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary-dark transition-colors"
+            >
+              Features
+            </a>
+            <a
+              href="#how-it-works"
+              className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary-dark transition-colors"
+            >
+              How It Works
+            </a>
+            <a
+              href="#testimonials"
+              className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary-dark transition-colors"
+            >
+              Testimonials
+            </a>
+            <a
+              href="#faq"
+              className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary-dark transition-colors"
+            >
+              FAQ
+            </a>
+            {/* <ThemeToggle /> */}
+            <div className="relative w-full h-9">
+              <SignedIn>
+                <Link to="/dashboard">
+                  <Button className="absolute top-0 bottom-0 right-0 left-0 z-10">
+                    Dashboard
+                  </Button>
+                </Link>
+              </SignedIn>
+              <SignedOut>
+                <SignInButton>
+                  <Button className="absolute top-0 bottom-0 right-0 left-0 z-10">
+                    Get Started
+                  </Button>
+                </SignInButton>
+              </SignedOut>
+              <Skeleton className="absolute top-0 bottom-0 right-0 left-0 z-0 bg-black dark:bg-white flex items-center justify-center text-white dark:text-black">
+                <span>Loading...</span>
+              </Skeleton>
+            </div>
+          </nav>
+        </motion.div>
       </motion.header>
 
       <main>
@@ -291,7 +344,7 @@ function Home() {
           initial="hidden"
           animate="visible"
           variants={containerVariants}
-          className="relative overflow-hidden bg-gradient-to-b from-primary/10 to-white h-[calc(100vh-5vh)] flex items-center justify-center"
+          className="relative overflow-hidden bg-gradient-to-b from-primary/10 to-white dark:from-primary-dark/10 dark:to-gray-900 h-[calc(100vh-5vh)] flex items-center justify-center"
         >
           <div className="container mx-auto px-4">
             <motion.div
@@ -300,13 +353,13 @@ function Home() {
             >
               <motion.h1
                 variants={itemVariants}
-                className="font-serif text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl"
+                className="font-serif text-4xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-6xl"
               >
                 AI-Powered Meal Planning Made Simple
               </motion.h1>
               <motion.p
                 variants={itemVariants}
-                className="mt-6 text-lg leading-8 text-gray-600"
+                className="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-300"
               >
                 WeCook uses cutting-edge AI to plan your meals, generate
                 recipes, and create shopping lists. Say goodbye to meal prep
@@ -321,7 +374,7 @@ function Home() {
                 </Button>
                 <a
                   href="#how-it-works"
-                  className="text-sm font-semibold leading-6 text-gray-900"
+                  className="text-sm font-semibold leading-6 text-gray-900 dark:text-gray-100"
                 >
                   Learn more <span aria-hidden="true">→</span>
                 </a>
@@ -335,7 +388,7 @@ function Home() {
               }}
             >
               <ChevronDown
-                className="h-6 w-6"
+                className="h-6 w-6 text-gray-600 dark:text-gray-400"
                 onClick={() => {
                   window.scrollTo({
                     top: window.innerHeight,
@@ -355,7 +408,7 @@ function Home() {
               repeat: Infinity,
               repeatType: "reverse",
             }}
-            className="absolute -top-24 -left-24 w-96 h-96 bg-purple-200 rounded-full mix-blend-multiply filter blur-2xl opacity-70"
+            className="absolute -top-24 -left-24 w-96 h-96 bg-purple-200 dark:bg-purple-800 rounded-full mix-blend-multiply filter blur-2xl opacity-70"
           ></motion.div>
           <motion.div
             animate={{
@@ -368,7 +421,7 @@ function Home() {
               repeatType: "reverse",
               delay: 0.5,
             }}
-            className="absolute -bottom-24 -right-24 w-96 h-96 bg-yellow-200 rounded-full mix-blend-multiply filter blur-2xl opacity-70"
+            className="absolute -bottom-24 -right-24 w-96 h-96 bg-yellow-200 dark:bg-yellow-800 rounded-full mix-blend-multiply filter blur-2xl opacity-70"
           ></motion.div>
         </motion.section>
 
@@ -379,20 +432,21 @@ function Home() {
           viewport={{ once: true }}
           variants={containerVariants}
           id="features"
-          className="py-24 sm:py-32"
+          className="py-24 sm:py-32 bg-white dark:bg-gray-800"
         >
           <div className="container mx-auto px-4">
             <motion.div
               variants={itemVariants}
-              className="mx-auto max-w-2xl lg:text-center"
+              className="mx-auto
+max-w-2xl lg:text-center"
             >
-              <h2 className="text-base font-semibold leading-7 text-primary">
+              <h2 className="text-base font-semibold leading-7 text-primary dark:text-primary-dark">
                 Features
               </h2>
-              <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+              <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
                 Everything you need to become a master chef
               </p>
-              <p className="mt-6 text-lg leading-8 text-gray-600">
+              <p className="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-300">
                 WeCook combines cutting-edge AI technology with user-friendly
                 features to revolutionize your cooking experience.
               </p>
@@ -406,14 +460,14 @@ function Home() {
                     custom={index}
                     className="flex flex-col"
                   >
-                    <dt className="flex items-center gap-x-3 text-base font-semibold leading-7 text-gray-900">
+                    <dt className="flex items-center gap-x-3 text-base font-semibold leading-7 text-gray-900 dark:text-white">
                       <feature.icon
-                        className="h-5 w-5 flex-none text-primary"
+                        className="h-5 w-5 flex-none text-primary dark:text-primary-dark"
                         aria-hidden="true"
                       />
                       {feature.name}
                     </dt>
-                    <dd className="mt-4 flex flex-auto flex-col text-base leading-7 text-gray-600">
+                    <dd className="mt-4 flex flex-auto flex-col text-base leading-7 text-gray-600 dark:text-gray-300">
                       <p className="flex-auto">{feature.description}</p>
                     </dd>
                   </motion.div>
@@ -430,20 +484,20 @@ function Home() {
           viewport={{ once: true }}
           variants={containerVariants}
           id="how-it-works"
-          className="bg-white py-24 sm:py-32"
+          className="bg-white dark:bg-gray-900 py-24 sm:py-32"
         >
           <div className="container mx-auto px-4">
             <motion.div
               variants={itemVariants}
               className="mx-auto max-w-2xl lg:text-center"
             >
-              <h2 className="text-base font-semibold leading-7 text-primary">
+              <h2 className="text-base font-semibold leading-7 text-primary dark:text-primary-dark">
                 How It Works
               </h2>
-              <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+              <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
                 Four simple steps to culinary success
               </p>
-              <p className="mt-6 text-lg leading-8 text-gray-600">
+              <p className="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-300">
                 WeCook simplifies your cooking journey from start to finish.
                 Here's how our AI-powered platform works:
               </p>
@@ -457,16 +511,16 @@ function Home() {
                     custom={index}
                     className="relative pl-16"
                   >
-                    <dt className="text-base font-semibold leading-7 text-gray-900">
-                      <div className="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
+                    <dt className="text-base font-semibold leading-7 text-gray-900 dark:text-white">
+                      <div className="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-lg bg-primary dark:bg-primary-dark">
                         <CheckCircle
-                          className="h-6 w-6 text-white"
+                          className="h-6 w-6 text-white dark:text-black"
                           aria-hidden="true"
                         />
                       </div>
                       {step.name}
                     </dt>
-                    <dd className="mt-2 text-base leading-7 text-gray-600">
+                    <dd className="mt-2 text-base leading-7 text-gray-600 dark:text-gray-300">
                       {step.description}
                     </dd>
                   </motion.div>
@@ -483,17 +537,17 @@ function Home() {
           viewport={{ once: true }}
           variants={containerVariants}
           id="testimonials"
-          className="bg-white py-24 sm:py-32"
+          className="bg-white dark:bg-gray-800 py-24 sm:py-32"
         >
           <div className="container mx-auto px-4">
             <motion.div
               variants={itemVariants}
               className="mx-auto max-w-2xl text-center"
             >
-              <h2 className="text-base font-semibold leading-7 text-primary">
+              <h2 className="text-base font-semibold leading-7 text-primary dark:text-primary-dark">
                 Testimonials
               </h2>
-              <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+              <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
                 Hear from our happy cooks
               </p>
             </motion.div>
@@ -504,17 +558,17 @@ function Home() {
                     key={testimonial.author.handle}
                     variants={itemVariants}
                     custom={index}
-                    className="flex flex-col justify-between bg-white p-8 shadow-lg ring-1 ring-gray-900/5 rounded-lg"
+                    className="flex flex-col justify-between bg-white dark:bg-gray-700 p-8 shadow-lg ring-1 ring-gray-900/5 rounded-lg"
                   >
-                    <blockquote className="text-gray-900">
+                    <blockquote className="text-gray-900 dark:text-white">
                       <p className="text-lg">{`"${testimonial.body}"`}</p>
                     </blockquote>
                     <div className="mt-6 flex items-center gap-x-4">
                       <div className="text-sm leading-6">
-                        <p className="font-semibold text-gray-900">
+                        <p className="font-semibold text-gray-900 dark:text-white">
                           {testimonial.author.name}
                         </p>
-                        <p className="text-gray-600">{`@${testimonial.author.handle}`}</p>
+                        <p className="text-gray-600 dark:text-gray-300">{`@${testimonial.author.handle}`}</p>
                       </div>
                     </div>
                   </motion.div>
@@ -531,20 +585,20 @@ function Home() {
           viewport={{ once: true }}
           variants={containerVariants}
           id="faq"
-          className="bg-gray-50 py-24 sm:py-32"
+          className="bg-gray-50 dark:bg-gray-900 py-24 sm:py-32"
         >
           <div className="container mx-auto px-4">
             <motion.div
               variants={itemVariants}
               className="mx-auto max-w-2xl lg:text-center"
             >
-              <h2 className="text-base font-semibold leading-7 text-primary">
+              <h2 className="text-base font-semibold leading-7 text-primary dark:text-primary-dark">
                 FAQ
               </h2>
-              <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+              <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
                 Frequently asked questions
               </p>
-              <p className="mt-6 text-lg leading-8 text-gray-600">
+              <p className="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-300">
                 Can't find the answer you're looking for? Reach out to our
                 customer support team.
               </p>
@@ -559,9 +613,9 @@ function Home() {
                     key={faq.question}
                     variants={itemVariants}
                     custom={index}
-                    className="bg-white p-6 rounded-lg shadow-md"
+                    className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md"
                   >
-                    <dt className="text-base font-semibold leading-7 text-gray-900">
+                    <dt className="text-base font-semibold leading-7 text-gray-900 dark:text-white">
                       <button
                         onClick={() =>
                           setOpenFaqIndex(openFaqIndex === index ? null : index)
@@ -583,12 +637,12 @@ function Home() {
                             >
                               {openFaqIndex === index ? (
                                 <ChevronUp
-                                  className="h-6 w-6"
+                                  className="h-6 w-6 text-gray-600 dark:text-gray-400"
                                   aria-hidden="true"
                                 />
                               ) : (
                                 <ChevronDown
-                                  className="h-6 w-6"
+                                  className="h-6 w-6 text-gray-600 dark:text-gray-400"
                                   aria-hidden="true"
                                 />
                               )}
@@ -606,7 +660,7 @@ function Home() {
                           transition={{ duration: 0.3, ease: "easeInOut" }}
                           className="mt-2 pr-12"
                         >
-                          <p className="text-base leading-7 text-gray-600">
+                          <p className="text-base leading-7 text-gray-600 dark:text-gray-300">
                             {faq.answer}
                           </p>
                         </motion.dd>
@@ -626,7 +680,7 @@ function Home() {
         whileInView={{ opacity: 1 }}
         viewport={{ once: true }}
         transition={{ duration: 0.5 }}
-        className="bg-white"
+        className="bg-white dark:bg-gray-800"
       >
         <div className="container mx-auto px-4 py-12 md:flex md:items-center md:justify-between">
           <div className="flex justify-center space-x-6 md:order-2">
@@ -634,7 +688,7 @@ function Home() {
               <a
                 key={item.name}
                 href={item.href}
-                className="text-gray-400 hover:text-gray-500"
+                className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
               >
                 <span className="sr-only">{item.name}</span>
                 <item.icon className="h-6 w-6" aria-hidden="true" />
@@ -642,13 +696,13 @@ function Home() {
             ))}
           </div>
           <div className="mt-8 md:order-1 md:mt-0">
-            <p className="text-center text-xs leading-5 text-gray-500">
+            <p className="text-center text-xs leading-5 text-gray-500 dark:text-gray-400">
               &copy; {new Date().getFullYear()} WeCook, Inc. All rights
               reserved.
             </p>
           </div>
         </div>
-        <div className="container mx-auto px-4 py-4 border-t border-gray-200">
+        <div className="container mx-auto px-4 py-4 border-t border-gray-200 dark:border-gray-700">
           <nav
             className="-mx-5 -my-2 flex flex-wrap justify-center"
             aria-label="Footer"
@@ -657,7 +711,7 @@ function Home() {
               <div key={item.name} className="px-5 py-2">
                 <a
                   href={item.href}
-                  className="text-base text-gray-500 hover:text-gray-900"
+                  className="text-base text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300"
                 >
                   {item.name}
                 </a>
