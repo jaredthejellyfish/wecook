@@ -5,8 +5,36 @@
     {
       "idx": 0,
       "version": "6",
-      "when": 1732388737771,
-      "tag": "0000_clear_champions",
+      "when": 1732504597102,
+      "tag": "0000_lying_shadowcat",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1732505062927,
+      "tag": "0001_polite_polaris",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1732508884694,
+      "tag": "0002_light_roland_deschain",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1732547214198,
+      "tag": "0003_majestic_spitfire",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1732547312228,
+      "tag": "0004_slow_avengers",
       "breakpoints": true
     }
   ]

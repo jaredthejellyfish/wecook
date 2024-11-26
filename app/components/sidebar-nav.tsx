@@ -26,7 +26,7 @@ import {
 
 export function SidebarNav() {
   return (
-    <Sidebar className="border-r bg-transparent top-16 pt-3 dark:border-gray-700">
+    <Sidebar className="border-r bg-transparent pt-20 dark:border-neutral-700 dark:bg-neutral-900">
       <SidebarHeader>
         <Button className="w-full bg-primary" size="lg">
           <PlusCircle className="mr-2 h-5 w-5" />
@@ -35,7 +35,7 @@ export function SidebarNav() {
       </SidebarHeader>
       <SidebarContent className="bg-transparent">
         <SidebarGroup>
-          <SidebarGroupLabel className="dark:text-gray-400">Menu</SidebarGroupLabel>
+          <SidebarGroupLabel className="dark:text-neutral-400">Menu</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
@@ -79,7 +79,7 @@ export function SidebarNav() {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel className="dark:text-gray-400">Settings</SidebarGroupLabel>
+          <SidebarGroupLabel className="dark:text-neutral-400">Settings</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
