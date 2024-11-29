@@ -1,5 +1,5 @@
-import React from "react";
-import { Link } from "@tanstack/react-router";
+import { Link } from '@tanstack/react-router';
+import React from 'react';
 
 interface AnimatedUnderlineLinkProps {
   href: string;

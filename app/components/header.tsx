@@ -1,14 +1,15 @@
-import { Menu, Bell, BookOpen, Search, ShoppingBag } from "lucide-react";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
-import { UserButton } from "@clerk/tanstack-start";
-import { Skeleton } from "./ui/skeleton";
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "./ui/hover-card";
-import { ThemeToggle } from "./theme-toggle";
-import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
-import { SidebarNav } from "./sidebar-nav";
-import { Link } from "@tanstack/react-router";
+import { UserButton } from '@clerk/tanstack-start';
+import { Link } from '@tanstack/react-router';
+import { Bell, BookOpen, Menu, Search, ShoppingBag } from 'lucide-react';
+
+import { SidebarNav } from './sidebar-nav';
+import { ThemeToggle } from './theme-toggle';
+import { Button } from './ui/button';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from './ui/hover-card';
+import { Input } from './ui/input';
+import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
+import { Skeleton } from './ui/skeleton';
+import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 
 function Header() {
   return (

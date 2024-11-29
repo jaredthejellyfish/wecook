@@ -1,47 +1,48 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
-import { Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { SignInButton, SignedIn, SignedOut } from '@clerk/tanstack-start';
+import { getAuth } from '@clerk/tanstack-start/server';
+import { createFileRoute, redirect } from '@tanstack/react-router';
+import { Link } from '@tanstack/react-router';
+import { createServerFn } from '@tanstack/start';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
-  Sparkles,
   Calendar,
-  ShoppingCart,
-  Utensils,
-  X,
-  Menu,
   CheckCircle,
-  ChevronUp,
   ChevronDown,
+  ChevronUp,
   Facebook,
   Instagram,
-  Twitter,
-  Youtube,
-  Sun,
+  Menu,
   Moon,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { SignedIn, SignedOut, SignInButton } from "@clerk/tanstack-start";
-import { getAuth } from "@clerk/tanstack-start/server";
-import { createServerFn } from "@tanstack/start";
-import { getWebRequest } from "vinxi/http";
-import { Skeleton } from "@/components/ui/skeleton";
-import HamburgerButton from "@/components/hamburger-button";
-import { ThemeToggle } from "@/components/theme-toggle";
-import AnimatedUnderlineLink from "@/components/animated-underline-link";
+  ShoppingCart,
+  Sparkles,
+  Sun,
+  Twitter,
+  Utensils,
+  X,
+  Youtube,
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { getWebRequest } from 'vinxi/http';
 
-const authStateFn = createServerFn({ method: "GET" }).handler(async () => {
+import AnimatedUnderlineLink from '@/components/animated-underline-link';
+import HamburgerButton from '@/components/hamburger-button';
+import { ThemeToggle } from '@/components/theme-toggle';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+
+const authStateFn = createServerFn({ method: 'GET' }).handler(async () => {
   const { userId } = await getAuth(getWebRequest());
 
   if (userId) {
     throw redirect({
-      to: "/dashboard",
+      to: '/dashboard',
     });
   }
 
   return { userId };
 });
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute('/')({
   component: Home,
   beforeLoad: () => authStateFn(),
 });
@@ -55,77 +56,77 @@ function Home() {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 0);
     };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const features = [
     {
-      name: "AI Recipe Generation",
+      name: 'AI Recipe Generation',
       description:
-        "Get personalized recipes based on your preferences and dietary requirements.",
+        'Get personalized recipes based on your preferences and dietary requirements.',
       icon: Sparkles,
     },
     {
-      name: "Smart Meal Planning",
+      name: 'Smart Meal Planning',
       description:
-        "Effortlessly plan your meals for the week with AI-powered suggestions.",
+        'Effortlessly plan your meals for the week with AI-powered suggestions.',
       icon: Calendar,
     },
     {
-      name: "Automatic Shopping Lists",
+      name: 'Automatic Shopping Lists',
       description:
-        "Generate comprehensive shopping lists for your planned meals.",
+        'Generate comprehensive shopping lists for your planned meals.',
       icon: ShoppingCart,
     },
     {
-      name: "Step-by-Step Cooking Guide",
-      description: "Follow easy-to-understand instructions for each recipe.",
+      name: 'Step-by-Step Cooking Guide',
+      description: 'Follow easy-to-understand instructions for each recipe.',
       icon: Utensils,
     },
   ];
 
   const steps = [
     {
-      name: "Set Preferences",
-      description: "Tell us about your dietary needs and taste preferences.",
+      name: 'Set Preferences',
+      description: 'Tell us about your dietary needs and taste preferences.',
     },
     {
-      name: "Generate Plan",
+      name: 'Generate Plan',
       description:
-        "Our AI creates a personalized weekly meal plan just for you.",
+        'Our AI creates a personalized weekly meal plan just for you.',
     },
     {
-      name: "Shop with Ease",
+      name: 'Shop with Ease',
       description:
-        "Use the auto-generated shopping list for efficient grocery runs.",
+        'Use the auto-generated shopping list for efficient grocery runs.',
     },
     {
-      name: "Cook and Enjoy",
-      description: "Follow our step-by-step guides to prepare delicious meals.",
+      name: 'Cook and Enjoy',
+      description: 'Follow our step-by-step guides to prepare delicious meals.',
     },
   ];
 
   const testimonials = [
     {
-      body: "WeCook has transformed my meal planning. I save time and money, and my family loves the variety of dishes!",
+      body: 'WeCook has transformed my meal planning. I save time and money, and my family loves the variety of dishes!',
       author: {
-        name: "Emily Johnson",
-        handle: "emilycooks",
+        name: 'Emily Johnson',
+        handle: 'emilycooks',
       },
     },
     {
-      body: "As a busy professional, WeCook is a game-changer. Healthy, delicious meals without the stress of planning.",
+      body: 'As a busy professional, WeCook is a game-changer. Healthy, delicious meals without the stress of planning.',
       author: {
-        name: "Michael Chen",
-        handle: "mikechef",
+        name: 'Michael Chen',
+        handle: 'mikechef',
       },
     },
     {
-      body: "The AI-generated recipes are creative and always spot-on with my dietary needs. Highly recommended!",
+      body: 'The AI-generated recipes are creative and always spot-on with my dietary needs. Highly recommended!',
       author: {
-        name: "Sarah Patel",
-        handle: "sarahpeats",
+        name: 'Sarah Patel',
+        handle: 'sarahpeats',
       },
     },
   ];
@@ -137,36 +138,36 @@ function Home() {
         "WeCook's AI analyzes your preferences, dietary requirements, and available ingredients to create personalized recipes. It combines this information with a vast database of culinary knowledge to generate unique and delicious meal ideas.",
     },
     {
-      question: "Can I customize my meal plans?",
+      question: 'Can I customize my meal plans?',
       answer:
-        "You can set preferences for cuisine types, dietary restrictions, and even specify ingredients you want to use or avoid. The AI will take all of these factors into account when creating your personalized meal plan.",
+        'You can set preferences for cuisine types, dietary restrictions, and even specify ingredients you want to use or avoid. The AI will take all of these factors into account when creating your personalized meal plan.',
     },
     {
-      question: "How accurate are the generated shopping lists?",
+      question: 'How accurate are the generated shopping lists?',
       answer:
-        "Our shopping lists are highly accurate and based on the exact ingredients needed for your meal plan. The AI also considers common pantry items you might already have, helping to minimize waste and save money.",
+        'Our shopping lists are highly accurate and based on the exact ingredients needed for your meal plan. The AI also considers common pantry items you might already have, helping to minimize waste and save money.',
     },
     {
-      question: "Is WeCook suitable for people with specific dietary needs?",
+      question: 'Is WeCook suitable for people with specific dietary needs?',
       answer:
-        "Yes! WeCook caters to a wide range of dietary needs, including vegetarian, vegan, gluten-free, keto, and many more. You can specify your dietary requirements, and the AI will ensure all generated recipes and meal plans comply with your needs.",
+        'Yes! WeCook caters to a wide range of dietary needs, including vegetarian, vegan, gluten-free, keto, and many more. You can specify your dietary requirements, and the AI will ensure all generated recipes and meal plans comply with your needs.',
     },
   ];
 
   const footerNavigation = {
     main: [
-      { name: "About", href: "#" },
-      { name: "Blog", href: "#" },
-      { name: "Jobs", href: "#" },
-      { name: "Press", href: "#" },
-      { name: "Accessibility", href: "#" },
-      { name: "Partners", href: "#" },
+      { name: 'About', href: '#' },
+      { name: 'Blog', href: '#' },
+      { name: 'Jobs', href: '#' },
+      { name: 'Press', href: '#' },
+      { name: 'Accessibility', href: '#' },
+      { name: 'Partners', href: '#' },
     ],
     social: [
-      { name: "Facebook", href: "#", icon: Facebook },
-      { name: "Instagram", href: "#", icon: Instagram },
-      { name: "Twitter", href: "#", icon: Twitter },
-      { name: "YouTube", href: "#", icon: Youtube },
+      { name: 'Facebook', href: '#', icon: Facebook },
+      { name: 'Instagram', href: '#', icon: Instagram },
+      { name: 'Twitter', href: '#', icon: Twitter },
+      { name: 'YouTube', href: '#', icon: Youtube },
     ],
   };
 
@@ -186,7 +187,7 @@ function Home() {
       opacity: 1,
       y: 0,
       transition: {
-        type: "spring",
+        type: 'spring',
         stiffness: 100,
       },
     },
@@ -195,14 +196,14 @@ function Home() {
   return (
     <div
       className={
-        "min-h-screen bg-neutral-50 dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
+        'min-h-screen bg-neutral-50 dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100'
       }
     >
       {/* Header */}
       <motion.header
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-        transition={{ type: "spring", stiffness: 100 }}
+        transition={{ type: 'spring', stiffness: 100 }}
         className="sticky top-0 z-50 bg-white/80 dark:bg-neutral-800/80 backdrop-blur-md border-b border-neutral-200 dark:border-neutral-700"
       >
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
@@ -237,15 +238,15 @@ function Home() {
         <motion.div
           className="md:hidden bg-white dark:bg-neutral-800 overflow-hidden border-y border-neutral-200 dark:border-neutral-700"
           initial={false}
-          animate={isMenuOpen ? "open" : "closed"}
+          animate={isMenuOpen ? 'open' : 'closed'}
           variants={{
             open: {
-              height: "auto",
+              height: 'auto',
               opacity: 1,
-              padding: "1rem 0",
+              padding: '1rem 0',
               transition: {
-                height: { duration: 0.2, ease: "easeOut" },
-                opacity: { duration: 0.3, ease: "easeIn" },
+                height: { duration: 0.2, ease: 'easeOut' },
+                opacity: { duration: 0.3, ease: 'easeIn' },
               },
             },
             closed: {
@@ -253,8 +254,8 @@ function Home() {
               opacity: 0,
               padding: 0,
               transition: {
-                height: { duration: 0.2, ease: "easeIn" },
-                opacity: { duration: 0.3, ease: "easeOut" },
+                height: { duration: 0.2, ease: 'easeIn' },
+                opacity: { duration: 0.3, ease: 'easeOut' },
               },
             },
           }}
@@ -370,7 +371,7 @@ function Home() {
                 onClick={() => {
                   window.scrollTo({
                     top: window.innerHeight,
-                    behavior: "smooth",
+                    behavior: 'smooth',
                   });
                 }}
               />
@@ -384,7 +385,7 @@ function Home() {
             transition={{
               duration: 5,
               repeat: Infinity,
-              repeatType: "reverse",
+              repeatType: 'reverse',
             }}
             className="absolute -top-24 -left-24 w-96 h-96 bg-purple-200 dark:bg-purple-800 rounded-full mix-blend-multiply filter blur-2xl opacity-70"
           ></motion.div>
@@ -396,7 +397,7 @@ function Home() {
             transition={{
               duration: 5,
               repeat: Infinity,
-              repeatType: "reverse",
+              repeatType: 'reverse',
               delay: 0.5,
             }}
             className="absolute -bottom-24 -right-24 w-96 h-96 bg-yellow-200 dark:bg-yellow-800 rounded-full mix-blend-multiply filter blur-2xl opacity-70"
@@ -605,7 +606,7 @@ max-w-2xl lg:text-center"
                         <span className="ml-6 flex h-7 items-center">
                           <AnimatePresence initial={false} mode="wait">
                             <motion.div
-                              key={openFaqIndex === index ? "minus" : "plus"}
+                              key={openFaqIndex === index ? 'minus' : 'plus'}
                               initial={{ rotate: 0 }}
                               animate={{
                                 rotate: openFaqIndex === index ? 180 : 0,
@@ -633,9 +634,9 @@ max-w-2xl lg:text-center"
                       {openFaqIndex === index && (
                         <motion.dd
                           initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: "auto" }}
+                          animate={{ opacity: 1, height: 'auto' }}
                           exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.3, ease: "easeInOut" }}
+                          transition={{ duration: 0.3, ease: 'easeInOut' }}
                           className="mt-2 pr-12"
                         >
                           <p className="text-base leading-7 text-neutral-600 dark:text-neutral-300">

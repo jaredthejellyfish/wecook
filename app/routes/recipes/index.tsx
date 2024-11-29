@@ -1,40 +1,41 @@
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { Clock, Bookmark, Search, SortAsc, Filter } from "lucide-react";
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { SidebarNav } from "@/components/sidebar-nav";
-import { SidebarProvider } from "@/components/ui/sidebar";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import Header from "@/components/header";
+import { getAuth } from '@clerk/tanstack-start/server';
+import { useQuery } from '@tanstack/react-query';
+import { Link, createFileRoute, redirect } from '@tanstack/react-router';
+import { createServerFn } from '@tanstack/start';
+import { eq } from 'drizzle-orm';
+import { motion } from 'framer-motion';
+import { Bookmark, Clock, Filter, Search, SortAsc } from 'lucide-react';
+import { useState } from 'react';
+import { getWebRequest } from 'vinxi/http';
 
-import authStateFn from "@/reusable-fns/auth-redirect";
-import { createServerFn } from "@tanstack/start";
-import { getAuth } from "@clerk/tanstack-start/server";
-import { getWebRequest } from "vinxi/http";
-import { db } from "@/db/db";
-import { recipesTable, type SelectBookmark } from "@/db/schema";
-import { eq } from "drizzle-orm";
-import { Input } from "@/components/ui/input";
+import Header from '@/components/header';
+import RecipeCard from '@/components/recipe-card';
+import { SidebarNav } from '@/components/sidebar-nav';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { transformDbRecord } from "@/schemas/recipe";
+} from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
+import { SidebarProvider } from '@/components/ui/sidebar';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-import { useQuery } from "@tanstack/react-query";
-import RecipeCard from "@/components/recipe-card";
+import authStateFn from '@/reusable-fns/auth-redirect';
 
-const recipesByUserId = createServerFn({ method: "GET" }).handler(async () => {
+import { db } from '@/db/db';
+import { type SelectBookmark, recipesTable } from '@/db/schema';
+import { transformDbRecord } from '@/schemas/recipe';
+
+const recipesByUserId = createServerFn({ method: 'GET' }).handler(async () => {
   const { userId } = await getAuth(getWebRequest());
 
   if (!userId) {
     // This will error because you're redirecting to a path that doesn't exist yet
     // You can create a sign-in route to handle this
     throw redirect({
-      to: "/",
+      to: '/',
     });
   }
 
@@ -53,32 +54,29 @@ const recipesByUserId = createServerFn({ method: "GET" }).handler(async () => {
   return { recipes: transformedRecipes };
 });
 
-export const Route = createFileRoute("/recipes/")({
+export const Route = createFileRoute('/recipes/')({
   component: DashboardPage,
   loader: () => recipesByUserId(),
   beforeLoad: () => authStateFn(),
 });
 
 export default function DashboardPage() {
-  const [activeTab, setActiveTab] = useState("all");
-  const [searchTerm, setSearchTerm] = useState("");
-  const categories = [
-    "All",
-    "Breakfasts",
-    "Lunches",
-    "Desserts",
-    "Dinner",
-    "Sides",
-    "Snacks",
-    "Soups",
-    "Vegan",
-  ];
+  const [activeTab, setActiveTab] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const categories = ['All', 'Breakfast', 'Brunch', 'Lunch', 'Dinner', 'Snack'];
 
   const { recipes } = Route.useLoaderData();
 
-  const filteredRecipes = recipes.filter((recipe) =>
-    recipe.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredRecipes = recipes.filter((recipe) => {
+    const titleMatch = recipe.title
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+    const categoryMatch =
+      activeTab.toLowerCase() === 'all' ||
+      recipe.category.toLowerCase() === activeTab.toLowerCase();
+    return titleMatch && categoryMatch;
+  });
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -96,16 +94,16 @@ export default function DashboardPage() {
       opacity: 1,
       y: 0,
       transition: {
-        type: "spring",
+        type: 'spring',
         stiffness: 100,
       },
     },
   };
 
   const { data: bookmarks, refetch: refetchBookmarks } = useQuery({
-    queryKey: ["bookmarks"],
+    queryKey: ['bookmarks'],
     queryFn: async () => {
-      const res = await fetch("/api/bookmarks");
+      const res = await fetch('/api/bookmarks');
       const data = (await res.json()) as { bookmarks: SelectBookmark[] };
       return data.bookmarks ?? [];
     },
@@ -132,7 +130,7 @@ export default function DashboardPage() {
                   All Recipes
                 </h2>
                 <p className="text-muted-foreground dark:text-neutral-400">
-                  8 recipes
+                  {recipes?.length} recipes
                 </p>
               </div>
               <div className="flex items-center gap-2">

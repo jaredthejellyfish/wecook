@@ -1,11 +1,11 @@
 // app.config.ts
-import { defineConfig } from "@tanstack/start/config";
+import { defineConfig } from '@tanstack/start/config';
 
 export default defineConfig({
   vite: {
     resolve: {
       alias: {
-        "@": "/app",
+        '@': '/app',
       },
     },
   },

@@ -1,41 +1,43 @@
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { Clock, Bookmark, Search, SortAsc, Filter } from "lucide-react";
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { SidebarNav } from "@/components/sidebar-nav";
-import { SidebarProvider } from "@/components/ui/sidebar";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import Header from "@/components/header";
+import { getAuth } from '@clerk/tanstack-start/server';
+import { useQuery } from '@tanstack/react-query';
+import { Link, createFileRoute, redirect } from '@tanstack/react-router';
+import { createServerFn } from '@tanstack/start';
+import { eq } from 'drizzle-orm';
+import { motion } from 'framer-motion';
+import { Bookmark, Clock, Filter, Search, SortAsc } from 'lucide-react';
+import { useState } from 'react';
+import { getWebRequest } from 'vinxi/http';
 
-import authStateFn from "@/reusable-fns/auth-redirect";
-import { createServerFn } from "@tanstack/start";
-import { getAuth } from "@clerk/tanstack-start/server";
-import { getWebRequest } from "vinxi/http";
-import { db } from "@/db/db";
-import { bookmarksTable, recipesTable, type SelectBookmark } from "@/db/schema";
-import { eq } from "drizzle-orm";
-import { Input } from "@/components/ui/input";
+import Header from '@/components/header';
+import RecipeCard from '@/components/recipe-card';
+import { SidebarNav } from '@/components/sidebar-nav';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { transformDbRecord } from "@/schemas/recipe";
-import bookmarkRecipeFn from "@/reusable-fns/bookmark-recipe";
-import { cn } from "@/lib/utils";
-import { useQuery } from "@tanstack/react-query";
-import RecipeCard from "@/components/recipe-card";
+} from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
+import { SidebarProvider } from '@/components/ui/sidebar';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-const bookmarkedRecipesByUserId = createServerFn({ method: "GET" }).handler(
+import authStateFn from '@/reusable-fns/auth-redirect';
+import bookmarkRecipeFn from '@/reusable-fns/bookmark-recipe';
+
+import { db } from '@/db/db';
+import { type SelectBookmark, bookmarksTable, recipesTable } from '@/db/schema';
+import { cn } from '@/lib/utils';
+import { transformDbRecord } from '@/schemas/recipe';
+
+const bookmarkedRecipesByUserId = createServerFn({ method: 'GET' }).handler(
   async () => {
     try {
       const { userId } = await getAuth(getWebRequest());
 
       if (!userId) {
         throw redirect({
-          to: "/",
+          to: '/',
         });
       }
 
@@ -59,34 +61,24 @@ const bookmarkedRecipesByUserId = createServerFn({ method: "GET" }).handler(
       console.error(error);
       return { recipes: [] };
     }
-  }
+  },
 );
 
-export const Route = createFileRoute("/recipes/saved/")({
+export const Route = createFileRoute('/recipes/saved/')({
   component: DashboardPage,
   loader: () => bookmarkedRecipesByUserId(),
   beforeLoad: () => authStateFn(),
 });
 
 export default function DashboardPage() {
-  const [activeTab, setActiveTab] = useState("all");
-  const [searchTerm, setSearchTerm] = useState("");
-  const categories = [
-    "All",
-    "Breakfasts",
-    "Lunches",
-    "Desserts",
-    "Dinner",
-    "Sides",
-    "Snacks",
-    "Soups",
-    "Vegan",
-  ];
+  const [activeTab, setActiveTab] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
+  const categories = ['All', 'Breakfast', 'Brunch', 'Lunch', 'Dinner', 'Snack'];
 
   const { recipes: initialData, userId } = Route.useLoaderData();
 
   const { data: recipes, refetch: refetchBookmarks } = useQuery({
-    queryKey: ["bookmarked-recipes"],
+    queryKey: ['bookmarked-recipes'],
     initialData: initialData,
     queryFn: async () => {
       const { recipes } = await bookmarkedRecipesByUserId();
@@ -96,14 +88,19 @@ export default function DashboardPage() {
 
   const bookmarks = recipes?.map((recipe) => ({
     recipeId: recipe.id,
-    userId: userId ?? "",
+    userId: userId ?? '',
     id: 0,
   }));
 
-  const filteredRecipes =
-    recipes?.filter((recipe) =>
-      recipe.title.toLowerCase().includes(searchTerm.toLowerCase())
-    ) ?? [];
+  const filteredRecipes = recipes.filter((recipe) => {
+    const titleMatch = recipe.title
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+    const categoryMatch =
+      activeTab.toLowerCase() === 'all' ||
+      recipe.category.toLowerCase() === activeTab.toLowerCase();
+    return titleMatch && categoryMatch;
+  });
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -121,7 +118,7 @@ export default function DashboardPage() {
       opacity: 1,
       y: 0,
       transition: {
-        type: "spring",
+        type: 'spring',
         stiffness: 100,
       },
     },
@@ -137,7 +134,7 @@ export default function DashboardPage() {
             initial="hidden"
             animate="visible"
             variants={containerVariants}
-            className="flex-1 space-y-6 p-8 pt-6"
+            className="flex-1 space-y-6 md:p-8 p-3 pt-6"
           >
             <motion.div
               variants={itemVariants}
@@ -148,7 +145,7 @@ export default function DashboardPage() {
                   Saved Recipes
                 </h2>
                 <p className="text-muted-foreground dark:text-neutral-400">
-                  8 recipes
+                  {recipes?.length} recipes
                 </p>
               </div>
               <div className="flex items-center gap-2">
@@ -213,7 +210,7 @@ export default function DashboardPage() {
 
             <motion.div
               variants={containerVariants}
-              className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+              className="flex flex-col gap-y-4 sm:grid sm:gap-6 sm:grid-cols-2 lg:grid-cols-3 w-full"
             >
               {filteredRecipes.length === 0 && (
                 <motion.div
@@ -223,6 +220,7 @@ export default function DashboardPage() {
                   Looks like you haven't saved any recipes yet.
                 </motion.div>
               )}
+
               {filteredRecipes.map((recipe) => (
                 <RecipeCard
                   key={recipe.id}

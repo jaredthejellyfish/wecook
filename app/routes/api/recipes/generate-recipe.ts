@@ -1,19 +1,28 @@
-import { recipeGenerationTask } from "@/trigger/generate-recipe";
-import { getAuth } from "@clerk/tanstack-start/server";
-import { json } from "@tanstack/start";
-import { createAPIFileRoute } from "@tanstack/start/api";
-import { tasks } from "@trigger.dev/sdk/v3";
-import { z } from "zod";
+import { getAuth } from '@clerk/tanstack-start/server';
+import { json } from '@tanstack/start';
+import { createAPIFileRoute } from '@tanstack/start/api';
+import { tasks } from '@trigger.dev/sdk/v3';
+import { z } from 'zod';
+
+import { recipeGenerationTask } from '@/trigger/generate-recipe';
 
 // Query parameter validation schema
 const QuerySchema = z.object({
-  category: z.string().min(1),
-  dietary: z.string().optional(),
+  mealType: z.string(),
+  dietaryType: z.string(),
+  allergies: z.string().optional(),
+  cookingTime: z.string(),
+  skillLevel: z.string(),
+  servings: z.string(),
+  cuisineType: z.string(),
+  spiceLevel: z.string(),
+  specialNotes: z.string().optional(),
+  budget: z.string(),
 });
 
-export const Route = createAPIFileRoute("/api/recipes/generate-recipe")({
+export const Route = createAPIFileRoute('/api/recipes/generate-recipe')({
   GET: async ({ request }) => {
-    console.log("Generating recipe...");
+    console.log('Generating recipe...');
 
     try {
       const url = new URL(request.url);
@@ -22,24 +31,34 @@ export const Route = createAPIFileRoute("/api/recipes/generate-recipe")({
       const { userId } = await getAuth(request);
 
       if (!userId) {
-        return json({ success: false, error: "Unauthorized" }, { status: 401 });
+        return json({ success: false, error: 'Unauthorized' }, { status: 401 });
       }
 
       // Trigger the recipe generation task
-      const handle = await tasks.triggerAndPoll<typeof recipeGenerationTask>(
-        "recipe-generation-task",
+      const handle = await tasks.trigger<typeof recipeGenerationTask>(
+        'recipe-generation-task',
         {
-          category: validatedParams.category,
-          dietary: validatedParams.dietary,
+          mealType: validatedParams.mealType,
+          dietaryType: validatedParams.dietaryType,
+          allergies: validatedParams.allergies,
+          cookingTime: validatedParams.cookingTime,
+          skillLevel: validatedParams.skillLevel,
+          servings: validatedParams.servings,
+          cuisineType: validatedParams.cuisineType,
+          spiceLevel: validatedParams.spiceLevel,
+          specialNotes: validatedParams.specialNotes,
+          budget: validatedParams.budget,
           userId,
         },
       );
 
-      if (!handle.output) {
+      console.log('handle', handle);
+
+      if (!handle.id) {
         return json(
           {
             success: false,
-            error: "Failed to generate recipe",
+            error: 'Failed to generate recipe',
           },
           { status: 500 },
         );
@@ -47,16 +66,16 @@ export const Route = createAPIFileRoute("/api/recipes/generate-recipe")({
 
       return json({
         success: true,
-        data: handle.output,
+        data: handle,
       });
     } catch (error) {
-      console.error("Error generating recipe:", error);
+      console.error('Error generating recipe:', error);
 
       if (error instanceof z.ZodError) {
         return json(
           {
             success: false,
-            error: "Invalid parameters",
+            error: 'Invalid parameters',
             details: error.issues,
           },
           { status: 400 },
@@ -66,7 +85,7 @@ export const Route = createAPIFileRoute("/api/recipes/generate-recipe")({
       return json(
         {
           success: false,
-          error: "Internal server error",
+          error: 'Internal server error',
         },
         { status: 500 },
       );

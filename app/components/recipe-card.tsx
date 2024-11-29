@@ -1,14 +1,17 @@
-import type { Recipe } from "@/schemas/recipe";
-import { Link } from "@tanstack/react-router";
-import { motion } from "framer-motion";
-import { Clock } from "lucide-react";
-import bookmarkRecipeFn from "@/reusable-fns/bookmark-recipe";
-import { cn } from "@/lib/utils";
-import { Button } from "./ui/button";
-import type { SelectBookmark } from "@/db/schema";
-import { Bookmark } from "lucide-react";
-import { useEffect } from "react";
-import { useState } from "react";
+import { Link } from '@tanstack/react-router';
+import { motion } from 'framer-motion';
+import { Clock } from 'lucide-react';
+import { Bookmark } from 'lucide-react';
+import { useEffect } from 'react';
+import { useState } from 'react';
+
+import bookmarkRecipeFn from '@/reusable-fns/bookmark-recipe';
+
+import type { SelectBookmark } from '@/db/schema';
+import { cn } from '@/lib/utils';
+import type { Recipe } from '@/schemas/recipe';
+
+import { Button } from './ui/button';
 
 type Props = {
   recipe: Recipe;
@@ -22,7 +25,7 @@ const itemVariants = {
     opacity: 1,
     y: 0,
     transition: {
-      type: "spring",
+      type: 'spring',
       stiffness: 100,
     },
   },
@@ -30,7 +33,7 @@ const itemVariants = {
 
 function RecipeCard({ recipe, refetchBookmarks, bookmarks }: Props) {
   const [isBookmarked, setIsBookmarked] = useState(
-    bookmarks?.some((b) => b.recipeId === recipe.id) ?? false
+    bookmarks?.some((b) => b.recipeId === recipe.id) ?? false,
   );
 
   useEffect(() => {
@@ -39,9 +42,9 @@ function RecipeCard({ recipe, refetchBookmarks, bookmarks }: Props) {
 
   const handleBookmark = async (e: React.MouseEvent) => {
     e.preventDefault();
-    
+
     // Optimistically update UI
-    setIsBookmarked(prev => !prev);
+    setIsBookmarked((prev) => !prev);
 
     try {
       await bookmarkRecipeFn({
@@ -51,12 +54,12 @@ function RecipeCard({ recipe, refetchBookmarks, bookmarks }: Props) {
       refetchBookmarks();
     } catch (error) {
       // Revert optimistic update on error
-      setIsBookmarked(prev => !prev);
+      setIsBookmarked((prev) => !prev);
       console.error('Failed to bookmark recipe:', error);
     }
   };
   return (
-    <Link 
+    <Link
       to={`/recipes/${recipe.id}`}
       className="block w-full" // Add this to ensure the link takes full width
     >
@@ -72,6 +75,10 @@ function RecipeCard({ recipe, refetchBookmarks, bookmarks }: Props) {
             src={recipe.image}
             alt={recipe.title}
             className="object-cover w-full h-full transition-transform border-transparent group-hover:scale-105"
+            onError={(e) => {
+              e.currentTarget.src =
+                'https://images.wecook.dev/image-1732851289200-a5f41037.png';
+            }}
           />
         </div>
         <div className="p-4">
@@ -95,7 +102,7 @@ function RecipeCard({ recipe, refetchBookmarks, bookmarks }: Props) {
           onClick={async (e) => {
             e.preventDefault();
             // Optimistically update UI
-            setIsBookmarked(prev => !prev);
+            setIsBookmarked((prev) => !prev);
             try {
               await bookmarkRecipeFn({
                 data: { recipe_id: recipe.id },
@@ -103,17 +110,12 @@ function RecipeCard({ recipe, refetchBookmarks, bookmarks }: Props) {
               refetchBookmarks();
             } catch (error) {
               // Revert optimistic update on error
-              setIsBookmarked(prev => !prev);
+              setIsBookmarked((prev) => !prev);
               console.error('Failed to bookmark recipe:', error);
             }
           }}
         >
-          <Bookmark
-            className={cn(
-              "h-4 w-4",
-              isBookmarked && "fill-primary"
-            )}
-          />
+          <Bookmark className={cn('h-4 w-4', isBookmarked && 'fill-primary')} />
           <span className="sr-only">Bookmark recipe</span>
         </Button>
       </motion.div>

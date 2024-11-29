@@ -1,116 +1,135 @@
-import * as React from 'react'
-import { createFileRoute, redirect, notFound } from '@tanstack/react-router'
+import { getAuth } from '@clerk/tanstack-start/server';
+import { createFileRoute, notFound, redirect } from '@tanstack/react-router';
+import { createServerFn } from '@tanstack/start';
+import { eq } from 'drizzle-orm';
+import { motion } from 'framer-motion';
+import { Bookmark, ChefHat, Clock, Printer, Share2, Users } from 'lucide-react';
+import * as React from 'react';
+import { useCallback, useMemo, useState } from 'react';
+import { getWebRequest } from 'vinxi/http';
 
-import { useState } from 'react'
-import { Clock, Users, ChefHat, Bookmark, Printer, Share2 } from 'lucide-react'
-import { AnimatePresence, motion } from 'framer-motion'
-import { Button } from '@/components/ui/button'
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
-import Header from '@/components/header'
-import { SidebarNav } from '@/components/sidebar-nav'
-import { SidebarProvider } from '@/components/ui/sidebar'
-import { eq } from 'drizzle-orm'
-import { db } from '@/db/db'
-import { createServerFn } from '@tanstack/start'
-import { getAuth } from '@clerk/tanstack-start/server'
-import { getWebRequest } from 'vinxi/http'
-import { recipesTable, type SelectBookmark } from '@/db/schema'
-import { transformDbRecord } from '@/schemas/recipe'
-import { useQuery } from '@tanstack/react-query'
-import bookmarkRecipeFn from '@/reusable-fns/bookmark-recipe'
-import { cn } from '@/lib/utils'
+import Header from '@/components/header';
+import { RecipeDetails } from '@/components/recipe/RecipeDetails';
+import { SidebarNav } from '@/components/sidebar-nav';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { SidebarProvider } from '@/components/ui/sidebar';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
+import { db } from '@/db/db';
+import { recipesTable } from '@/db/schema';
+import { useBookmarkRecipe } from '@/hooks/useBookmarkRecipe';
+import { useBookmarks } from '@/hooks/useBookmarks';
+import { cn } from '@/lib/utils';
+import { transformDbRecord } from '@/schemas/recipe';
 
 const recipeById = createServerFn({ method: 'GET' })
   .validator((id: string) => {
     if (!id || id.trim() === '') {
-      throw new Error('Valid recipe ID is required')
+      throw new Error('Valid recipe ID is required');
     }
-    return id
+    return id;
   })
   .handler(async (ctx) => {
-    const { userId } = await getAuth(getWebRequest())
+    const { userId } = await getAuth(getWebRequest());
 
     if (!userId) {
       throw redirect({
         to: '/',
-      })
+      });
     }
 
-    const id = ctx.data
+    const id = ctx.data;
 
     try {
       const data = await db
         .select()
         .from(recipesTable)
         .where(eq(recipesTable.id, Number(id)))
-        .limit(1)
+        .limit(1);
 
       if (!data.length) {
-        throw notFound()
+        throw notFound();
       }
 
-      const recipe = data[0]
-      const transformedRecipe = transformDbRecord(recipe)
+      const recipe = data[0];
+      const transformedRecipe = transformDbRecord(recipe);
 
-      return { recipe: transformedRecipe }
+      return { recipe: transformedRecipe };
     } catch (error) {
       // Add better error handling for database errors
       if (error instanceof Error) {
-        throw new Error(`Failed to fetch recipe: ${error.message}`)
+        throw new Error(`Failed to fetch recipe: ${error.message}`);
       }
-      throw error
+      throw error;
     }
-  })
+  });
 
 export const Route = createFileRoute('/recipes/$id/')({
   component: RecipePage,
   loader: async ({ context, params }) => {
     try {
-      return await recipeById({ data: params.id })
+      return await recipeById({ data: params.id });
     } catch (error) {
       // Handle or rethrow error as needed
-      console.error('Failed to load recipe:', error)
-      throw error
+      console.error('Failed to load recipe:', error);
+      throw error;
     }
   },
-})
+});
 
 export default function RecipePage() {
-  const [activeTab, setActiveTab] = useState('ingredients')
-  const { recipe: recipeData } = Route.useLoaderData()
+  const [activeTab, setActiveTab] = useState('ingredients');
+  const { recipe: recipeData } = Route.useLoaderData();
+  const { data: bookmarks } = useBookmarks();
+  const bookmarkMutation = useBookmarkRecipe();
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
+  // Memoize animation variants
+  const containerVariants = useMemo(
+    () => ({
+      hidden: { opacity: 0 },
+      visible: {
+        opacity: 1,
+        transition: {
+          staggerChildren: 0.1,
+        },
       },
-    },
-  }
+    }),
+    [],
+  );
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        type: 'spring',
-        stiffness: 100,
+  const itemVariants = useMemo(
+    () => ({
+      hidden: { opacity: 0, y: 20 },
+      visible: {
+        opacity: 1,
+        y: 0,
+        transition: {
+          type: 'spring',
+          stiffness: 100,
+        },
       },
-    },
-  }
+    }),
+    [],
+  );
 
-  const { data: bookmarks, refetch: refetchBookmarks } = useQuery({
-    queryKey: ['bookmarks'],
-    queryFn: async () => {
-      const res = await fetch('/api/bookmarks')
-      const data = (await res.json()) as { bookmarks: SelectBookmark[] }
-      return data.bookmarks ?? []
+  // Memoize bookmark handler
+  const handleBookmark = useCallback(
+    async (e: React.MouseEvent) => {
+      e.preventDefault();
+      await bookmarkMutation.mutateAsync({
+        data: { recipe_id: recipeData.id },
+      });
     },
-  })
+    [bookmarkMutation, recipeData.id],
+  );
+
+  // Memoize bookmark status
+  const isBookmarked = useMemo(
+    () => bookmarks?.some((b) => b.recipeId === recipeData.id),
+    [bookmarks, recipeData.id],
+  );
 
   return (
     <SidebarProvider>
@@ -149,22 +168,13 @@ export default function RecipePage() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={async (e) => {
-                    e.preventDefault()
-                    await bookmarkRecipeFn({
-                      data: { recipe_id: recipeData.id },
-                    })
-                    refetchBookmarks()
-                  }}
+                  onClick={handleBookmark}
+                  disabled={bookmarkMutation.isPending}
                 >
                   <Bookmark
-                    className={cn(
-                      'h-4 w-4',
-                      bookmarks?.some((b) => b.recipeId === recipeData.id) &&
-                        'fill-primary',
-                    )}
+                    className={cn('h-4 w-4', isBookmarked && 'fill-primary')}
                   />
-                  Bookmark
+                  {bookmarkMutation.isPending ? 'Saving...' : 'Bookmark'}
                 </Button>
                 <Button variant="outline" size="sm">
                   <Printer className="mr-2 h-4 w-4" />
@@ -318,23 +328,16 @@ export default function RecipePage() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={async (e) => {
-                        e.preventDefault()
-                        await bookmarkRecipeFn({
-                          data: { recipe_id: recipeData.id },
-                        })
-                        refetchBookmarks()
-                      }}
+                      onClick={handleBookmark}
+                      disabled={bookmarkMutation.isPending}
                     >
                       <Bookmark
                         className={cn(
                           'h-4 w-4',
-                          bookmarks?.some(
-                            (b) => b.recipeId === recipeData.id,
-                          ) && 'fill-primary',
+                          isBookmarked && 'fill-primary',
                         )}
                       />
-                      Bookmark
+                      {bookmarkMutation.isPending ? 'Saving...' : 'Bookmark'}
                     </Button>
                   </motion.div>
 
@@ -388,46 +391,7 @@ export default function RecipePage() {
                   </motion.div>
                 ))}
               </motion.div>
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.9, duration: 0.5 }}
-                className="flex flex-col justify-between mt-4"
-              >
-                <div className="flex flex-row gap-4">
-                  {[
-                    {
-                      icon: Clock,
-                      title: 'Total Time',
-                      value: `${recipeData.totalTime} mins`,
-                    },
-                    {
-                      icon: Users,
-                      title: 'Servings',
-                      value: recipeData.servings,
-                    },
-                    {
-                      icon: ChefHat,
-                      title: 'Difficulty',
-                      value: recipeData.difficulty,
-                    },
-                  ].map((item, index) => (
-                    <motion.div
-                      key={item.title}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 1 + index * 0.1, duration: 0.5 }}
-                      className="flex items-center gap-2 bg-black rounded-lg p-3 w-full max-w-xs"
-                    >
-                      <item.icon className="h-5 w-5 text-muted-foreground" />
-                      <div>
-                        <p className="text-sm font-medium">{item.title}</p>
-                        <p className="text-2xl font-bold">{item.value}</p>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </motion.div>
+              <RecipeDetails recipe={recipeData} />
             </div>
 
             <Separator className="my-6" />
@@ -517,5 +481,5 @@ export default function RecipePage() {
         </div>
       </div>
     </SidebarProvider>
-  )
+  );
 }

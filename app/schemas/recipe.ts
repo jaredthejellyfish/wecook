@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 // Base schemas for structured data
 const ingredientSchema = z.object({
@@ -24,7 +24,7 @@ const equipmentSchema = z.object({
 
 const recipeNoteSchema = z.object({
   note: z.string(),
-  category: z.enum(["tip", "variation", "storage"]),
+  category: z.enum(['tip', 'variation', 'storage']),
 });
 
 export const RecipeSchemaFromDB = z.object({

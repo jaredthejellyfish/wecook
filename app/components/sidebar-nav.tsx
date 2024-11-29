@@ -1,4 +1,16 @@
-import { Button } from "@/components/ui/button";
+import { Link } from '@tanstack/react-router';
+import {
+  Bookmark,
+  CalendarDays,
+  Folder,
+  HelpCircle,
+  LayoutDashboard,
+  type LucideIcon,
+  Settings,
+  ShoppingBag,
+  UserCircle,
+} from 'lucide-react';
+
 import {
   Sidebar,
   SidebarContent,
@@ -9,60 +21,72 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar";
-import { usePathname } from "@/hooks/usePathname";
-import { cn } from "@/lib/utils";
-import { Link } from "@tanstack/react-router";
-import {
-  LayoutDashboard,
-  CalendarDays,
-  Bookmark,
-  ShoppingBag,
-  UserCircle,
-  HelpCircle,
-  LogOut,
-  PlusCircle,
-  Folder,
-} from "lucide-react";
+} from '@/components/ui/sidebar';
 
-const sidebarItems = [
+import { usePathname } from '@/hooks/usePathname';
+import { cn } from '@/lib/utils';
+
+import GenerateRecipeButton from './generate-recipe-button';
+
+const sidebarItems: SidebarItem[] = [
   {
-    label: "Dashboard",
+    label: 'Dashboard',
     icon: LayoutDashboard,
-    path: "/dashboard",
+    path: '/dashboard',
   },
   {
-    label: "Weekly Prep",
+    label: 'Weekly Prep',
     icon: CalendarDays,
-    path: "/weekly-prep",
+    path: '/weekly-prep',
   },
   {
-    label: "All recipes",
+    label: 'All recipes',
     icon: Folder,
-    path: "/recipes",
+    path: '/recipes',
   },
   {
-    label: "Saved Recipes",
+    label: 'Saved Recipes',
     icon: Bookmark,
-    path: "/recipes/saved",
+    path: '/recipes/saved',
   },
   {
-    label: "Shopping List",
+    label: 'Shopping List',
     icon: ShoppingBag,
-    path: "/shopping-list",
+    path: '/shopping-list',
   },
 ];
 
+const sidebarSettings: SidebarItem[] = [
+  {
+    label: 'Your Plan',
+    icon: UserCircle,
+    path: '/settings/plan',
+  },
+  {
+    label: 'Help & FAQs',
+    icon: HelpCircle,
+    path: '/help',
+  },
+  {
+    label: 'Preferences',
+    icon: Settings,
+    path: '/settings/preferences',
+  },
+];
+
+type SidebarItem = {
+  label: string;
+  icon: LucideIcon;
+  path: string;
+};
+
 export function SidebarNav() {
-  const {pathname} = usePathname();
+  const { pathname } = usePathname();
 
   return (
     <Sidebar className="border-r bg-transparent pt-20 dark:border-neutral-700 dark:bg-neutral-900">
       <SidebarHeader>
-        <Button className="w-full bg-primary" size="lg">
-          <PlusCircle className="mr-2 h-5 w-5" />
-          Add a Recipe
-        </Button>
+        <GenerateRecipeButton />
       </SidebarHeader>
       <SidebarContent className="bg-transparent">
         <SidebarGroup>
@@ -75,7 +99,7 @@ export function SidebarNav() {
                 <SidebarMenuItem
                   key={item.path}
                   className={cn(
-                    pathname === item.path && "bg-sidebar-accent rounded-md"
+                    pathname === item.path && 'bg-sidebar-accent rounded-md',
                   )}
                 >
                   <Link to={item.path}>
@@ -96,24 +120,21 @@ export function SidebarNav() {
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton>
-                  <UserCircle className="mr-2 h-4 w-4" />
-                  <span>Your Plan</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton>
-                  <HelpCircle className="mr-2 h-4 w-4" />
-                  <span>Help & FAQs</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Log Out</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+              {sidebarSettings.map((item) => (
+                <SidebarMenuItem
+                  key={item.path}
+                  className={cn(
+                    pathname === item.path && 'bg-sidebar-accent rounded-md',
+                  )}
+                >
+                  <Link to={item.path}>
+                    <SidebarMenuButton>
+                      <item.icon className="mr-2 h-4 w-4" />
+                      <span>{item.label}</span>
+                    </SidebarMenuButton>
+                  </Link>
+                </SidebarMenuItem>
+              ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

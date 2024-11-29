@@ -1,13 +1,13 @@
-import { motion } from "framer-motion";
-import { createFileRoute } from "@tanstack/react-router";
-import { SidebarNav } from "@/components/sidebar-nav";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { createFileRoute } from '@tanstack/react-router';
+import { motion } from 'framer-motion';
 
-import Header from "@/components/header";
+import Header from '@/components/header';
+import { SidebarNav } from '@/components/sidebar-nav';
+import { SidebarProvider } from '@/components/ui/sidebar';
 
-import authStateFn from "@/reusable-fns/auth-redirect";
+import authStateFn from '@/reusable-fns/auth-redirect';
 
-export const Route = createFileRoute("/dashboard/")({
+export const Route = createFileRoute('/dashboard/')({
   component: DashboardPage,
   beforeLoad: () => authStateFn(),
 });
@@ -29,7 +29,7 @@ export default function DashboardPage() {
       opacity: 1,
       y: 0,
       transition: {
-        type: "spring",
+        type: 'spring',
         stiffness: 100,
       },
     },
@@ -47,7 +47,6 @@ export default function DashboardPage() {
             variants={containerVariants}
             className="flex-1 space-y-6 p-8 pt-6"
           >
-
             <motion.div
               variants={itemVariants}
               className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
@@ -64,7 +63,7 @@ export default function DashboardPage() {
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               <motion.div
-                variants={itemVariants} 
+                variants={itemVariants}
                 className="rounded-lg border bg-card p-6 dark:bg-neutral-800"
               >
                 <div className="text-sm font-medium text-muted-foreground dark:text-neutral-400">
@@ -116,22 +115,33 @@ export default function DashboardPage() {
               </motion.div>
             </div>
 
-            <motion.div variants={itemVariants} className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+            <motion.div
+              variants={itemVariants}
+              className="grid gap-4 md:grid-cols-2 lg:grid-cols-7"
+            >
               <div className="col-span-4 rounded-lg border bg-card p-6 dark:bg-neutral-800">
                 <h3 className="font-semibold mb-4">Recent Activity</h3>
                 <div className="space-y-4">
                   <div className="flex items-center">
                     <div className="h-9 w-9 rounded-full bg-neutral-100 dark:bg-neutral-700" />
                     <div className="ml-4">
-                      <p className="text-sm font-medium">Cooked Spaghetti Carbonara</p>
-                      <p className="text-sm text-muted-foreground">2 hours ago</p>
+                      <p className="text-sm font-medium">
+                        Cooked Spaghetti Carbonara
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        2 hours ago
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-center">
                     <div className="h-9 w-9 rounded-full bg-neutral-100 dark:bg-neutral-700" />
                     <div className="ml-4">
-                      <p className="text-sm font-medium">Saved Chicken Tikka Masala</p>
-                      <p className="text-sm text-muted-foreground">5 hours ago</p>
+                      <p className="text-sm font-medium">
+                        Saved Chicken Tikka Masala
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        5 hours ago
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-center">
@@ -149,7 +159,9 @@ export default function DashboardPage() {
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
                     <p className="text-sm font-medium">Monday</p>
-                    <p className="text-sm text-muted-foreground">Grilled Chicken</p>
+                    <p className="text-sm text-muted-foreground">
+                      Grilled Chicken
+                    </p>
                   </div>
                   <div className="flex justify-between items-center">
                     <p className="text-sm font-medium">Tuesday</p>

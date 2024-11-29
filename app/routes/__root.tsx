@@ -1,39 +1,47 @@
 // app/routes/__root.tsx
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import {
   Outlet,
   ScrollRestoration,
   createRootRoute,
-} from "@tanstack/react-router";
-import { Meta, Scripts } from "@tanstack/start";
-import type { ReactNode } from "react";
-import appCss from "@/styles/app.css?url";
-import Devtools from "@/components/Devtools";
-import { ClerkProvider } from "@clerk/tanstack-start";
-import { ThemeProvider } from "@/providers/theme-provider";
-import { themeScript } from "@/scripts/theme-script";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+} from '@tanstack/react-router';
+import { Meta, Scripts } from '@tanstack/start';
+import type { ReactNode } from 'react';
+
+import Devtools from '@/components/Devtools';
+import { Toaster } from '@/components/ui/sonner';
+
+import ClerkProviderThemed from '@/providers/clerk-provider-themed';
+import { ThemeProvider } from '@/providers/theme-provider';
+import { themeScript } from '@/scripts/theme-script';
+import appCss from '@/styles/app.css?url';
 
 export const Route = createRootRoute({
-  notFoundComponent: () => <div>Not Found</div>,
   head: () => ({
-    links: [{ rel: "stylesheet", href: appCss }],
+    links: [{ rel: 'stylesheet', href: appCss }],
     scripts: [
       // Add the theme script before your app's hydration
       {
-        tag: "script",
+        tag: 'script',
         children: themeScript,
       },
     ],
     meta: [
       {
-        charSet: "utf-8",
+        name: 'description',
+        content:
+          'WeCook - Share and discover delicious recipes with a community of home chefs',
       },
       {
-        name: "viewport",
-        content: "width=device-width, initial-scale=1",
+        charSet: 'utf-8',
       },
       {
-        title: "WeCook",
+        name: 'viewport',
+        content: 'width=device-width, initial-scale=1',
+      },
+      {
+        title: 'WeCook',
       },
     ],
   }),
@@ -54,8 +62,8 @@ const queryClient = new QueryClient();
 function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <QueryClientProvider client={queryClient}>
-      <ClerkProvider>
-        <ThemeProvider>
+      <ThemeProvider>
+        <ClerkProviderThemed>
           <html suppressHydrationWarning>
             <head>
               <Meta />
@@ -64,10 +72,12 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
               {children}
               <ScrollRestoration />
               <Scripts />
+              <Toaster />
+              <ReactQueryDevtools initialIsOpen={false} />
             </body>
           </html>
-        </ThemeProvider>
-      </ClerkProvider>
+        </ClerkProviderThemed>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }

@@ -13,7 +13,10 @@
 import { Route as rootRoute } from './routes/__root'
 import { Route as IndexImport } from './routes/index'
 import { Route as RecipesIndexImport } from './routes/recipes/index'
+import { Route as HelpIndexImport } from './routes/help/index'
 import { Route as DashboardIndexImport } from './routes/dashboard/index'
+import { Route as SettingsPreferencesIndexImport } from './routes/settings/preferences/index'
+import { Route as SettingsPlanIndexImport } from './routes/settings/plan/index'
 import { Route as RecipesSavedIndexImport } from './routes/recipes/saved/index'
 import { Route as RecipesIdIndexImport } from './routes/recipes/$id/index'
 
@@ -31,9 +34,27 @@ const RecipesIndexRoute = RecipesIndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const HelpIndexRoute = HelpIndexImport.update({
+  id: '/help/',
+  path: '/help/',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const DashboardIndexRoute = DashboardIndexImport.update({
   id: '/dashboard/',
   path: '/dashboard/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const SettingsPreferencesIndexRoute = SettingsPreferencesIndexImport.update({
+  id: '/settings/preferences/',
+  path: '/settings/preferences/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const SettingsPlanIndexRoute = SettingsPlanIndexImport.update({
+  id: '/settings/plan/',
+  path: '/settings/plan/',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -67,6 +88,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardIndexImport
       parentRoute: typeof rootRoute
     }
+    '/help/': {
+      id: '/help/'
+      path: '/help'
+      fullPath: '/help'
+      preLoaderRoute: typeof HelpIndexImport
+      parentRoute: typeof rootRoute
+    }
     '/recipes/': {
       id: '/recipes/'
       path: '/recipes'
@@ -88,6 +116,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RecipesSavedIndexImport
       parentRoute: typeof rootRoute
     }
+    '/settings/plan/': {
+      id: '/settings/plan/'
+      path: '/settings/plan'
+      fullPath: '/settings/plan'
+      preLoaderRoute: typeof SettingsPlanIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/settings/preferences/': {
+      id: '/settings/preferences/'
+      path: '/settings/preferences'
+      fullPath: '/settings/preferences'
+      preLoaderRoute: typeof SettingsPreferencesIndexImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -96,57 +138,91 @@ declare module '@tanstack/react-router' {
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/help': typeof HelpIndexRoute
   '/recipes': typeof RecipesIndexRoute
   '/recipes/$id': typeof RecipesIdIndexRoute
   '/recipes/saved': typeof RecipesSavedIndexRoute
+  '/settings/plan': typeof SettingsPlanIndexRoute
+  '/settings/preferences': typeof SettingsPreferencesIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/help': typeof HelpIndexRoute
   '/recipes': typeof RecipesIndexRoute
   '/recipes/$id': typeof RecipesIdIndexRoute
   '/recipes/saved': typeof RecipesSavedIndexRoute
+  '/settings/plan': typeof SettingsPlanIndexRoute
+  '/settings/preferences': typeof SettingsPreferencesIndexRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/help/': typeof HelpIndexRoute
   '/recipes/': typeof RecipesIndexRoute
   '/recipes/$id/': typeof RecipesIdIndexRoute
   '/recipes/saved/': typeof RecipesSavedIndexRoute
+  '/settings/plan/': typeof SettingsPlanIndexRoute
+  '/settings/preferences/': typeof SettingsPreferencesIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/recipes' | '/recipes/$id' | '/recipes/saved'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/help'
+    | '/recipes'
+    | '/recipes/$id'
+    | '/recipes/saved'
+    | '/settings/plan'
+    | '/settings/preferences'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/recipes' | '/recipes/$id' | '/recipes/saved'
+  to:
+    | '/'
+    | '/dashboard'
+    | '/help'
+    | '/recipes'
+    | '/recipes/$id'
+    | '/recipes/saved'
+    | '/settings/plan'
+    | '/settings/preferences'
   id:
     | '__root__'
     | '/'
     | '/dashboard/'
+    | '/help/'
     | '/recipes/'
     | '/recipes/$id/'
     | '/recipes/saved/'
+    | '/settings/plan/'
+    | '/settings/preferences/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
+  HelpIndexRoute: typeof HelpIndexRoute
   RecipesIndexRoute: typeof RecipesIndexRoute
   RecipesIdIndexRoute: typeof RecipesIdIndexRoute
   RecipesSavedIndexRoute: typeof RecipesSavedIndexRoute
+  SettingsPlanIndexRoute: typeof SettingsPlanIndexRoute
+  SettingsPreferencesIndexRoute: typeof SettingsPreferencesIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardIndexRoute: DashboardIndexRoute,
+  HelpIndexRoute: HelpIndexRoute,
   RecipesIndexRoute: RecipesIndexRoute,
   RecipesIdIndexRoute: RecipesIdIndexRoute,
   RecipesSavedIndexRoute: RecipesSavedIndexRoute,
+  SettingsPlanIndexRoute: SettingsPlanIndexRoute,
+  SettingsPreferencesIndexRoute: SettingsPreferencesIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -161,9 +237,12 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/dashboard/",
+        "/help/",
         "/recipes/",
         "/recipes/$id/",
-        "/recipes/saved/"
+        "/recipes/saved/",
+        "/settings/plan/",
+        "/settings/preferences/"
       ]
     },
     "/": {
@@ -171,6 +250,9 @@ export const routeTree = rootRoute
     },
     "/dashboard/": {
       "filePath": "dashboard/index.tsx"
+    },
+    "/help/": {
+      "filePath": "help/index.tsx"
     },
     "/recipes/": {
       "filePath": "recipes/index.tsx"
@@ -180,6 +262,12 @@ export const routeTree = rootRoute
     },
     "/recipes/saved/": {
       "filePath": "recipes/saved/index.tsx"
+    },
+    "/settings/plan/": {
+      "filePath": "settings/plan/index.tsx"
+    },
+    "/settings/preferences/": {
+      "filePath": "settings/preferences/index.tsx"
     }
   }
 }

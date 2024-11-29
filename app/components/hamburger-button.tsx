@@ -1,5 +1,5 @@
-import { motion } from "framer-motion";
-import React from "react";
+import { motion } from 'framer-motion';
+import React from 'react';
 
 type Props = {
   isOpen: boolean;
@@ -11,7 +11,7 @@ function HamburgerButton({ isOpen, toggleMenu }: Props) {
     <button
       onClick={toggleMenu}
       className="w-6 h-6 focus:outline-none flex items-center justify-center md:hidden"
-      aria-label={isOpen ? "Close menu" : "Open menu"}
+      aria-label={isOpen ? 'Close menu' : 'Open menu'}
     >
       <svg width="23" height="23" viewBox="0 0 23 23">
         <motion.path
@@ -20,10 +20,10 @@ function HamburgerButton({ isOpen, toggleMenu }: Props) {
           stroke="black"
           strokeLinecap="round"
           variants={{
-            closed: { d: "M 2 2.5 L 20 2.5" },
-            open: { d: "M 3 16.5 L 17 2.5" },
+            closed: { d: 'M 2 2.5 L 20 2.5' },
+            open: { d: 'M 3 16.5 L 17 2.5' },
           }}
-          animate={isOpen ? "open" : "closed"}
+          animate={isOpen ? 'open' : 'closed'}
         />
         <motion.path
           fill="transparent"
@@ -35,7 +35,7 @@ function HamburgerButton({ isOpen, toggleMenu }: Props) {
             closed: { opacity: 1 },
             open: { opacity: 0 },
           }}
-          animate={isOpen ? "open" : "closed"}
+          animate={isOpen ? 'open' : 'closed'}
         />
         <motion.path
           fill="transparent"
@@ -43,10 +43,10 @@ function HamburgerButton({ isOpen, toggleMenu }: Props) {
           stroke="black"
           strokeLinecap="round"
           variants={{
-            closed: { d: "M 2 16.346 L 20 16.346" },
-            open: { d: "M 3 2.5 L 17 16.346" },
+            closed: { d: 'M 2 16.346 L 20 16.346' },
+            open: { d: 'M 3 2.5 L 17 16.346' },
           }}
-          animate={isOpen ? "open" : "closed"}
+          animate={isOpen ? 'open' : 'closed'}
         />
       </svg>
     </button>

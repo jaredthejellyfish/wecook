@@ -43,6 +43,13 @@
       "when": 1732834726484,
       "tag": "0005_lucky_captain_midlands",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1732920898582,
+      "tag": "0006_dark_leper_queen",
+      "breakpoints": true
     }
   ]
 }
