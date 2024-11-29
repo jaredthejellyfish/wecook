@@ -174,3 +174,7 @@ dist
 # Finder (MacOS) folder config
 .DS_Store
 routeTree.gen.ts
+.trigger
+.vercel
+
+.vinxi

@@ -28,6 +28,7 @@ const recipeNoteSchema = z.object({
 });
 
 export const RecipeSchemaFromDB = z.object({
+  id: z.number(),
   title: z.string(),
   description: z.string().optional(),
   category: z.string(),

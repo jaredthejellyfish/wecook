@@ -39,5 +39,14 @@ export const recipesTable = sqliteTable("recipes", {
     .default(sql`CURRENT_TIMESTAMP`),
 });
 
+export const bookmarksTable = sqliteTable("bookmarks", {
+  id: integer("id").primaryKey(),
+  recipeId: integer("recipe_id").notNull().references(() => recipesTable.id),
+  userId: text("user_id").notNull(),
+});
+
 export type InsertRecipe = typeof recipesTable.$inferInsert;
 export type SelectRecipe = typeof recipesTable.$inferSelect;
+
+export type InsertBookmark = typeof bookmarksTable.$inferInsert;
+export type SelectBookmark = typeof bookmarksTable.$inferSelect;

@@ -1,80 +1,18 @@
-import { useState } from "react";
 import { motion } from "framer-motion";
-import { Clock, Bookmark, Search, SortAsc, Filter } from "lucide-react";
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { SidebarNav } from "@/components/sidebar-nav";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 import Header from "@/components/header";
 
 import authStateFn from "@/reusable-fns/auth-redirect";
-import { createServerFn } from "@tanstack/start";
-import { getAuth } from "@clerk/tanstack-start/server";
-import { getWebRequest } from "vinxi/http";
-import { db } from "@/db/db";
-import { recipesTable } from "@/db/schema";
-import { eq } from "drizzle-orm";
-import { Input } from "@/components/ui/input";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { transformDbRecord } from "@/schemas/recipe";
-
-const recipesByUserId = createServerFn({ method: "GET" }).handler(async () => {
-  const { userId } = await getAuth(getWebRequest());
-
-  if (!userId) {
-    // This will error because you're redirecting to a path that doesn't exist yet
-    // You can create a sign-in route to handle this
-    throw redirect({
-      to: "/",
-    });
-  }
-
-  const data = await db
-    .select()
-    .from(recipesTable)
-    .where(eq(recipesTable.userId, userId));
-
-  for (const recipe of data) {
-    const transformedRecipe = transformDbRecord(recipe);
-    console.log(transformedRecipe);
-  }
-
-  return { recipes: data };
-});
 
 export const Route = createFileRoute("/dashboard/")({
   component: DashboardPage,
-  loader: () => recipesByUserId(),
   beforeLoad: () => authStateFn(),
 });
 
 export default function DashboardPage() {
-  const [activeTab, setActiveTab] = useState("all");
-  const [searchTerm, setSearchTerm] = useState("");
-  const categories = [
-    "All",
-    "Breakfasts",
-    "Lunches",
-    "Desserts",
-    "Dinner",
-    "Sides",
-    "Snacks",
-    "Soups",
-    "Vegan",
-  ];
-
-  const { recipes } = Route.useLoaderData();
-
-  const filteredRecipes = recipes.filter((recipe) =>
-    recipe.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -109,131 +47,120 @@ export default function DashboardPage() {
             variants={containerVariants}
             className="flex-1 space-y-6 p-8 pt-6"
           >
+
             <motion.div
               variants={itemVariants}
               className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
             >
               <div>
                 <h2 className="text-2xl font-bold tracking-tight dark:text-white">
-                  Saved Recipes
+                  Welcome back!
                 </h2>
                 <p className="text-muted-foreground dark:text-neutral-400">
-                  8 recipes
+                  Here's an overview of your cooking activity
                 </p>
               </div>
-              <div className="flex items-center gap-2">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm">
-                      <Filter className="mr-2 h-4 w-4" />
-                      Filters
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuItem>Vegetarian</DropdownMenuItem>
-                    <DropdownMenuItem>Gluten-free</DropdownMenuItem>
-                    <DropdownMenuItem>Low-carb</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm">
-                      <SortAsc className="mr-2 h-4 w-4" />
-                      Sort
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuItem>Newest</DropdownMenuItem>
-                    <DropdownMenuItem>Oldest</DropdownMenuItem>
-                    <DropdownMenuItem>A-Z</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
             </motion.div>
 
-            <motion.div variants={itemVariants} className="space-y-4">
-              <div className="relative">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="search"
-                  placeholder="Search recipes..."
-                  className="pl-8"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-
-              <Tabs
-                value={activeTab}
-                onValueChange={setActiveTab}
-                className="w-full"
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              <motion.div
+                variants={itemVariants} 
+                className="rounded-lg border bg-card p-6 dark:bg-neutral-800"
               >
-                <TabsList className="flex w-full overflow-x-auto">
-                  {categories.map((category) => (
-                    <TabsTrigger
-                      key={category.toLowerCase()}
-                      value={category.toLowerCase()}
-                    >
-                      {category}
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
-              </Tabs>
-            </motion.div>
+                <div className="text-sm font-medium text-muted-foreground dark:text-neutral-400">
+                  Recipes Cooked
+                </div>
+                <div className="mt-2 text-2xl font-bold">24</div>
+                <div className="text-xs text-muted-foreground dark:text-neutral-500">
+                  +2 from last week
+                </div>
+              </motion.div>
 
-            <motion.div
-              variants={containerVariants}
-              className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
-            >
-              {filteredRecipes.length === 0 && (
-                <motion.div
-                  variants={itemVariants}
-                  className="col-span-full text-center text-muted-foreground dark:text-neutral-400"
-                >
-                  No recipes found
-                </motion.div>
-              )}
-              {filteredRecipes.map((recipe) => (
-                <Link to={`/recipe/${recipe.id}`} key={recipe.id}>
-                  <motion.div
-                    initial="hidden"
-                    animate="visible"
-                    variants={itemVariants}
-                    transition={{ delay: 0.5 }}
-                    className="group relative overflow-hidden rounded-lg border bg-white dark:bg-neutral-800 shadow-md transition-all hover:shadow-lg"
-                  >
-                    <div className="aspect-video overflow-hidden">
-                      <img
-                        src={recipe.image}
-                        alt={recipe.title}
-                        className="object-cover w-full h-full transition-transform border-transparent group-hover:scale-105"
-                      />
+              <motion.div
+                variants={itemVariants}
+                className="rounded-lg border bg-card p-6 dark:bg-neutral-800"
+              >
+                <div className="text-sm font-medium text-muted-foreground dark:text-neutral-400">
+                  Saved Recipes
+                </div>
+                <div className="mt-2 text-2xl font-bold">47</div>
+                <div className="text-xs text-muted-foreground dark:text-neutral-500">
+                  +5 new saves
+                </div>
+              </motion.div>
+
+              <motion.div
+                variants={itemVariants}
+                className="rounded-lg border bg-card p-6 dark:bg-neutral-800"
+              >
+                <div className="text-sm font-medium text-muted-foreground dark:text-neutral-400">
+                  Cooking Streak
+                </div>
+                <div className="mt-2 text-2xl font-bold">5 days</div>
+                <div className="text-xs text-muted-foreground dark:text-neutral-500">
+                  Keep it up!
+                </div>
+              </motion.div>
+
+              <motion.div
+                variants={itemVariants}
+                className="rounded-lg border bg-card p-6 dark:bg-neutral-800"
+              >
+                <div className="text-sm font-medium text-muted-foreground dark:text-neutral-400">
+                  Time Saved
+                </div>
+                <div className="mt-2 text-2xl font-bold">3.5 hrs</div>
+                <div className="text-xs text-muted-foreground dark:text-neutral-500">
+                  This week
+                </div>
+              </motion.div>
+            </div>
+
+            <motion.div variants={itemVariants} className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+              <div className="col-span-4 rounded-lg border bg-card p-6 dark:bg-neutral-800">
+                <h3 className="font-semibold mb-4">Recent Activity</h3>
+                <div className="space-y-4">
+                  <div className="flex items-center">
+                    <div className="h-9 w-9 rounded-full bg-neutral-100 dark:bg-neutral-700" />
+                    <div className="ml-4">
+                      <p className="text-sm font-medium">Cooked Spaghetti Carbonara</p>
+                      <p className="text-sm text-muted-foreground">2 hours ago</p>
                     </div>
-                    <div className="p-4">
-                      <div className="flex items-center gap-2">
-                        <div className="flex items-center text-sm text-muted-foreground dark:text-neutral-400">
-                          <Clock className="mr-1 h-4 w-4" />
-                          {recipe.totalTime} mins
-                        </div>
-                        <div className="text-sm text-muted-foreground dark:text-neutral-400">
-                          {recipe.category}
-                        </div>
-                      </div>
-                      <h3 className="mt-2 font-semibold leading-none tracking-tight dark:text-white">
-                        {recipe.title}
-                      </h3>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="h-9 w-9 rounded-full bg-neutral-100 dark:bg-neutral-700" />
+                    <div className="ml-4">
+                      <p className="text-sm font-medium">Saved Chicken Tikka Masala</p>
+                      <p className="text-sm text-muted-foreground">5 hours ago</p>
                     </div>
-                    <Button
-                      className="absolute right-4 top-4 h-8 w-8 rounded-full"
-                      size="icon"
-                      variant="secondary"
-                    >
-                      <Bookmark className="h-4 w-4" />
-                      <span className="sr-only">Bookmark recipe</span>
-                    </Button>
-                  </motion.div>
-                </Link>
-              ))}
+                  </div>
+                  <div className="flex items-center">
+                    <div className="h-9 w-9 rounded-full bg-neutral-100 dark:bg-neutral-700" />
+                    <div className="ml-4">
+                      <p className="text-sm font-medium">Cooked Greek Salad</p>
+                      <p className="text-sm text-muted-foreground">Yesterday</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="col-span-3 rounded-lg border bg-card p-6 dark:bg-neutral-800">
+                <h3 className="font-semibold mb-4">Upcoming Meal Prep</h3>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <p className="text-sm font-medium">Monday</p>
+                    <p className="text-sm text-muted-foreground">Grilled Chicken</p>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <p className="text-sm font-medium">Tuesday</p>
+                    <p className="text-sm text-muted-foreground">Quinoa Bowl</p>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <p className="text-sm font-medium">Wednesday</p>
+                    <p className="text-sm text-muted-foreground">Fish Tacos</p>
+                  </div>
+                </div>
+              </div>
             </motion.div>
           </motion.div>
         </div>

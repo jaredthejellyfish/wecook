@@ -10,21 +10,52 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { usePathname } from "@/hooks/usePathname";
+import { cn } from "@/lib/utils";
+import { Link } from "@tanstack/react-router";
 import {
   LayoutDashboard,
-  GraduationCap,
-  Clock,
   CalendarDays,
   Bookmark,
   ShoppingBag,
   UserCircle,
-  CookingPot,
   HelpCircle,
   LogOut,
   PlusCircle,
+  Folder,
 } from "lucide-react";
 
+const sidebarItems = [
+  {
+    label: "Dashboard",
+    icon: LayoutDashboard,
+    path: "/dashboard",
+  },
+  {
+    label: "Weekly Prep",
+    icon: CalendarDays,
+    path: "/weekly-prep",
+  },
+  {
+    label: "All recipes",
+    icon: Folder,
+    path: "/recipes",
+  },
+  {
+    label: "Saved Recipes",
+    icon: Bookmark,
+    path: "/recipes/saved",
+  },
+  {
+    label: "Shopping List",
+    icon: ShoppingBag,
+    path: "/shopping-list",
+  },
+];
+
 export function SidebarNav() {
+  const {pathname} = usePathname();
+
   return (
     <Sidebar className="border-r bg-transparent pt-20 dark:border-neutral-700 dark:bg-neutral-900">
       <SidebarHeader>
@@ -35,63 +66,40 @@ export function SidebarNav() {
       </SidebarHeader>
       <SidebarContent className="bg-transparent">
         <SidebarGroup>
-          <SidebarGroupLabel className="dark:text-neutral-400">Menu</SidebarGroupLabel>
+          <SidebarGroupLabel className="dark:text-neutral-400">
+            Menu
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton>
-                  <LayoutDashboard className="mr-2 h-4 w-4" />
-                  <span>Dashboard</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton>
-                  <GraduationCap className="mr-2 h-4 w-4" />
-                  <span>Cooking Courses</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton>
-                  <Clock className="mr-2 h-4 w-4" />
-                  <span>Recently Viewed</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton>
-                  <CalendarDays className="mr-2 h-4 w-4" />
-                  <span>Weekly Prep</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton>
-                  <Bookmark className="mr-2 h-4 w-4" />
-                  <span>Saved Recipes</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton>
-                  <ShoppingBag className="mr-2 h-4 w-4" />
-                  <span>Grocery List</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+              {sidebarItems.map((item) => (
+                <SidebarMenuItem
+                  key={item.path}
+                  className={cn(
+                    pathname === item.path && "bg-sidebar-accent rounded-md"
+                  )}
+                >
+                  <Link to={item.path}>
+                    <SidebarMenuButton>
+                      <item.icon className="mr-2 h-4 w-4" />
+                      <span>{item.label}</span>
+                    </SidebarMenuButton>
+                  </Link>
+                </SidebarMenuItem>
+              ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel className="dark:text-neutral-400">Settings</SidebarGroupLabel>
+          <SidebarGroupLabel className="dark:text-neutral-400">
+            Settings
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton>
                   <UserCircle className="mr-2 h-4 w-4" />
                   <span>Your Plan</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton>
-                  <CookingPot className="mr-2 h-4 w-4" />
-                  <span>Personal Recipes</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
@@ -113,4 +121,3 @@ export function SidebarNav() {
     </Sidebar>
   );
 }
-

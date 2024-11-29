@@ -11,6 +11,7 @@ import Devtools from "@/components/Devtools";
 import { ClerkProvider } from "@clerk/tanstack-start";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { themeScript } from "@/scripts/theme-script";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 export const Route = createRootRoute({
   notFoundComponent: () => <div>Not Found</div>,
@@ -48,21 +49,25 @@ function RootComponent() {
   );
 }
 
+const queryClient = new QueryClient();
+
 function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
   return (
-    <ClerkProvider>
-      <ThemeProvider>
-        <html suppressHydrationWarning>
-          <head>
-            <Meta />
-          </head>
-          <body>
-            {children}
-            <ScrollRestoration />
-            <Scripts />
-          </body>
-        </html>
-      </ThemeProvider>
-    </ClerkProvider>
+    <QueryClientProvider client={queryClient}>
+      <ClerkProvider>
+        <ThemeProvider>
+          <html suppressHydrationWarning>
+            <head>
+              <Meta />
+            </head>
+            <body>
+              {children}
+              <ScrollRestoration />
+              <Scripts />
+            </body>
+          </html>
+        </ThemeProvider>
+      </ClerkProvider>
+    </QueryClientProvider>
   );
 }

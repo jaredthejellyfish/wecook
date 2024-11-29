@@ -228,10 +228,10 @@ function Home() {
 
           <div className="flex items-center space-x-4 mt-2 md:mt-0">
             <ThemeToggle />
-          <HamburgerButton
-            isOpen={isMenuOpen}
-            toggleMenu={() => setIsMenuOpen((o) => !o)}
-          />
+            <HamburgerButton
+              isOpen={isMenuOpen}
+              toggleMenu={() => setIsMenuOpen((o) => !o)}
+            />
           </div>
         </div>
         <motion.div

@@ -1,5 +1,4 @@
-
-import { Menu, Bell, BookOpen, Search, ShoppingBag } from 'lucide-react';
+import { Menu, Bell, BookOpen, Search, ShoppingBag } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
@@ -9,7 +8,7 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from "./ui/hover-card";
 import { ThemeToggle } from "./theme-toggle";
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
 import { SidebarNav } from "./sidebar-nav";
-import { Link } from '@tanstack/react-router';
+import { Link } from "@tanstack/react-router";
 
 function Header() {
   return (
@@ -89,4 +88,3 @@ function Header() {
 }
 
 export default Header;
-
