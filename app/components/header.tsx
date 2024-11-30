@@ -7,21 +7,18 @@ import { sidebarItems, sidebarSettings } from '@/lib/nav-items';
 import { cn } from '@/lib/utils';
 
 import GenerateRecipeButton from './generate-recipe-button';
-import { SidebarNav } from './sidebar-nav';
 import { ThemeToggle } from './theme-toggle';
 import { Button } from './ui/button';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from './ui/hover-card';
 import { Input } from './ui/input';
 import {
   Sheet,
-  SheetClose,
   SheetContent,
-  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
 } from './ui/sheet';
-import { SidebarMenuItem, sidebarMenuButtonVariants } from './ui/sidebar';
+import { sidebarMenuButtonVariants } from './ui/sidebar';
 import { Skeleton } from './ui/skeleton';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 
@@ -40,7 +37,7 @@ function Header() {
             </SheetTrigger>
             <SheetContent side="left" className="w-[240px] sm:w-[300px]">
               <SheetHeader className="mt-2">
-                <SheetTitle className='hidden'>Menu</SheetTitle>
+                <SheetTitle className="hidden">Menu</SheetTitle>
                 <GenerateRecipeButton />
               </SheetHeader>
               <div className="mt-4">

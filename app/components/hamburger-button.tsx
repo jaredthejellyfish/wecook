@@ -11,7 +11,7 @@ function HamburgerButton({ isOpen, toggleMenu }: Props) {
   return (
     <button
       onClick={toggleMenu}
-      className="w-6 h-6 focus:outline-none flex items-center justify-center md:hidden"
+      className="w-6 h-6 focus:outline-none flex items-center justify-center md:hidden dark:invert mt-0.5"
       aria-label={isOpen ? 'Close menu' : 'Open menu'}
     >
       <svg width="23" height="23" viewBox="0 0 23 23">

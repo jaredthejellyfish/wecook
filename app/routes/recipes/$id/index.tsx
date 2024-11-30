@@ -1,29 +1,30 @@
 import * as React from 'react';
-import { useCallback, useMemo, useState } from 'react';
+import { Suspense, lazy, useMemo, useState } from 'react';
 
 import { getAuth } from '@clerk/tanstack-start/server';
 import { createFileRoute, notFound, redirect } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/start';
 import { eq } from 'drizzle-orm';
 import { motion } from 'framer-motion';
-import { Bookmark, ChefHat, Clock, Printer, Share2, Users } from 'lucide-react';
+import { ChefHat, Clock, Users } from 'lucide-react';
 import { getWebRequest } from 'vinxi/http';
 
 import Header from '@/components/header';
+import RecipeOptionsContent from '@/components/recipe-options';
 import { RecipeDetails } from '@/components/recipe/RecipeDetails';
 import { SidebarNav } from '@/components/sidebar-nav';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import { db } from '@/db/db';
 import { recipesTable } from '@/db/schema';
-import { useBookmarkRecipe } from '@/hooks/useBookmarkRecipe';
-import { useBookmarks } from '@/hooks/useBookmarks';
-import { cn } from '@/lib/utils';
 import { transformDbRecord } from '@/schemas/recipe';
+
+const LazyRecipeOptions = lazy(() =>
+  Promise.resolve({ default: RecipeOptionsContent }),
+);
 
 const recipeById = createServerFn({ method: 'GET' })
   .validator((id: string) => {
@@ -83,8 +84,6 @@ export const Route = createFileRoute('/recipes/$id/')({
 function RecipePage() {
   const [activeTab, setActiveTab] = useState('ingredients');
   const { recipe: recipeData } = Route.useLoaderData();
-  const { data: bookmarks } = useBookmarks();
-  const bookmarkMutation = useBookmarkRecipe();
 
   // Memoize animation variants
   const containerVariants = useMemo(
@@ -115,22 +114,7 @@ function RecipePage() {
     [],
   );
 
-  // Memoize bookmark handler
-  const handleBookmark = useCallback(
-    async (e: React.MouseEvent) => {
-      e.preventDefault();
-      await bookmarkMutation.mutateAsync({
-        data: { recipe_id: recipeData.id },
-      });
-    },
-    [bookmarkMutation, recipeData.id],
-  );
-
   // Memoize bookmark status
-  const isBookmarked = useMemo(
-    () => bookmarks?.some((b) => b.recipeId === recipeData.id),
-    [bookmarks, recipeData.id],
-  );
 
   return (
     <SidebarProvider>
@@ -162,30 +146,9 @@ function RecipePage() {
                   {recipeData.description}
                 </motion.p>
               </div>
-              <motion.div
-                variants={itemVariants}
-                className="flex items-center gap-2"
-              >
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleBookmark}
-                  disabled={bookmarkMutation.isPending}
-                >
-                  <Bookmark
-                    className={cn('h-4 w-4', isBookmarked && 'fill-primary')}
-                  />
-                  {bookmarkMutation.isPending ? 'Saving...' : 'Bookmark'}
-                </Button>
-                <Button variant="outline" size="sm">
-                  <Printer className="mr-2 h-4 w-4" />
-                  Print
-                </Button>
-                <Button variant="outline" size="sm">
-                  <Share2 className="mr-2 h-4 w-4" />
-                  Share
-                </Button>
-              </motion.div>
+              <Suspense fallback={<div>Loading...</div>}>
+                <LazyRecipeOptions id={recipeData.id} />
+              </Suspense>
             </motion.div>
 
             <motion.div
@@ -314,57 +277,9 @@ function RecipePage() {
                     ))}
                   </motion.div>
                 </motion.div>
-
-                <motion.div
-                  initial={{ opacity: 0, y: -20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2, duration: 0.5 }}
-                  className="flex items-center gap-2 absolute top-4 right-4 z-50"
-                >
-                  <motion.div
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.3, duration: 0.3 }}
-                  >
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleBookmark}
-                      disabled={bookmarkMutation.isPending}
-                    >
-                      <Bookmark
-                        className={cn(
-                          'h-4 w-4',
-                          isBookmarked && 'fill-primary',
-                        )}
-                      />
-                      {bookmarkMutation.isPending ? 'Saving...' : 'Bookmark'}
-                    </Button>
-                  </motion.div>
-
-                  <motion.div
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.4, duration: 0.3 }}
-                  >
-                    <Button variant="outline" size="sm">
-                      <Printer className="mr-2 h-4 w-4" />
-                      Print
-                    </Button>
-                  </motion.div>
-
-                  <motion.div
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.5, duration: 0.3 }}
-                  >
-                    <Button variant="outline" size="sm">
-                      <Share2 className="mr-2 h-4 w-4" />
-                      Share
-                    </Button>
-                  </motion.div>
-                </motion.div>
-
+                <Suspense fallback={<div>Loading...</div>}>
+                  <LazyRecipeOptions id={recipeData.id} />
+                </Suspense>
                 <div className="absolute top-0 left-0 right-0 bottom-0 bg-gradient-to-t from-black/50 to-transparent" />
               </motion.div>
               <motion.div

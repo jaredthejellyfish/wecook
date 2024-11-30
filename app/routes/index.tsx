@@ -13,14 +13,10 @@ import {
   ChevronUp,
   Facebook,
   Instagram,
-  Menu,
-  Moon,
   ShoppingCart,
   Sparkles,
-  Sun,
   Twitter,
   Utensils,
-  X,
   Youtube,
 } from 'lucide-react';
 import { getWebRequest } from 'vinxi/http';
