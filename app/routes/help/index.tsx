@@ -47,7 +47,7 @@ export const Route = createFileRoute('/help/')({
   beforeLoad: () => authStateFn(),
 });
 
-export default function HelpPage() {
+function HelpPage() {
   const { recipes } = Route.useLoaderData();
 
   const containerVariants = {

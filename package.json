@@ -30,6 +30,7 @@
     "@tanstack/react-router": "^1.82.1",
     "@tanstack/router-devtools": "^1.82.2",
     "@tanstack/start": "^1.82.1",
+    "@trigger.dev/react-hooks": "3.3.0",
     "@trigger.dev/sdk": "^3.3.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
