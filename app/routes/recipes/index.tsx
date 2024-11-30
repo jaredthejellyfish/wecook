@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 import { getAuth } from '@clerk/tanstack-start/server';
 import { useQuery } from '@tanstack/react-query';
 import { Link, createFileRoute, redirect } from '@tanstack/react-router';
@@ -5,7 +7,6 @@ import { createServerFn } from '@tanstack/start';
 import { eq } from 'drizzle-orm';
 import { motion } from 'framer-motion';
 import { Bookmark, Clock, Filter, Search, SortAsc } from 'lucide-react';
-import { useState } from 'react';
 import { getWebRequest } from 'vinxi/http';
 
 import Header from '@/components/header';
@@ -55,12 +56,12 @@ const recipesByUserId = createServerFn({ method: 'GET' }).handler(async () => {
 });
 
 export const Route = createFileRoute('/recipes/')({
-  component: DashboardPage,
+  component: RecipesPage,
   loader: () => recipesByUserId(),
   beforeLoad: () => authStateFn(),
 });
 
-export default function DashboardPage() {
+function RecipesPage() {
   const [activeTab, setActiveTab] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
 

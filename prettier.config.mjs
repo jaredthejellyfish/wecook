@@ -13,6 +13,7 @@ const config = {
   importOrderSeparation: true,
   importOrderSortSpecifiers: true,
   importOrder: [
+    '^react$',
     '<THIRD_PARTY_MODULES>',
     '^@/components/(.*)$',
     '^@/reusable-fns/(.*)$',

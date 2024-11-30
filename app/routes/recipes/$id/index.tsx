@@ -1,11 +1,12 @@
+import * as React from 'react';
+import { useCallback, useMemo, useState } from 'react';
+
 import { getAuth } from '@clerk/tanstack-start/server';
 import { createFileRoute, notFound, redirect } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/start';
 import { eq } from 'drizzle-orm';
 import { motion } from 'framer-motion';
 import { Bookmark, ChefHat, Clock, Printer, Share2, Users } from 'lucide-react';
-import * as React from 'react';
-import { useCallback, useMemo, useState } from 'react';
 import { getWebRequest } from 'vinxi/http';
 
 import Header from '@/components/header';
@@ -79,7 +80,7 @@ export const Route = createFileRoute('/recipes/$id/')({
   },
 });
 
-export default function RecipePage() {
+function RecipePage() {
   const [activeTab, setActiveTab] = useState('ingredients');
   const { recipe: recipeData } = Route.useLoaderData();
   const { data: bookmarks } = useBookmarks();

@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react';
+
 import { SignInButton, SignedIn, SignedOut } from '@clerk/tanstack-start';
 import { getAuth } from '@clerk/tanstack-start/server';
 import { createFileRoute, redirect } from '@tanstack/react-router';
@@ -21,7 +23,6 @@ import {
   X,
   Youtube,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
 import { getWebRequest } from 'vinxi/http';
 
 import AnimatedUnderlineLink from '@/components/animated-underline-link';

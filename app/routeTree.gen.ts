@@ -14,6 +14,7 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as IndexImport } from './routes/index'
 import { Route as RecipesIndexImport } from './routes/recipes/index'
 import { Route as HelpIndexImport } from './routes/help/index'
+import { Route as GeneratingIndexImport } from './routes/generating/index'
 import { Route as DashboardIndexImport } from './routes/dashboard/index'
 import { Route as SettingsPreferencesIndexImport } from './routes/settings/preferences/index'
 import { Route as SettingsPlanIndexImport } from './routes/settings/plan/index'
@@ -37,6 +38,12 @@ const RecipesIndexRoute = RecipesIndexImport.update({
 const HelpIndexRoute = HelpIndexImport.update({
   id: '/help/',
   path: '/help/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const GeneratingIndexRoute = GeneratingIndexImport.update({
+  id: '/generating/',
+  path: '/generating/',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -86,6 +93,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/generating/': {
+      id: '/generating/'
+      path: '/generating'
+      fullPath: '/generating'
+      preLoaderRoute: typeof GeneratingIndexImport
       parentRoute: typeof rootRoute
     }
     '/help/': {
@@ -138,6 +152,7 @@ declare module '@tanstack/react-router' {
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/generating': typeof GeneratingIndexRoute
   '/help': typeof HelpIndexRoute
   '/recipes': typeof RecipesIndexRoute
   '/recipes/$id': typeof RecipesIdIndexRoute
@@ -149,6 +164,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/generating': typeof GeneratingIndexRoute
   '/help': typeof HelpIndexRoute
   '/recipes': typeof RecipesIndexRoute
   '/recipes/$id': typeof RecipesIdIndexRoute
@@ -161,6 +177,7 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/generating/': typeof GeneratingIndexRoute
   '/help/': typeof HelpIndexRoute
   '/recipes/': typeof RecipesIndexRoute
   '/recipes/$id/': typeof RecipesIdIndexRoute
@@ -174,6 +191,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/dashboard'
+    | '/generating'
     | '/help'
     | '/recipes'
     | '/recipes/$id'
@@ -184,6 +202,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/dashboard'
+    | '/generating'
     | '/help'
     | '/recipes'
     | '/recipes/$id'
@@ -194,6 +213,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/dashboard/'
+    | '/generating/'
     | '/help/'
     | '/recipes/'
     | '/recipes/$id/'
@@ -206,6 +226,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
+  GeneratingIndexRoute: typeof GeneratingIndexRoute
   HelpIndexRoute: typeof HelpIndexRoute
   RecipesIndexRoute: typeof RecipesIndexRoute
   RecipesIdIndexRoute: typeof RecipesIdIndexRoute
@@ -217,6 +238,7 @@ export interface RootRouteChildren {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardIndexRoute: DashboardIndexRoute,
+  GeneratingIndexRoute: GeneratingIndexRoute,
   HelpIndexRoute: HelpIndexRoute,
   RecipesIndexRoute: RecipesIndexRoute,
   RecipesIdIndexRoute: RecipesIdIndexRoute,
@@ -237,6 +259,7 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/dashboard/",
+        "/generating/",
         "/help/",
         "/recipes/",
         "/recipes/$id/",
@@ -250,6 +273,9 @@ export const routeTree = rootRoute
     },
     "/dashboard/": {
       "filePath": "dashboard/index.tsx"
+    },
+    "/generating/": {
+      "filePath": "generating/index.tsx"
     },
     "/help/": {
       "filePath": "help/index.tsx"

@@ -42,12 +42,12 @@ const recipesByUserId = createServerFn({ method: 'GET' }).handler(async () => {
 });
 
 export const Route = createFileRoute('/help/')({
-  component: DashboardPage,
+  component: HelpPage,
   loader: () => recipesByUserId(),
   beforeLoad: () => authStateFn(),
 });
 
-export default function DashboardPage() {
+export default function HelpPage() {
   const { recipes } = Route.useLoaderData();
 
   const containerVariants = {

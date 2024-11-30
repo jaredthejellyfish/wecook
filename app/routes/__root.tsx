@@ -1,4 +1,6 @@
 // app/routes/__root.tsx
+import type { ReactNode } from 'react';
+
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import {
@@ -7,7 +9,6 @@ import {
   createRootRoute,
 } from '@tanstack/react-router';
 import { Meta, Scripts } from '@tanstack/start';
-import type { ReactNode } from 'react';
 
 import Devtools from '@/components/Devtools';
 import { Toaster } from '@/components/ui/sonner';

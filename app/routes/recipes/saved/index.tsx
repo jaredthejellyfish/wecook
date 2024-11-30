@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 import { getAuth } from '@clerk/tanstack-start/server';
 import { useQuery } from '@tanstack/react-query';
 import { Link, createFileRoute, redirect } from '@tanstack/react-router';
@@ -5,7 +7,6 @@ import { createServerFn } from '@tanstack/start';
 import { eq } from 'drizzle-orm';
 import { motion } from 'framer-motion';
 import { Bookmark, Clock, Filter, Search, SortAsc } from 'lucide-react';
-import { useState } from 'react';
 import { getWebRequest } from 'vinxi/http';
 
 import Header from '@/components/header';
@@ -65,12 +66,12 @@ const bookmarkedRecipesByUserId = createServerFn({ method: 'GET' }).handler(
 );
 
 export const Route = createFileRoute('/recipes/saved/')({
-  component: DashboardPage,
+  component: SavedRecipesPage,
   loader: () => bookmarkedRecipesByUserId(),
   beforeLoad: () => authStateFn(),
 });
 
-export default function DashboardPage() {
+function SavedRecipesPage() {
   const [activeTab, setActiveTab] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const categories = ['All', 'Breakfast', 'Brunch', 'Lunch', 'Dinner', 'Snack'];

@@ -1,11 +1,13 @@
+import { useState } from 'react';
+
 import { getAuth } from '@clerk/tanstack-start/server';
 import { Link, createFileRoute, redirect } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/start';
 import { eq } from 'drizzle-orm';
 import { motion } from 'framer-motion';
-import { useState } from 'react';
 import { toast } from 'sonner';
 import { getWebRequest } from 'vinxi/http';
+import { z } from 'zod';
 
 import Header from '@/components/header';
 import { SidebarNav } from '@/components/sidebar-nav';
@@ -28,33 +30,39 @@ import { Textarea } from '@/components/ui/textarea';
 import authStateFn from '@/reusable-fns/auth-redirect';
 
 import { db } from '@/db/db';
-import { preferencesTable } from '@/db/schema';
+import { type SelectPreference, preferencesTable } from '@/db/schema';
+import { useMutatePreferences } from '@/hooks/useMutatePreferences';
 
 const preferencesByUserId = createServerFn({ method: 'GET' }).handler(
   async () => {
-    const { userId } = await getAuth(getWebRequest());
+    try {
+      const { userId } = await getAuth(getWebRequest());
 
-    if (!userId) {
-      throw redirect({
-        to: '/',
-      });
-    }
+      if (!userId) {
+        throw redirect({
+          to: '/',
+        });
+      }
 
-    const data = await db
-      .select()
-      .from(preferencesTable)
-      .where(eq(preferencesTable.userId, userId));
-
-    if (!data.length) {
       const data = await db
-        .insert(preferencesTable)
-        .values({ userId })
-        .returning();
+        .select()
+        .from(preferencesTable)
+        .where(eq(preferencesTable.userId, userId));
+
+      if (!data.length) {
+        const data = await db
+          .insert(preferencesTable)
+          .values({ userId })
+          .returning();
+
+        return { preferences: data[0] };
+      }
 
       return { preferences: data[0] };
+    } catch (error) {
+      console.error(error);
+      throw error;
     }
-
-    return { preferences: data[0] };
   },
 );
 
@@ -132,36 +140,37 @@ const cuisineTypes = [
 const spiceLevels = ['None', 'Mild', 'Medium', 'Hot', 'Extra Hot'];
 const budgetOptions = ['$', '$$', '$$$', '$$$$'];
 
-export default function PreferencesPage() {
-  const [preferences, setPreferences] = useState({
-    dietaryType: '',
-    allergies: '',
-    cookingTime: '',
-    skillLevel: '',
-    servings: '',
-    cuisineType: '',
-    spiceLevel: '',
-    specialNotes: '',
-    budget: '',
-  });
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
     },
-  };
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      type: 'spring',
+      stiffness: 100,
+    },
+  },
+};
+
+function PreferencesPage() {
+  const { preferences: initialPreferences } = Route.useLoaderData();
+  const [preferences, setPreferences] = useState<SelectPreference>(initialPreferences);
+  const { mutate: updatePreferences } = useMutatePreferences();
 
   const handleSavePreferences = async () => {
-    try {
-      // Here you would make an API call to save preferences
-      toast.success('Preferences saved successfully!');
-    } catch (error) {
-      toast.error('Failed to save preferences');
-    }
+    console.log('preferences', preferences);
+    updatePreferences(preferences);
+    toast.success('Preferences updated successfully!');
   };
 
   return (
@@ -174,215 +183,208 @@ export default function PreferencesPage() {
             initial="hidden"
             animate="visible"
             variants={containerVariants}
-            className="flex-1 space-y-6 md:p-8 p-3 pt-6"
+            className="flex-1 space-y-6 p-8 pt-6"
           >
-            <Card className="w-full">
+            <motion.div variants={itemVariants} className="flex items-center justify-between">
+              <div>
+                <h2 className="text-3xl font-bold tracking-tight">Recipe Preferences</h2>
+                <p className="text-muted-foreground">
+                  Customize your cooking experience by setting your preferences.
+                </p>
+              </div>
+            </motion.div>
+
+            <Card>
               <CardHeader>
-                <CardTitle>Recipe Preferences</CardTitle>
+                <CardTitle>Your Preferences</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-                {/* Dietary Requirements */}
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label className="text-right">Primary Diet</Label>
-                  <Select
-                    value={preferences.dietaryType}
-                    onValueChange={(value) =>
-                      setPreferences((prev) => ({
-                        ...prev,
-                        dietaryType: value,
-                      }))
-                    }
-                  >
-                    <SelectTrigger className="w-[280px]">
-                      <SelectValue placeholder="Select your usual diet" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Object.entries(dietTypes).map(([key, group]) => (
-                        <SelectGroup key={key}>
-                          <SelectLabel>{group.label}</SelectLabel>
-                          {group.options.map((option) => (
-                            <SelectItem key={option.value} value={option.value}>
-                              {option.label}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                <motion.div variants={itemVariants} className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="dietaryType">Primary Diet</Label>
+                    <Select
+                      value={preferences.dietaryType ?? undefined}
+                      onValueChange={(value) =>
+                        setPreferences((prev) => ({ ...prev, dietaryType: value }))
+                      }
+                    >
+                      <SelectTrigger id="dietaryType">
+                        <SelectValue placeholder="Select your usual diet" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.entries(dietTypes).map(([key, group]) => (
+                          <SelectGroup key={key}>
+                            <SelectLabel>{group.label}</SelectLabel>
+                            {group.options.map((option) => (
+                              <SelectItem key={option.value} value={option.value}>
+                                {option.label}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-                {/* Allergies */}
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label className="text-right">Allergies/Restrictions</Label>
-                  <Input
-                    className="col-span-3"
-                    value={preferences.allergies}
-                    onChange={(e) =>
-                      setPreferences((prev) => ({
-                        ...prev,
-                        allergies: e.target.value,
-                      }))
-                    }
-                    placeholder="Enter ingredients you always want to avoid"
-                  />
-                </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="allergies">Allergies/Restrictions</Label>
+                    <Input
+                      id="allergies"
+                      value={preferences.allergies ?? ''}
+                      onChange={(e) =>
+                        setPreferences((prev) => ({ ...prev, allergies: e.target.value }))
+                      }
+                      placeholder="Enter ingredients you always want to avoid"
+                    />
+                  </div>
+                </motion.div>
 
-                {/* Cooking Parameters */}
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label className="text-right">Typical Cooking Time</Label>
-                  <Select
-                    value={preferences.cookingTime}
-                    onValueChange={(value) =>
-                      setPreferences((prev) => ({
-                        ...prev,
-                        cookingTime: value,
-                      }))
-                    }
-                  >
-                    <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="Usual available time" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {cookingTimes.map((time) => (
-                        <SelectItem key={time} value={time.toLowerCase()}>
-                          {time}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                <motion.div variants={itemVariants} className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="cookingTime">Typical Cooking Time</Label>
+                    <Select
+                      value={preferences.cookingTime ?? undefined}
+                      onValueChange={(value) =>
+                        setPreferences((prev) => ({ ...prev, cookingTime: value }))
+                      }
+                    >
+                      <SelectTrigger id="cookingTime">
+                        <SelectValue placeholder="Usual available time" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {cookingTimes.map((time) => (
+                          <SelectItem key={time} value={time.toLowerCase()}>
+                            {time}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label className="text-right">Cooking Experience</Label>
-                  <Select
-                    value={preferences.skillLevel}
-                    onValueChange={(value) =>
-                      setPreferences((prev) => ({ ...prev, skillLevel: value }))
-                    }
-                  >
-                    <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="Your skill level" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {skillLevels.map((level) => (
-                        <SelectItem key={level} value={level.toLowerCase()}>
-                          {level}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="skillLevel">Cooking Experience</Label>
+                    <Select
+                      value={preferences.skillLevel ?? undefined}
+                      onValueChange={(value) =>
+                        setPreferences((prev) => ({ ...prev, skillLevel: value }))
+                      }
+                    >
+                      <SelectTrigger id="skillLevel">
+                        <SelectValue placeholder="Your skill level" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {skillLevels.map((level) => (
+                          <SelectItem key={level} value={level.toLowerCase()}>
+                            {level}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label className="text-right">Usual Servings</Label>
-                  <Select
-                    value={preferences.servings}
-                    onValueChange={(value) =>
-                      setPreferences((prev) => ({ ...prev, servings: value }))
-                    }
-                  >
-                    <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="How many you cook for" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {servingSizes.map((size) => (
-                        <SelectItem key={size} value={size}>
-                          {size}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="servings">Usual Servings</Label>
+                    <Select
+                      value={preferences.servings ?? undefined}
+                      onValueChange={(value) =>
+                        setPreferences((prev) => ({ ...prev, servings: value }))
+                      }
+                    >
+                      <SelectTrigger id="servings">
+                        <SelectValue placeholder="How many you cook for" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {servingSizes.map((size) => (
+                          <SelectItem key={size} value={size}>
+                            {size}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </motion.div>
 
-                {/* Cuisine Preferences */}
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label className="text-right">Favorite Cuisine</Label>
-                  <Select
-                    value={preferences.cuisineType}
-                    onValueChange={(value) =>
-                      setPreferences((prev) => ({
-                        ...prev,
-                        cuisineType: value,
-                      }))
-                    }
-                  >
-                    <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="Preferred cuisine" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {cuisineTypes.map((cuisine) => (
-                        <SelectItem key={cuisine} value={cuisine.toLowerCase()}>
-                          {cuisine}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                <motion.div variants={itemVariants} className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="cuisineType">Favorite Cuisine</Label>
+                    <Select
+                      value={preferences.cuisineType ?? undefined}
+                      onValueChange={(value) =>
+                        setPreferences((prev) => ({ ...prev, cuisineType: value }))
+                      }
+                    >
+                      <SelectTrigger id="cuisineType">
+                        <SelectValue placeholder="Preferred cuisine" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {cuisineTypes.map((cuisine) => (
+                          <SelectItem key={cuisine} value={cuisine.toLowerCase()}>
+                            {cuisine}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label className="text-right">Spice Preference</Label>
-                  <Select
-                    value={preferences.spiceLevel}
-                    onValueChange={(value) =>
-                      setPreferences((prev) => ({ ...prev, spiceLevel: value }))
-                    }
-                  >
-                    <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="Preferred spice level" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {spiceLevels.map((level) => (
-                        <SelectItem key={level} value={level.toLowerCase()}>
-                          {level}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="spiceLevel">Spice Preference</Label>
+                    <Select
+                      value={preferences.spiceLevel ?? undefined}
+                      onValueChange={(value) =>
+                        setPreferences((prev) => ({ ...prev, spiceLevel: value }))
+                      }
+                    >
+                      <SelectTrigger id="spiceLevel">
+                        <SelectValue placeholder="Preferred spice level" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {spiceLevels.map((level) => (
+                          <SelectItem key={level} value={level.toLowerCase()}>
+                            {level}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-                {/* Budget */}
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label className="text-right">Typical Budget</Label>
-                  <Select
-                    value={preferences.budget}
-                    onValueChange={(value) =>
-                      setPreferences((prev) => ({ ...prev, budget: value }))
-                    }
-                  >
-                    <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="Your usual budget" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {budgetOptions.map((option) => (
-                        <SelectItem key={option} value={option}>
-                          {option}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="budget">Typical Budget</Label>
+                    <Select
+                      value={preferences.budget ?? undefined}
+                      onValueChange={(value) =>
+                        setPreferences((prev) => ({ ...prev, budget: value }))
+                      }
+                    >
+                      <SelectTrigger id="budget">
+                        <SelectValue placeholder="Your usual budget" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {budgetOptions.map((option) => (
+                          <SelectItem key={option} value={option}>
+                            {option}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </motion.div>
 
-                {/* Additional Notes */}
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label className="text-right">General Notes</Label>
+                <motion.div variants={itemVariants} className="space-y-2">
+                  <Label htmlFor="specialNotes">General Notes</Label>
                   <Textarea
-                    className="col-span-3"
-                    value={preferences.specialNotes}
+                    id="specialNotes"
+                    value={preferences.specialNotes ?? ''}
                     onChange={(e) =>
-                      setPreferences((prev) => ({
-                        ...prev,
-                        specialNotes: e.target.value,
-                      }))
+                      setPreferences((prev) => ({ ...prev, specialNotes: e.target.value }))
                     }
-                    placeholder="Any general preferences or requirements you want to save?"
+                    placeholder="Any additional notes or preferences"
+                    className="min-h-[100px]"
                   />
-                </div>
+                </motion.div>
 
-                <div className="flex justify-end pt-4">
-                  <Button onClick={handleSavePreferences}>
-                    Save Preferences
-                  </Button>
-                </div>
+                <motion.div variants={itemVariants} className="flex justify-end pt-4">
+                  <Button onClick={handleSavePreferences}>Save Preferences</Button>
+                </motion.div>
               </CardContent>
             </Card>
           </motion.div>
@@ -391,3 +393,5 @@ export default function PreferencesPage() {
     </SidebarProvider>
   );
 }
+
+

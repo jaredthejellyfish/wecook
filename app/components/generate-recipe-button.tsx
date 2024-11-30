@@ -1,8 +1,11 @@
+import { useEffect, useState } from 'react';
+
 import { Label } from '@radix-ui/react-dropdown-menu';
 import { useRouter } from '@tanstack/react-router';
 import { PlusCircle } from 'lucide-react';
-import { useState } from 'react';
 import { toast } from 'sonner';
+
+import { usePreferences } from '@/hooks/usePreferences';
 
 import { Button } from './ui/button';
 import {
@@ -137,7 +140,24 @@ const generateSearchParams = (recipeData: RecipeData) => {
 };
 
 function GenerateRecipeButton() {
+  const { data: preferences } = usePreferences();
   const [recipeData, setRecipeData] = useState<RecipeData>(initialRecipeData);
+
+  useEffect(() => {
+    setRecipeData({
+      mealType: '',
+      dietaryType: preferences?.dietaryType ?? '',
+      allergies: preferences?.allergies ?? '',
+      cookingTime: preferences?.cookingTime ?? '',
+      skillLevel: preferences?.skillLevel ?? '',
+      servings: preferences?.servings ?? '',
+      cuisineType: preferences?.cuisineType ?? '',
+      spiceLevel: preferences?.spiceLevel ?? '',
+      specialNotes: preferences?.specialNotes ?? '',
+      budget: preferences?.budget ?? '',
+    });
+  }, [preferences]);
+
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -153,23 +173,22 @@ function GenerateRecipeButton() {
       const url = `/api/recipes/generate-recipe?${generateSearchParams(recipeData).toString()}`;
 
       const response = await fetch(url);
-      const data = await response.json();
+      const data = (await response.json()) as {
+        success: boolean;
+        data: { id: string; publicAccessToken: string };
+      };
 
-      if (!data.success) {
-        throw new Error(data.error);
-      }
-
-      toast('Recipe has been generated.', {
-        action: {
-          label: 'View Recipe',
-          onClick: () => {
-            router.navigate({
-              to: '/recipes/$id',
-              params: { id: data.data.id },
-            });
+      if (data.success) {
+        router.navigate({
+          to: '/generating',
+          search: {
+            publicAccessToken: data.data.publicAccessToken,
+            recipeId: data.data.id,
           },
-        },
-      });
+        });
+      } else {
+        toast.error('Failed to generate recipe');
+      }
     } catch (error) {
       console.error(error);
     } finally {
@@ -181,7 +200,6 @@ function GenerateRecipeButton() {
       <DialogTrigger asChild>
         <Button className="w-full bg-primary" size="lg">
           {!loading && <PlusCircle className="mr-2 h-5 w-5" />}
-
           {loading && (
             <div role="status">
               <svg

@@ -1,6 +1,7 @@
+import React from 'react';
+
 import { ClerkProvider } from '@clerk/tanstack-start';
 import { dark } from '@clerk/themes';
-import React from 'react';
 
 import { useTheme } from '../providers/theme-provider';
 
