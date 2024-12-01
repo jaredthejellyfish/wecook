@@ -10,7 +10,7 @@ import { SidebarNav } from '@/components/sidebar-nav';
 import { Button } from '@/components/ui/button';
 import { SidebarProvider } from '@/components/ui/sidebar';
 
-import authStateFn from '@/reusable-fns/auth-redirect';
+import authStateFn from '@/server-fns/auth-redirect';
 
 export const Route = createFileRoute('/(app)/generating/')({
   component: GeneratingPage,

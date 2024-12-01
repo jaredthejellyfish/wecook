@@ -57,6 +57,34 @@
       "when": 1733051034693,
       "tag": "0007_illegal_grey_gargoyle",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1733083348921,
+      "tag": "0008_magical_zarek",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1733083385043,
+      "tag": "0009_glamorous_king_cobra",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1733083401738,
+      "tag": "0010_absurd_lady_vermin",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "6",
+      "when": 1733083491077,
+      "tag": "0011_dry_cerebro",
+      "breakpoints": true
     }
   ]
 }

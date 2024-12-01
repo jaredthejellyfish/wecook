@@ -23,7 +23,7 @@ import { Input } from '@/components/ui/input'
 import { SidebarProvider } from '@/components/ui/sidebar'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
-import authStateFn from '@/reusable-fns/auth-redirect'
+import authStateFn from '@/server-fns/auth-redirect'
 
 import { db } from '@/db/db'
 import { type SelectBookmark, recipesTable } from '@/db/schema'

@@ -27,7 +27,7 @@ import {
 import { SidebarProvider } from '@/components/ui/sidebar'
 import { Textarea } from '@/components/ui/textarea'
 
-import authStateFn from '@/reusable-fns/auth-redirect'
+import authStateFn from '@/server-fns/auth-redirect'
 
 import { db } from '@/db/db'
 import { type SelectPreference, preferencesTable } from '@/db/schema'

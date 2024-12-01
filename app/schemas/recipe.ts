@@ -59,6 +59,7 @@ export const RecipeSchemaFromDB = z.object({
   image: z.string(),
   videoUrl: z.string().optional(),
   userId: z.string(),
+  isPublic: z.boolean(),
 });
 
 export const RecipeSchema = RecipeSchemaFromDB.extend({
@@ -78,6 +79,7 @@ export const RecipeSchema = RecipeSchemaFromDB.extend({
   notes: z.array(recipeNoteSchema).optional(),
   image: z.string(),
   userId: z.string(),
+  isPublic: z.boolean(),
 });
 
 export type RecipeFromDB = z.infer<typeof RecipeSchemaFromDB>;

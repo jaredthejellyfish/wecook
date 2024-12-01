@@ -30,6 +30,8 @@ export const recipesTable = sqliteTable('recipes', {
   // Meta Information
   userId: text('user_id').notNull(),
 
+  isPublic: integer('public', { mode: 'boolean' }).notNull().default(sql`false`),
+
   // Timestamps
   createdAt: text('created_at')
     .notNull()

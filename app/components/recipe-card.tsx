@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { Clock } from 'lucide-react';
 import { Bookmark } from 'lucide-react';
 
-import bookmarkRecipeFn from '@/reusable-fns/bookmark-recipe';
+import bookmarkRecipeFn from '@/server-fns/bookmark-recipe';
 
 import type { SelectBookmark } from '@/db/schema';
 import { cn } from '@/lib/utils';

@@ -170,7 +170,7 @@ function GenerateRecipeButton() {
     try {
       setLoading(true);
       setOpen(false);
-      const url = `/api/recipes/generate-recipe?${generateSearchParams(recipeData).toString()}`;
+      const url = `/api/recipes/generate?${generateSearchParams(recipeData).toString()}`;
 
       const response = await fetch(url);
       const data = (await response.json()) as {

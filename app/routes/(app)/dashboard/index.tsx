@@ -5,7 +5,7 @@ import Header from '@/components/header'
 import { SidebarNav } from '@/components/sidebar-nav'
 import { SidebarProvider } from '@/components/ui/sidebar'
 
-import authStateFn from '@/reusable-fns/auth-redirect'
+import authStateFn from '@/server-fns/auth-redirect'
 
 export const Route = createFileRoute('/(app)/dashboard/')({
   component: DashboardPage,

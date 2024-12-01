@@ -1,90 +1,90 @@
-import * as React from 'react'
-import { Suspense, lazy, useMemo, useState } from 'react'
+import * as React from 'react';
+import { Suspense, lazy, useMemo, useState } from 'react';
 
-import { getAuth } from '@clerk/tanstack-start/server'
-import { createFileRoute, notFound, redirect } from '@tanstack/react-router'
-import { createServerFn } from '@tanstack/start'
-import { eq } from 'drizzle-orm'
-import { motion } from 'framer-motion'
-import { ChefHat, Clock, Users } from 'lucide-react'
-import { getWebRequest } from 'vinxi/http'
+import { getAuth } from '@clerk/tanstack-start/server';
+import { createFileRoute, notFound, redirect } from '@tanstack/react-router';
+import { createServerFn } from '@tanstack/start';
+import { eq } from 'drizzle-orm';
+import { motion } from 'framer-motion';
+import { ChefHat, Clock, Users } from 'lucide-react';
+import { getWebRequest } from 'vinxi/http';
 
-import Header from '@/components/header'
-import RecipeOptionsContent from '@/components/recipe-options'
-import { RecipeDetails } from '@/components/recipe/RecipeDetails'
-import { SidebarNav } from '@/components/sidebar-nav'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
-import { SidebarProvider } from '@/components/ui/sidebar'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import Header from '@/components/header';
+import RecipeNavigation from '@/components/recipe-navigation';
+import RecipeOptionsContent from '@/components/recipe-options';
+import { RecipeDetails } from '@/components/recipe/RecipeDetails';
+import { SidebarNav } from '@/components/sidebar-nav';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { SidebarProvider } from '@/components/ui/sidebar';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-import { db } from '@/db/db'
-import { recipesTable } from '@/db/schema'
-import { transformDbRecord } from '@/schemas/recipe'
-import RecipeNavigation from '@/components/recipe-navigation'
+import { db } from '@/db/db';
+import { recipesTable } from '@/db/schema';
+import { transformDbRecord } from '@/schemas/recipe';
 
 const LazyRecipeOptions = lazy(() =>
   Promise.resolve({ default: RecipeOptionsContent }),
-)
+);
 
 const recipeById = createServerFn({ method: 'GET' })
   .validator((id: string) => {
     if (!id || id.trim() === '') {
-      throw new Error('Valid recipe ID is required')
+      throw new Error('Valid recipe ID is required');
     }
-    return id
+    return id;
   })
   .handler(async (ctx) => {
-    const { userId } = await getAuth(getWebRequest())
+    const { userId } = await getAuth(getWebRequest());
 
     if (!userId) {
       throw redirect({
         to: '/',
-      })
+      });
     }
 
-    const id = ctx.data
+    const id = ctx.data;
 
     try {
       const data = await db
         .select()
         .from(recipesTable)
         .where(eq(recipesTable.id, Number(id)))
-        .limit(1)
+        .limit(1);
 
       if (!data.length) {
-        throw notFound()
+        throw notFound();
       }
 
-      const recipe = data[0]
-      const transformedRecipe = transformDbRecord(recipe)
+      const recipe = data[0];
+      const transformedRecipe = transformDbRecord(recipe);
 
-      return { recipe: transformedRecipe }
+      return { recipe: transformedRecipe };
     } catch (error) {
       // Add better error handling for database errors
       if (error instanceof Error) {
-        throw new Error(`Failed to fetch recipe: ${error.message}`)
+        throw new Error(`Failed to fetch recipe: ${error.message}`);
       }
-      throw error
+      throw error;
     }
-  })
+  });
 
 export const Route = createFileRoute('/(app)/recipes/$id/')({
   component: RecipePage,
   loader: async ({ context, params }) => {
     try {
-      return await recipeById({ data: params.id })
+      return await recipeById({ data: params.id });
     } catch (error) {
       // Handle or rethrow error as needed
-      console.error('Failed to load recipe:', error)
-      throw error
+      console.error('Failed to load recipe:', error);
+      throw error;
     }
   },
-})
+});
 
 function RecipePage() {
-  const [activeTab, setActiveTab] = useState('ingredients')
-  const { recipe: recipeData } = Route.useLoaderData()
+  const [activeTab, setActiveTab] = useState('ingredients');
+  const { recipe: recipeData } = Route.useLoaderData();
 
   // Memoize animation variants
   const containerVariants = useMemo(
@@ -98,7 +98,7 @@ function RecipePage() {
       },
     }),
     [],
-  )
+  );
 
   const itemVariants = useMemo(
     () => ({
@@ -113,7 +113,7 @@ function RecipePage() {
       },
     }),
     [],
-  )
+  );
 
   // Memoize bookmark status
 
@@ -149,7 +149,10 @@ function RecipePage() {
                 </motion.p>
               </div>
               <Suspense fallback={<div>Loading...</div>}>
-                <LazyRecipeOptions id={recipeData.id} />
+                <LazyRecipeOptions
+                  id={recipeData.id}
+                  isPublic={recipeData.isPublic}
+                />
               </Suspense>
             </motion.div>
 
@@ -240,7 +243,10 @@ function RecipePage() {
                   </motion.div>
                 </motion.div>
                 <Suspense fallback={<div>Loading...</div>}>
-                  <LazyRecipeOptions id={recipeData.id} />
+                  <LazyRecipeOptions
+                    id={recipeData.id}
+                    isPublic={recipeData.isPublic}
+                  />
                 </Suspense>
                 <div className="absolute top-0 left-0 right-0 bottom-0 bg-gradient-to-t from-black/50 to-transparent" />
               </motion.div>
@@ -359,5 +365,5 @@ function RecipePage() {
         </div>
       </div>
     </SidebarProvider>
-  )
+  );
 }

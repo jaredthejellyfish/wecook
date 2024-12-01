@@ -1,10 +1,10 @@
-import { getAuth } from '@clerk/tanstack-start/server';
-import { json } from '@tanstack/start';
-import { createAPIFileRoute } from '@tanstack/start/api';
-import { tasks } from '@trigger.dev/sdk/v3';
-import { z } from 'zod';
+import { getAuth } from '@clerk/tanstack-start/server'
+import { json } from '@tanstack/start'
+import { createAPIFileRoute } from '@tanstack/start/api'
+import { tasks } from '@trigger.dev/sdk/v3'
+import { z } from 'zod'
 
-import { recipeGenerationTask } from '@/trigger/generate-recipe';
+import { recipeGenerationTask } from '@/trigger/generate-recipe'
 
 // Query parameter validation schema
 const QuerySchema = z.object({
@@ -18,20 +18,20 @@ const QuerySchema = z.object({
   spiceLevel: z.string(),
   specialNotes: z.string().optional(),
   budget: z.string(),
-});
+})
 
-export const Route = createAPIFileRoute('/api/recipes/generate-recipe')({
+export const Route = createAPIFileRoute('/api/recipes/generate')({
   GET: async ({ request }) => {
-    console.log('Generating recipe...');
+    console.log('Generating recipe...')
 
     try {
-      const url = new URL(request.url);
-      const params = Object.fromEntries(url.searchParams);
-      const validatedParams = QuerySchema.parse(params);
-      const { userId } = await getAuth(request);
+      const url = new URL(request.url)
+      const params = Object.fromEntries(url.searchParams)
+      const validatedParams = QuerySchema.parse(params)
+      const { userId } = await getAuth(request)
 
       if (!userId) {
-        return json({ success: false, error: 'Unauthorized' }, { status: 401 });
+        return json({ success: false, error: 'Unauthorized' }, { status: 401 })
       }
 
       // Trigger the recipe generation task
@@ -50,9 +50,9 @@ export const Route = createAPIFileRoute('/api/recipes/generate-recipe')({
           budget: validatedParams.budget,
           userId,
         },
-      );
+      )
 
-      console.log('handle', handle);
+      console.log('handle', handle)
 
       if (!handle.id) {
         return json(
@@ -61,15 +61,15 @@ export const Route = createAPIFileRoute('/api/recipes/generate-recipe')({
             error: 'Failed to generate recipe',
           },
           { status: 500 },
-        );
+        )
       }
 
       return json({
         success: true,
         data: handle,
-      });
+      })
     } catch (error) {
-      console.error('Error generating recipe:', error);
+      console.error('Error generating recipe:', error)
 
       if (error instanceof z.ZodError) {
         return json(
@@ -79,7 +79,7 @@ export const Route = createAPIFileRoute('/api/recipes/generate-recipe')({
             details: error.issues,
           },
           { status: 400 },
-        );
+        )
       }
 
       return json(
@@ -88,7 +88,7 @@ export const Route = createAPIFileRoute('/api/recipes/generate-recipe')({
           error: 'Internal server error',
         },
         { status: 500 },
-      );
+      )
     }
   },
-});
+})
