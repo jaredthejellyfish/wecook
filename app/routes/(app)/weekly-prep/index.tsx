@@ -51,7 +51,7 @@ export const Route = createFileRoute('/(app)/weekly-prep/')({
 function WeeklyPrepPage() {
   const { events } = Route.useLoaderData();
 
-  console.log(events);
+  console.log("events", events);
 
   return <LazyCalendar />;
 }
