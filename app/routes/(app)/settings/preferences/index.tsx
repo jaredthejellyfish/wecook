@@ -1,20 +1,20 @@
-import { useState } from 'react';
+import { useState } from 'react'
 
-import { getAuth } from '@clerk/tanstack-start/server';
-import { Link, createFileRoute, redirect } from '@tanstack/react-router';
-import { createServerFn } from '@tanstack/start';
-import { eq } from 'drizzle-orm';
-import { motion } from 'framer-motion';
-import { toast } from 'sonner';
-import { getWebRequest } from 'vinxi/http';
-import { z } from 'zod';
+import { getAuth } from '@clerk/tanstack-start/server'
+import { Link, createFileRoute, redirect } from '@tanstack/react-router'
+import { createServerFn } from '@tanstack/start'
+import { eq } from 'drizzle-orm'
+import { motion } from 'framer-motion'
+import { toast } from 'sonner'
+import { getWebRequest } from 'vinxi/http'
+import { z } from 'zod'
 
-import Header from '@/components/header';
-import { SidebarNav } from '@/components/sidebar-nav';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import Header from '@/components/header'
+import { SidebarNav } from '@/components/sidebar-nav'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
@@ -23,54 +23,54 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { SidebarProvider } from '@/components/ui/sidebar';
-import { Textarea } from '@/components/ui/textarea';
+} from '@/components/ui/select'
+import { SidebarProvider } from '@/components/ui/sidebar'
+import { Textarea } from '@/components/ui/textarea'
 
-import authStateFn from '@/reusable-fns/auth-redirect';
+import authStateFn from '@/reusable-fns/auth-redirect'
 
-import { db } from '@/db/db';
-import { type SelectPreference, preferencesTable } from '@/db/schema';
-import { useMutatePreferences } from '@/hooks/useMutatePreferences';
+import { db } from '@/db/db'
+import { type SelectPreference, preferencesTable } from '@/db/schema'
+import { useMutatePreferences } from '@/hooks/useMutatePreferences'
 
 const preferencesByUserId = createServerFn({ method: 'GET' }).handler(
   async () => {
     try {
-      const { userId } = await getAuth(getWebRequest());
+      const { userId } = await getAuth(getWebRequest())
 
       if (!userId) {
         throw redirect({
           to: '/',
-        });
+        })
       }
 
       const data = await db
         .select()
         .from(preferencesTable)
-        .where(eq(preferencesTable.userId, userId));
+        .where(eq(preferencesTable.userId, userId))
 
       if (!data.length) {
         const data = await db
           .insert(preferencesTable)
           .values({ userId })
-          .returning();
+          .returning()
 
-        return { preferences: data[0] };
+        return { preferences: data[0] }
       }
 
-      return { preferences: data[0] };
+      return { preferences: data[0] }
     } catch (error) {
-      console.error(error);
-      throw error;
+      console.error(error)
+      throw error
     }
   },
-);
+)
 
-export const Route = createFileRoute('/settings/preferences/')({
+export const Route = createFileRoute('/(app)/settings/preferences/')({
   component: PreferencesPage,
   loader: () => preferencesByUserId(),
   beforeLoad: () => authStateFn(),
-});
+})
 
 const dietTypes = {
   none: {
@@ -115,17 +115,17 @@ const dietTypes = {
       { value: 'macrobiotic', label: 'Macrobiotic' },
     ],
   },
-};
+}
 
-const skillLevels = ['Beginner', 'Intermediate', 'Advanced'];
+const skillLevels = ['Beginner', 'Intermediate', 'Advanced']
 const cookingTimes = [
   '15 minutes',
   '30 minutes',
   '45 minutes',
   '1 hour',
   '1+ hours',
-];
-const servingSizes = ['1', '2', '3-4', '5-6', '7+'];
+]
+const servingSizes = ['1', '2', '3-4', '5-6', '7+']
 const cuisineTypes = [
   'Italian',
   'Mexican',
@@ -136,9 +136,9 @@ const cuisineTypes = [
   'Mediterranean',
   'American',
   'French',
-];
-const spiceLevels = ['None', 'Mild', 'Medium', 'Hot', 'Extra Hot'];
-const budgetOptions = ['$', '$$', '$$$', '$$$$'];
+]
+const spiceLevels = ['None', 'Mild', 'Medium', 'Hot', 'Extra Hot']
+const budgetOptions = ['$', '$$', '$$$', '$$$$']
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -148,7 +148,7 @@ const containerVariants = {
       staggerChildren: 0.1,
     },
   },
-};
+}
 
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -160,18 +160,19 @@ const itemVariants = {
       stiffness: 100,
     },
   },
-};
+}
 
 function PreferencesPage() {
-  const { preferences: initialPreferences } = Route.useLoaderData();
-  const [preferences, setPreferences] = useState<SelectPreference>(initialPreferences);
-  const { mutate: updatePreferences } = useMutatePreferences();
+  const { preferences: initialPreferences } = Route.useLoaderData()
+  const [preferences, setPreferences] =
+    useState<SelectPreference>(initialPreferences)
+  const { mutate: updatePreferences } = useMutatePreferences()
 
   const handleSavePreferences = async () => {
-    console.log('preferences', preferences);
-    updatePreferences(preferences);
-    toast.success('Preferences updated successfully!');
-  };
+    console.log('preferences', preferences)
+    updatePreferences(preferences)
+    toast.success('Preferences updated successfully!')
+  }
 
   return (
     <SidebarProvider>
@@ -185,9 +186,14 @@ function PreferencesPage() {
             variants={containerVariants}
             className="flex-1 space-y-6 p-8 pt-6"
           >
-            <motion.div variants={itemVariants} className="flex items-center justify-between">
+            <motion.div
+              variants={itemVariants}
+              className="flex items-center justify-between"
+            >
               <div>
-                <h2 className="text-3xl font-bold tracking-tight">Recipe Preferences</h2>
+                <h2 className="text-3xl font-bold tracking-tight">
+                  Recipe Preferences
+                </h2>
                 <p className="text-muted-foreground">
                   Customize your cooking experience by setting your preferences.
                 </p>
@@ -199,13 +205,19 @@ function PreferencesPage() {
                 <CardTitle>Your Preferences</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-                <motion.div variants={itemVariants} className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <motion.div
+                  variants={itemVariants}
+                  className="grid grid-cols-1 gap-4 sm:grid-cols-2"
+                >
                   <div className="space-y-2">
                     <Label htmlFor="dietaryType">Primary Diet</Label>
                     <Select
                       value={preferences.dietaryType ?? undefined}
                       onValueChange={(value) =>
-                        setPreferences((prev) => ({ ...prev, dietaryType: value }))
+                        setPreferences((prev) => ({
+                          ...prev,
+                          dietaryType: value,
+                        }))
                       }
                     >
                       <SelectTrigger id="dietaryType">
@@ -216,7 +228,10 @@ function PreferencesPage() {
                           <SelectGroup key={key}>
                             <SelectLabel>{group.label}</SelectLabel>
                             {group.options.map((option) => (
-                              <SelectItem key={option.value} value={option.value}>
+                              <SelectItem
+                                key={option.value}
+                                value={option.value}
+                              >
                                 {option.label}
                               </SelectItem>
                             ))}
@@ -232,20 +247,29 @@ function PreferencesPage() {
                       id="allergies"
                       value={preferences.allergies ?? ''}
                       onChange={(e) =>
-                        setPreferences((prev) => ({ ...prev, allergies: e.target.value }))
+                        setPreferences((prev) => ({
+                          ...prev,
+                          allergies: e.target.value,
+                        }))
                       }
                       placeholder="Enter ingredients you always want to avoid"
                     />
                   </div>
                 </motion.div>
 
-                <motion.div variants={itemVariants} className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <motion.div
+                  variants={itemVariants}
+                  className="grid grid-cols-1 gap-4 sm:grid-cols-3"
+                >
                   <div className="space-y-2">
                     <Label htmlFor="cookingTime">Typical Cooking Time</Label>
                     <Select
                       value={preferences.cookingTime ?? undefined}
                       onValueChange={(value) =>
-                        setPreferences((prev) => ({ ...prev, cookingTime: value }))
+                        setPreferences((prev) => ({
+                          ...prev,
+                          cookingTime: value,
+                        }))
                       }
                     >
                       <SelectTrigger id="cookingTime">
@@ -266,7 +290,10 @@ function PreferencesPage() {
                     <Select
                       value={preferences.skillLevel ?? undefined}
                       onValueChange={(value) =>
-                        setPreferences((prev) => ({ ...prev, skillLevel: value }))
+                        setPreferences((prev) => ({
+                          ...prev,
+                          skillLevel: value,
+                        }))
                       }
                     >
                       <SelectTrigger id="skillLevel">
@@ -304,13 +331,19 @@ function PreferencesPage() {
                   </div>
                 </motion.div>
 
-                <motion.div variants={itemVariants} className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <motion.div
+                  variants={itemVariants}
+                  className="grid grid-cols-1 gap-4 sm:grid-cols-3"
+                >
                   <div className="space-y-2">
                     <Label htmlFor="cuisineType">Favorite Cuisine</Label>
                     <Select
                       value={preferences.cuisineType ?? undefined}
                       onValueChange={(value) =>
-                        setPreferences((prev) => ({ ...prev, cuisineType: value }))
+                        setPreferences((prev) => ({
+                          ...prev,
+                          cuisineType: value,
+                        }))
                       }
                     >
                       <SelectTrigger id="cuisineType">
@@ -318,7 +351,10 @@ function PreferencesPage() {
                       </SelectTrigger>
                       <SelectContent>
                         {cuisineTypes.map((cuisine) => (
-                          <SelectItem key={cuisine} value={cuisine.toLowerCase()}>
+                          <SelectItem
+                            key={cuisine}
+                            value={cuisine.toLowerCase()}
+                          >
                             {cuisine}
                           </SelectItem>
                         ))}
@@ -331,7 +367,10 @@ function PreferencesPage() {
                     <Select
                       value={preferences.spiceLevel ?? undefined}
                       onValueChange={(value) =>
-                        setPreferences((prev) => ({ ...prev, spiceLevel: value }))
+                        setPreferences((prev) => ({
+                          ...prev,
+                          spiceLevel: value,
+                        }))
                       }
                     >
                       <SelectTrigger id="spiceLevel">
@@ -375,15 +414,23 @@ function PreferencesPage() {
                     id="specialNotes"
                     value={preferences.specialNotes ?? ''}
                     onChange={(e) =>
-                      setPreferences((prev) => ({ ...prev, specialNotes: e.target.value }))
+                      setPreferences((prev) => ({
+                        ...prev,
+                        specialNotes: e.target.value,
+                      }))
                     }
                     placeholder="Any additional notes or preferences"
                     className="min-h-[100px]"
                   />
                 </motion.div>
 
-                <motion.div variants={itemVariants} className="flex justify-end pt-4">
-                  <Button onClick={handleSavePreferences}>Save Preferences</Button>
+                <motion.div
+                  variants={itemVariants}
+                  className="flex justify-end pt-4"
+                >
+                  <Button onClick={handleSavePreferences}>
+                    Save Preferences
+                  </Button>
                 </motion.div>
               </CardContent>
             </Card>
@@ -391,7 +438,5 @@ function PreferencesPage() {
         </div>
       </div>
     </SidebarProvider>
-  );
+  )
 }
-
-

@@ -11,6 +11,7 @@ import { ThemeToggle } from './theme-toggle';
 import { Button } from './ui/button';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from './ui/hover-card';
 import { Input } from './ui/input';
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import {
   Sheet,
   SheetContent,
@@ -137,16 +138,16 @@ function Header() {
               <p>Saved Recipes</p>
             </TooltipContent>
           </Tooltip>
-          <HoverCard>
-            <HoverCardTrigger asChild>
+          <Popover>
+            <PopoverTrigger asChild>
               <Button variant="ghost" size="icon">
                 <Bell className="h-5 w-5 dark:text-white" />
               </Button>
-            </HoverCardTrigger>
-            <HoverCardContent className="w-80">
+            </PopoverTrigger>
+            <PopoverContent className="w-80">
               <p>No notifications</p>
-            </HoverCardContent>
-          </HoverCard>
+            </PopoverContent>
+          </Popover>
 
           <ThemeToggle />
 

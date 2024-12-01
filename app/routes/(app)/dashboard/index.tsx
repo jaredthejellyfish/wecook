@@ -1,16 +1,16 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { motion } from 'framer-motion';
+import { createFileRoute } from '@tanstack/react-router'
+import { motion } from 'framer-motion'
 
-import Header from '@/components/header';
-import { SidebarNav } from '@/components/sidebar-nav';
-import { SidebarProvider } from '@/components/ui/sidebar';
+import Header from '@/components/header'
+import { SidebarNav } from '@/components/sidebar-nav'
+import { SidebarProvider } from '@/components/ui/sidebar'
 
-import authStateFn from '@/reusable-fns/auth-redirect';
+import authStateFn from '@/reusable-fns/auth-redirect'
 
-export const Route = createFileRoute('/dashboard/')({
+export const Route = createFileRoute('/(app)/dashboard/')({
   component: DashboardPage,
   beforeLoad: () => authStateFn(),
-});
+})
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -20,7 +20,7 @@ const containerVariants = {
       staggerChildren: 0.1,
     },
   },
-};
+}
 
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -32,7 +32,7 @@ const itemVariants = {
       stiffness: 100,
     },
   },
-};
+}
 
 function DashboardPage() {
   return (
@@ -178,5 +178,5 @@ function DashboardPage() {
         </div>
       </div>
     </SidebarProvider>
-  );
+  )
 }

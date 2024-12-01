@@ -43,7 +43,7 @@ export const bookmarksTable = sqliteTable('bookmarks', {
   id: integer('id').primaryKey(),
   recipeId: integer('recipe_id')
     .notNull()
-    .references(() => recipesTable.id),
+    .references(() => recipesTable.id, { onDelete: 'cascade' }),
   userId: text('user_id').notNull(),
 });
 
@@ -61,6 +61,17 @@ export const preferencesTable = sqliteTable('preferences', {
   budget: text('budget'),
 });
 
+export const eventsTable = sqliteTable('events', {
+  id: integer('id').primaryKey(),
+  time: text('time').notNull(),
+  title: text('title').notNull(),
+  description: text('description').notNull(),
+  userId: text('user_id').notNull(),
+  recipeId: integer('recipe_id')
+    .notNull()
+    .references(() => recipesTable.id, { onDelete: 'cascade' }),
+});
+
 export type InsertRecipe = typeof recipesTable.$inferInsert;
 export type SelectRecipe = typeof recipesTable.$inferSelect;
 
@@ -69,3 +80,6 @@ export type SelectBookmark = typeof bookmarksTable.$inferSelect;
 
 export type InsertPreference = typeof preferencesTable.$inferInsert;
 export type SelectPreference = typeof preferencesTable.$inferSelect;
+
+export type InsertEvent = typeof eventsTable.$inferInsert;
+export type SelectEvent = typeof eventsTable.$inferSelect;

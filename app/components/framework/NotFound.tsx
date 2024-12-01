@@ -1,4 +1,5 @@
-import { Link } from '@tanstack/react-router';
+import { SignedIn, SignedOut } from '@clerk/tanstack-start';
+import { Link, useNavigate } from '@tanstack/react-router';
 import { motion } from 'framer-motion';
 import { ChevronRight } from 'lucide-react';
 
@@ -11,7 +12,7 @@ export default function NotFound() {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1,
+        staggerChildren: 0.3,
       },
     },
   };
@@ -27,6 +28,8 @@ export default function NotFound() {
       },
     },
   };
+
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 flex flex-col">
@@ -53,14 +56,27 @@ export default function NotFound() {
             variants={itemVariants}
             className="flex flex-col items-center justify-center gap-4 sm:flex-row"
           >
-            <Link to="/">
-              <Button className="flex items-center gap-2">
+            <SignedOut>
+              <Button
+                className="flex items-center gap-2"
+                onClick={() => navigate({ to: '/' })}
+              >
                 Return to Home
                 <ChevronRight className="h-4 w-4" />
               </Button>
-            </Link>
-            <AnimatedUnderlineLink href="#popular-recipes">
-              Browse Popular Recipes
+            </SignedOut>
+            <SignedIn>
+              <Button
+                className="flex items-center gap-2"
+                onClick={() => navigate({ to: '/dashboard' })}
+              >
+                Return to Dashboard
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </SignedIn>
+
+            <AnimatedUnderlineLink href="/recipes">
+              Browse All Recipes
             </AnimatedUnderlineLink>
           </motion.div>
         </motion.section>

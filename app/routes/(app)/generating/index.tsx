@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
 
-import { Link, createFileRoute, redirect } from '@tanstack/react-router';
+import { Link, createFileRoute } from '@tanstack/react-router';
 import { useRealtimeRun } from '@trigger.dev/react-hooks';
 import { motion } from 'framer-motion';
 import { AlertTriangle, CheckCircle, Clock, XCircle } from 'lucide-react';
-import { z } from 'zod';
 
 import Header from '@/components/header';
 import { SidebarNav } from '@/components/sidebar-nav';
@@ -13,7 +12,7 @@ import { SidebarProvider } from '@/components/ui/sidebar';
 
 import authStateFn from '@/reusable-fns/auth-redirect';
 
-export const Route = createFileRoute('/generating/')({
+export const Route = createFileRoute('/(app)/generating/')({
   component: GeneratingPage,
   beforeLoad: () => authStateFn(),
 });
@@ -147,7 +146,9 @@ function GeneratingPage() {
                       <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
                         Task Identifier
                       </p>
-                      <p className="mt-1 font-mono text-sm truncate">{run.id}</p>
+                      <p className="mt-1 font-mono text-sm truncate">
+                        {run.id}
+                      </p>
                     </div>
                     <div className="p-4 rounded-lg bg-neutral-50 dark:bg-neutral-800">
                       <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">

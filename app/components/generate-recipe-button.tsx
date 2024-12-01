@@ -221,7 +221,7 @@ function GenerateRecipeButton() {
               <span className="sr-only">Loading...</span>
             </div>
           )}
-          {loading ? 'Generating recipe...' : 'Add a Recipe'}
+          {loading ? 'Generating recipe...' : 'Plan a meal'}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px]">

@@ -232,6 +232,7 @@ function Home() {
             />
           </div>
         </div>
+
         <motion.div
           className="md:hidden bg-white dark:bg-neutral-800 overflow-hidden border-y border-neutral-200 dark:border-neutral-700"
           initial={false}

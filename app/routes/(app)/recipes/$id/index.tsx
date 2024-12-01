@@ -1,89 +1,90 @@
-import * as React from 'react';
-import { Suspense, lazy, useMemo, useState } from 'react';
+import * as React from 'react'
+import { Suspense, lazy, useMemo, useState } from 'react'
 
-import { getAuth } from '@clerk/tanstack-start/server';
-import { createFileRoute, notFound, redirect } from '@tanstack/react-router';
-import { createServerFn } from '@tanstack/start';
-import { eq } from 'drizzle-orm';
-import { motion } from 'framer-motion';
-import { ChefHat, Clock, Users } from 'lucide-react';
-import { getWebRequest } from 'vinxi/http';
+import { getAuth } from '@clerk/tanstack-start/server'
+import { createFileRoute, notFound, redirect } from '@tanstack/react-router'
+import { createServerFn } from '@tanstack/start'
+import { eq } from 'drizzle-orm'
+import { motion } from 'framer-motion'
+import { ChefHat, Clock, Users } from 'lucide-react'
+import { getWebRequest } from 'vinxi/http'
 
-import Header from '@/components/header';
-import RecipeOptionsContent from '@/components/recipe-options';
-import { RecipeDetails } from '@/components/recipe/RecipeDetails';
-import { SidebarNav } from '@/components/sidebar-nav';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { SidebarProvider } from '@/components/ui/sidebar';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import Header from '@/components/header'
+import RecipeOptionsContent from '@/components/recipe-options'
+import { RecipeDetails } from '@/components/recipe/RecipeDetails'
+import { SidebarNav } from '@/components/sidebar-nav'
+import { Badge } from '@/components/ui/badge'
+import { Separator } from '@/components/ui/separator'
+import { SidebarProvider } from '@/components/ui/sidebar'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
-import { db } from '@/db/db';
-import { recipesTable } from '@/db/schema';
-import { transformDbRecord } from '@/schemas/recipe';
+import { db } from '@/db/db'
+import { recipesTable } from '@/db/schema'
+import { transformDbRecord } from '@/schemas/recipe'
+import RecipeNavigation from '@/components/recipe-navigation'
 
 const LazyRecipeOptions = lazy(() =>
   Promise.resolve({ default: RecipeOptionsContent }),
-);
+)
 
 const recipeById = createServerFn({ method: 'GET' })
   .validator((id: string) => {
     if (!id || id.trim() === '') {
-      throw new Error('Valid recipe ID is required');
+      throw new Error('Valid recipe ID is required')
     }
-    return id;
+    return id
   })
   .handler(async (ctx) => {
-    const { userId } = await getAuth(getWebRequest());
+    const { userId } = await getAuth(getWebRequest())
 
     if (!userId) {
       throw redirect({
         to: '/',
-      });
+      })
     }
 
-    const id = ctx.data;
+    const id = ctx.data
 
     try {
       const data = await db
         .select()
         .from(recipesTable)
         .where(eq(recipesTable.id, Number(id)))
-        .limit(1);
+        .limit(1)
 
       if (!data.length) {
-        throw notFound();
+        throw notFound()
       }
 
-      const recipe = data[0];
-      const transformedRecipe = transformDbRecord(recipe);
+      const recipe = data[0]
+      const transformedRecipe = transformDbRecord(recipe)
 
-      return { recipe: transformedRecipe };
+      return { recipe: transformedRecipe }
     } catch (error) {
       // Add better error handling for database errors
       if (error instanceof Error) {
-        throw new Error(`Failed to fetch recipe: ${error.message}`);
+        throw new Error(`Failed to fetch recipe: ${error.message}`)
       }
-      throw error;
+      throw error
     }
-  });
+  })
 
-export const Route = createFileRoute('/recipes/$id/')({
+export const Route = createFileRoute('/(app)/recipes/$id/')({
   component: RecipePage,
   loader: async ({ context, params }) => {
     try {
-      return await recipeById({ data: params.id });
+      return await recipeById({ data: params.id })
     } catch (error) {
       // Handle or rethrow error as needed
-      console.error('Failed to load recipe:', error);
-      throw error;
+      console.error('Failed to load recipe:', error)
+      throw error
     }
   },
-});
+})
 
 function RecipePage() {
-  const [activeTab, setActiveTab] = useState('ingredients');
-  const { recipe: recipeData } = Route.useLoaderData();
+  const [activeTab, setActiveTab] = useState('ingredients')
+  const { recipe: recipeData } = Route.useLoaderData()
 
   // Memoize animation variants
   const containerVariants = useMemo(
@@ -97,7 +98,7 @@ function RecipePage() {
       },
     }),
     [],
-  );
+  )
 
   const itemVariants = useMemo(
     () => ({
@@ -112,7 +113,7 @@ function RecipePage() {
       },
     }),
     [],
-  );
+  )
 
   // Memoize bookmark status
 
@@ -128,6 +129,7 @@ function RecipePage() {
             variants={containerVariants}
             className="flex-1 space-y-6 p-8 pt-6"
           >
+            <RecipeNavigation title={recipeData.title} />
             <motion.div
               variants={itemVariants}
               className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between md:hidden"
@@ -174,47 +176,7 @@ function RecipePage() {
                 variants={itemVariants}
                 className="flex flex-col justify-between"
               >
-                <motion.div
-                  variants={itemVariants}
-                  className="grid grid-cols-2 gap-4"
-                >
-                  <motion.div
-                    variants={itemVariants}
-                    className="flex items-center gap-2"
-                  >
-                    <Clock className="h-5 w-5 text-muted-foreground" />
-                    <div>
-                      <p className="text-sm font-medium">Total Time</p>
-                      <p className="text-2xl font-bold">
-                        {recipeData.totalTime} mins
-                      </p>
-                    </div>
-                  </motion.div>
-                  <motion.div
-                    variants={itemVariants}
-                    className="flex items-center gap-2"
-                  >
-                    <Users className="h-5 w-5 text-muted-foreground" />
-                    <div>
-                      <p className="text-sm font-medium">Servings</p>
-                      <p className="text-2xl font-bold">
-                        {recipeData.servings}
-                      </p>
-                    </div>
-                  </motion.div>
-                  <motion.div
-                    variants={itemVariants}
-                    className="flex items-center gap-2"
-                  >
-                    <ChefHat className="h-5 w-5 text-muted-foreground" />
-                    <div>
-                      <p className="text-sm font-medium">Difficulty</p>
-                      <p className="text-2xl font-bold">
-                        {recipeData.difficulty}
-                      </p>
-                    </div>
-                  </motion.div>
-                </motion.div>
+                <RecipeDetails recipe={recipeData} />
                 <motion.div
                   variants={itemVariants}
                   className="mt-4 flex flex-wrap gap-2"
@@ -397,5 +359,5 @@ function RecipePage() {
         </div>
       </div>
     </SidebarProvider>
-  );
+  )
 }

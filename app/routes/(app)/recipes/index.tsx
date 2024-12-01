@@ -1,83 +1,83 @@
-import { useState } from 'react';
+import { useState } from 'react'
 
-import { getAuth } from '@clerk/tanstack-start/server';
-import { useQuery } from '@tanstack/react-query';
-import { Link, createFileRoute, redirect } from '@tanstack/react-router';
-import { createServerFn } from '@tanstack/start';
-import { eq } from 'drizzle-orm';
-import { motion } from 'framer-motion';
-import { Bookmark, Clock, Filter, Search, SortAsc } from 'lucide-react';
-import { getWebRequest } from 'vinxi/http';
+import { getAuth } from '@clerk/tanstack-start/server'
+import { useQuery } from '@tanstack/react-query'
+import { Link, createFileRoute, redirect } from '@tanstack/react-router'
+import { createServerFn } from '@tanstack/start'
+import { eq } from 'drizzle-orm'
+import { motion } from 'framer-motion'
+import { Bookmark, Clock, Filter, Search, SortAsc } from 'lucide-react'
+import { getWebRequest } from 'vinxi/http'
 
-import Header from '@/components/header';
-import RecipeCard from '@/components/recipe-card';
-import { SidebarNav } from '@/components/sidebar-nav';
-import { Button } from '@/components/ui/button';
+import Header from '@/components/header'
+import RecipeCard from '@/components/recipe-card'
+import { SidebarNav } from '@/components/sidebar-nav'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Input } from '@/components/ui/input';
-import { SidebarProvider } from '@/components/ui/sidebar';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+} from '@/components/ui/dropdown-menu'
+import { Input } from '@/components/ui/input'
+import { SidebarProvider } from '@/components/ui/sidebar'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
-import authStateFn from '@/reusable-fns/auth-redirect';
+import authStateFn from '@/reusable-fns/auth-redirect'
 
-import { db } from '@/db/db';
-import { type SelectBookmark, recipesTable } from '@/db/schema';
-import { transformDbRecord } from '@/schemas/recipe';
+import { db } from '@/db/db'
+import { type SelectBookmark, recipesTable } from '@/db/schema'
+import { transformDbRecord } from '@/schemas/recipe'
 
 const recipesByUserId = createServerFn({ method: 'GET' }).handler(async () => {
-  const { userId } = await getAuth(getWebRequest());
+  const { userId } = await getAuth(getWebRequest())
 
   if (!userId) {
     // This will error because you're redirecting to a path that doesn't exist yet
     // You can create a sign-in route to handle this
     throw redirect({
       to: '/',
-    });
+    })
   }
 
   const data = await db
     .select()
     .from(recipesTable)
-    .where(eq(recipesTable.userId, userId));
+    .where(eq(recipesTable.userId, userId))
 
-  const transformedRecipes = [];
+  const transformedRecipes = []
 
   for (const recipe of data) {
-    const transformedRecipe = transformDbRecord(recipe);
-    transformedRecipes.push(transformedRecipe);
+    const transformedRecipe = transformDbRecord(recipe)
+    transformedRecipes.push(transformedRecipe)
   }
 
-  return { recipes: transformedRecipes };
-});
+  return { recipes: transformedRecipes }
+})
 
-export const Route = createFileRoute('/recipes/')({
+export const Route = createFileRoute('/(app)/recipes/')({
   component: RecipesPage,
   loader: () => recipesByUserId(),
   beforeLoad: () => authStateFn(),
-});
+})
 
 function RecipesPage() {
-  const [activeTab, setActiveTab] = useState('all');
-  const [searchTerm, setSearchTerm] = useState('');
+  const [activeTab, setActiveTab] = useState('all')
+  const [searchTerm, setSearchTerm] = useState('')
 
-  const categories = ['All', 'Breakfast', 'Brunch', 'Lunch', 'Dinner', 'Snack'];
+  const categories = ['All', 'Breakfast', 'Brunch', 'Lunch', 'Dinner', 'Snack']
 
-  const { recipes } = Route.useLoaderData();
+  const { recipes } = Route.useLoaderData()
 
   const filteredRecipes = recipes.filter((recipe) => {
     const titleMatch = recipe.title
       .toLowerCase()
-      .includes(searchTerm.toLowerCase());
+      .includes(searchTerm.toLowerCase())
     const categoryMatch =
       activeTab.toLowerCase() === 'all' ||
-      recipe.category.toLowerCase() === activeTab.toLowerCase();
-    return titleMatch && categoryMatch;
-  });
+      recipe.category.toLowerCase() === activeTab.toLowerCase()
+    return titleMatch && categoryMatch
+  })
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -87,7 +87,7 @@ function RecipesPage() {
         staggerChildren: 0.1,
       },
     },
-  };
+  }
 
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -99,16 +99,16 @@ function RecipesPage() {
         stiffness: 100,
       },
     },
-  };
+  }
 
   const { data: bookmarks, refetch: refetchBookmarks } = useQuery({
     queryKey: ['bookmarks'],
     queryFn: async () => {
-      const res = await fetch('/api/bookmarks');
-      const data = (await res.json()) as { bookmarks: SelectBookmark[] };
-      return data.bookmarks ?? [];
+      const res = await fetch('/api/bookmarks')
+      const data = (await res.json()) as { bookmarks: SelectBookmark[] }
+      return data.bookmarks ?? []
     },
-  });
+  })
 
   return (
     <SidebarProvider>
@@ -220,5 +220,5 @@ function RecipesPage() {
         </div>
       </div>
     </SidebarProvider>
-  );
+  )
 }

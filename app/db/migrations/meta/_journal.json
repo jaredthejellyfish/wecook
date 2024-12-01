@@ -50,6 +50,13 @@
       "when": 1732920898582,
       "tag": "0006_dark_leper_queen",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1733051034693,
+      "tag": "0007_illegal_grey_gargoyle",
+      "breakpoints": true
     }
   ]
 }

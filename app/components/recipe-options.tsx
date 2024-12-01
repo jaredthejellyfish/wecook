@@ -2,7 +2,7 @@ import React, { useCallback, useMemo } from 'react';
 
 import { useRouter } from '@tanstack/react-router';
 import { motion } from 'framer-motion';
-import { Printer, Share2, Trash } from 'lucide-react';
+import {  Printer, Share2, Trash } from 'lucide-react';
 import { Bookmark } from 'lucide-react';
 
 import { useBookmarkRecipe } from '@/hooks/useBookmarkRecipe';
@@ -22,6 +22,7 @@ import {
   AlertDialogTrigger,
 } from './ui/alert-dialog';
 import { Button } from './ui/button';
+import { Link } from '@tanstack/react-router';
 
 type Props = {
   id: number;
@@ -92,10 +93,13 @@ const RecipeOptionsContent = ({ id }: Props) => {
         />
         <span className="sr-only md:not-sr-only">Bookmark</span>
       </Button>
-      <Button variant="outline" size="sm">
-        <Printer className="md:mr-2 h-4 w-4" />
-        <span className="sr-only md:not-sr-only">Print</span>
-      </Button>
+      <Link to={'/recipes/$id/print'} params={{id: id.toString()}}>
+        <Button variant="outline" size="sm">
+          <Printer className="md:mr-2 h-4 w-4" />
+          <span className="sr-only md:not-sr-only">Print</span>
+        </Button>
+      </Link>
+
       <Button variant="outline" size="sm">
         <Share2 className="md:mr-2 h-4 w-4" />
         <span className="sr-only md:not-sr-only">Share</span>
