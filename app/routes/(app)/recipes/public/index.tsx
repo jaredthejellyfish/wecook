@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, redirect } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/start';
 import { eq } from 'drizzle-orm';
-import { motion } from 'framer-motion';
+import { motion } from "motion/react";
 import { Filter, Search, SortAsc } from 'lucide-react';
 import { getWebRequest } from 'vinxi/http';
 

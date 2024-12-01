@@ -1,6 +1,6 @@
 import { SignedIn, SignedOut } from '@clerk/tanstack-start';
 import { useNavigate } from '@tanstack/react-router';
-import { motion } from 'framer-motion';
+import { motion } from "motion/react";
 import { ChevronRight } from 'lucide-react';
 
 import AnimatedUnderlineLink from '@/components/animated-underline-link';

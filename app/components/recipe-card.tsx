@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useState } from 'react';
 
 import { Link } from '@tanstack/react-router';
-import { motion } from 'framer-motion';
+import { motion } from "motion/react";
 import { Clock } from 'lucide-react';
 import { Bookmark } from 'lucide-react';
 

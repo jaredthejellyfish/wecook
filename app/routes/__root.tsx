@@ -10,7 +10,7 @@ import {
   useRouter,
 } from '@tanstack/react-router';
 import { Meta, Scripts } from '@tanstack/start';
-import { motion } from 'framer-motion';
+import { motion } from "motion/react";
 
 import Devtools from '@/components/Devtools';
 import Header from '@/components/header';

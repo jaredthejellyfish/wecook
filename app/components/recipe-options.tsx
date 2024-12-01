@@ -2,7 +2,7 @@ import React, { Suspense, lazy, useCallback, useMemo } from 'react';
 
 import { useRouter } from '@tanstack/react-router';
 import { Link } from '@tanstack/react-router';
-import { motion } from 'framer-motion';
+import { motion } from "motion/react";
 import { Bookmark, Printer, Share2 } from 'lucide-react';
 
 import { useBookmarkRecipe } from '@/hooks/useBookmarkRecipe';

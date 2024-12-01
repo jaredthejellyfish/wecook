@@ -4,7 +4,7 @@ import { getAuth } from '@clerk/tanstack-start/server';
 import { createFileRoute, redirect } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/start';
 import { eq } from 'drizzle-orm';
-import { motion } from 'framer-motion';
+import { motion } from "motion/react";
 import { toast } from 'sonner';
 import { getWebRequest } from 'vinxi/http';
 

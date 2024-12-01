@@ -5,7 +5,7 @@ import { getAuth } from '@clerk/tanstack-start/server';
 import { createFileRoute, notFound, redirect } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/start';
 import { eq } from 'drizzle-orm';
-import { motion } from 'framer-motion';
+import { motion } from "motion/react";
 import { getWebRequest } from 'vinxi/http';
 
 import RecipeNavigation from '@/components/recipe-navigation';

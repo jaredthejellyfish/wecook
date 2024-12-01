@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { format, isToday } from 'date-fns';
-import { motion } from 'framer-motion';
+import { motion } from "motion/react";
 
 interface Event {
   id: number;
