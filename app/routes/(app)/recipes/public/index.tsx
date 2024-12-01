@@ -21,71 +21,49 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import { db } from '@/db/db';
-import { bookmarksTable, recipesTable } from '@/db/schema';
+import { type SelectBookmark, recipesTable } from '@/db/schema';
 import { transformDbRecord } from '@/schemas/recipe';
 import authStateFn from '@/server-fns/auth-redirect';
 
-const bookmarkedRecipesByUserId = createServerFn({ method: 'GET' }).handler(
-  async () => {
-    try {
-      const { userId } = await getAuth(getWebRequest());
+const recipesByUserId = createServerFn({ method: 'GET' }).handler(async () => {
+  const { userId } = await getAuth(getWebRequest());
 
-      if (!userId) {
-        throw redirect({
-          to: '/',
-        });
-      }
+  if (!userId) {
+    // This will error because you're redirecting to a path that doesn't exist yet
+    // You can create a sign-in route to handle this
+    throw redirect({
+      to: '/',
+    });
+  }
 
-      const data = await db
-        .select({
-          recipe: recipesTable,
-        })
-        .from(bookmarksTable)
-        .innerJoin(recipesTable, eq(bookmarksTable.recipeId, recipesTable.id))
-        .where(eq(bookmarksTable.userId, userId));
+  const data = await db
+    .select()
+    .from(recipesTable)
+    .where(eq(recipesTable.isPublic, true));
 
-      const transformedRecipes = [];
+  const transformedRecipes = [];
 
-      for (const { recipe } of data) {
-        const transformedRecipe = transformDbRecord(recipe);
-        transformedRecipes.push(transformedRecipe);
-      }
+  for (const recipe of data) {
+    const transformedRecipe = transformDbRecord(recipe);
+    transformedRecipes.push(transformedRecipe);
+  }
 
-      return { recipes: transformedRecipes ?? [], userId: userId };
-    } catch (error) {
-      console.error(error);
-      return { recipes: [] };
-    }
-  },
-);
-
-export const Route = createFileRoute('/(app)/recipes/saved/')({
-  component: SavedRecipesPage,
-  beforeLoad: () => authStateFn(),
-  loader: () => bookmarkedRecipesByUserId(),
+  return { recipes: transformedRecipes };
 });
 
-function SavedRecipesPage() {
+export const Route = createFileRoute('/(app)/recipes/public/')({
+  component: RecipesPage,
+  beforeLoad: () => authStateFn(),
+  loader: () => recipesByUserId(),
+});
+
+function RecipesPage() {
   const [activeTab, setActiveTab] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+
   const categories = ['All', 'Breakfast', 'Brunch', 'Lunch', 'Dinner', 'Snack'];
 
-  const { recipes: initialData, userId } = Route.useLoaderData();
-
-  const { data: recipes, refetch: refetchBookmarks } = useQuery({
-    queryKey: ['bookmarked-recipes'],
-    initialData: initialData,
-    queryFn: async () => {
-      const { recipes } = await bookmarkedRecipesByUserId();
-      return recipes;
-    },
-  });
-
-  const bookmarks = recipes?.map((recipe) => ({
-    recipeId: recipe.id,
-    userId: userId ?? '',
-    id: 0,
-  }));
+  const { recipes } = Route.useLoaderData();
 
   const filteredRecipes = recipes.filter((recipe) => {
     const titleMatch = recipe.title
@@ -119,6 +97,15 @@ function SavedRecipesPage() {
     },
   };
 
+  const { data: bookmarks, refetch: refetchBookmarks } = useQuery({
+    queryKey: ['bookmarks'],
+    queryFn: async () => {
+      const res = await fetch('/api/bookmarks');
+      const data = (await res.json()) as { bookmarks: SelectBookmark[] };
+      return data.bookmarks ?? [];
+    },
+  });
+
   return (
     <>
       <motion.div
@@ -127,7 +114,7 @@ function SavedRecipesPage() {
       >
         <div>
           <h2 className="text-2xl font-bold tracking-tight dark:text-white">
-            Saved Recipes
+            Public Recipes
           </h2>
           <p className="text-muted-foreground dark:text-neutral-400">
             {recipes?.length} recipes
@@ -198,7 +185,7 @@ function SavedRecipesPage() {
             variants={itemVariants}
             className="col-span-full text-center text-muted-foreground dark:text-neutral-400"
           >
-            Looks like you haven't saved any recipes yet.
+            No recipes found
           </motion.div>
         )}
 

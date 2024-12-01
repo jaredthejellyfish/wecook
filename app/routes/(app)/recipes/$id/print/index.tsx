@@ -1,104 +1,102 @@
-import * as React from 'react'
+import * as React from 'react';
 
-import { getAuth } from '@clerk/tanstack-start/server'
+import { getAuth } from '@clerk/tanstack-start/server';
 import {
   createFileRoute,
   notFound,
   redirect,
   useNavigate,
-} from '@tanstack/react-router'
-import { createServerFn } from '@tanstack/start'
-import { eq } from 'drizzle-orm'
-import { ChefHat, Clock, Users } from 'lucide-react'
-import { getWebRequest } from 'vinxi/http'
+} from '@tanstack/react-router';
+import { createServerFn } from '@tanstack/start';
+import { eq } from 'drizzle-orm';
+import { ChefHat, Clock, Users } from 'lucide-react';
+import { getWebRequest } from 'vinxi/http';
 
-import { Badge } from '@/components/ui/badge'
-
-import { db } from '@/db/db'
-import { recipesTable } from '@/db/schema'
-import { transformDbRecord } from '@/schemas/recipe'
+import { db } from '@/db/db';
+import { recipesTable } from '@/db/schema';
+import { transformDbRecord } from '@/schemas/recipe';
 
 const recipeById = createServerFn({ method: 'GET' })
   .validator((id: string) => {
     if (!id || id.trim() === '') {
-      throw new Error('Valid recipe ID is required')
+      throw new Error('Valid recipe ID is required');
     }
-    return id
+    return id;
   })
   .handler(async (ctx) => {
-    const { userId } = await getAuth(getWebRequest())
+    const { userId } = await getAuth(getWebRequest());
 
     if (!userId) {
       throw redirect({
         to: '/',
-      })
+      });
     }
 
-    const id = ctx.data
+    const id = ctx.data;
 
     try {
       const data = await db
         .select()
         .from(recipesTable)
         .where(eq(recipesTable.id, Number(id)))
-        .limit(1)
+        .limit(1);
 
       if (!data.length) {
-        throw notFound()
+        throw notFound();
       }
 
-      const recipe = data[0]
-      const transformedRecipe = transformDbRecord(recipe)
+      const recipe = data[0];
+      const transformedRecipe = transformDbRecord(recipe);
 
-      return { recipe: transformedRecipe }
+      return { recipe: transformedRecipe };
     } catch (error) {
       if (error instanceof Error) {
-        throw new Error(`Failed to fetch recipe: ${error.message}`)
+        throw new Error(`Failed to fetch recipe: ${error.message}`);
       }
-      throw error
+      throw error;
     }
-  })
+  });
 
 export const Route = createFileRoute('/(app)/recipes/$id/print/')({
   component: PrintableRecipePage,
   loader: async ({ params }) => {
     try {
-      return await recipeById({ data: params.id })
+      return await recipeById({ data: params.id });
     } catch (error) {
-      console.error('Failed to load recipe:', error)
-      throw error
+      console.error('Failed to load recipe:', error);
+      throw error;
     }
   },
-})
+});
 
 function PrintableRecipePage() {
-  const { recipe: recipeData } = Route.useLoaderData()
-  const navigate = useNavigate()
+  const { recipe: recipeData } = Route.useLoaderData();
+  const navigate = useNavigate();
 
-  const sluggifiedTitle = recipeData.title.toLowerCase().replace(/ /g, '-')
+  const sluggifiedTitle = recipeData.title.toLowerCase().replace(/ /g, '-');
 
   React.useEffect(() => {
     // Set document title to recipe name
-    document.title = sluggifiedTitle
+    document.title = sluggifiedTitle;
 
     // Function to handle after print
     const handleAfterPrint = () => {
-      document.title = 'WeCook'
-      window.removeEventListener('afterprint', handleAfterPrint)
-      navigate({ to: `/recipes/${recipeData.id}` })
-    }
+      document.title = 'WeCook';
+      window.removeEventListener('afterprint', handleAfterPrint);
+      navigate({ to: `/recipes/${recipeData.id}` });
+    };
 
     // Add event listener for print completion
-    window.addEventListener('afterprint', handleAfterPrint)
+    window.addEventListener('afterprint', handleAfterPrint);
 
     // Trigger print dialog
-    window.print()
+    window.print();
 
     // Cleanup
     return () => {
-      window.removeEventListener('afterprint', handleAfterPrint)
-    }
-  }, [navigate, recipeData.id])
+      window.removeEventListener('afterprint', handleAfterPrint);
+    };
+  }, [navigate, recipeData.id]);
 
   return (
     <div className="print-recipe">
@@ -312,5 +310,5 @@ function PrintableRecipePage() {
         </div>
       )}
     </div>
-  )
+  );
 }

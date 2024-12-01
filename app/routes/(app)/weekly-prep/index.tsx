@@ -1,21 +1,14 @@
-import { lazy, useState } from 'react';
+import { lazy } from 'react';
 
 import { getAuth } from '@clerk/tanstack-start/server';
 import { createFileRoute, redirect } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/start';
-import { addMonths, format, subMonths } from 'date-fns';
 import { eq } from 'drizzle-orm';
-import { motion } from 'framer-motion';
 import { getWebRequest } from 'vinxi/http';
-
-import Header from '@/components/header';
-import { SidebarNav } from '@/components/sidebar-nav';
-import { SidebarProvider } from '@/components/ui/sidebar';
-
-import authStateFn from '@/server-fns/auth-redirect';
 
 import { db } from '@/db/db';
 import { eventsTable, recipesTable } from '@/db/schema';
+import authStateFn from '@/server-fns/auth-redirect';
 
 const LazyCalendar = lazy(() => import('@/components/Calendar/index'));
 
@@ -51,38 +44,14 @@ const eventsWithRecipesByUserId = createServerFn({ method: 'GET' }).handler(
 
 export const Route = createFileRoute('/(app)/weekly-prep/')({
   component: WeeklyPrepPage,
-  loader: () => eventsWithRecipesByUserId(),
   beforeLoad: () => authStateFn(),
+  loader: () => eventsWithRecipesByUserId(),
 });
 
 function WeeklyPrepPage() {
   const { events } = Route.useLoaderData();
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
-  };
 
-  return (
-    <SidebarProvider>
-      <Header />
-      <div className="relative flex min-h-screen flex-col top-16 w-full bg-gradient-to-b from-white to-neutral-100 dark:bg-gradient-to-b dark:from-neutral-800/50 dark:to-neutral-900/50 dark:text-white">
-        <div className="flex-1 items-start md:grid md:grid-cols-[240px_minmax(0,1fr)] md:gap-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-10">
-          <SidebarNav />
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            variants={containerVariants}
-            className="flex-1 space-y-6 md:p-8 p-3 pt-6"
-          >
-            <LazyCalendar />
-          </motion.div>
-        </div>
-      </div>
-    </SidebarProvider>
-  );
+  console.log(events);
+
+  return <LazyCalendar />;
 }

@@ -9,7 +9,6 @@ import { cn } from '@/lib/utils';
 import GenerateRecipeButton from './generate-recipe-button';
 import { ThemeToggle } from './theme-toggle';
 import { Button } from './ui/button';
-import { HoverCard, HoverCardContent, HoverCardTrigger } from './ui/hover-card';
 import { Input } from './ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import {

@@ -1,12 +1,9 @@
-import React, { useCallback, useMemo, lazy, Suspense } from 'react';
+import React, { Suspense, lazy, useCallback, useMemo } from 'react';
+
 import { useRouter } from '@tanstack/react-router';
 import { Link } from '@tanstack/react-router';
 import { motion } from 'framer-motion';
-import {
-  Bookmark,
-  Printer,
-  Share2,
-} from 'lucide-react';
+import { Bookmark, Printer, Share2 } from 'lucide-react';
 
 import { useBookmarkRecipe } from '@/hooks/useBookmarkRecipe';
 import { useBookmarks } from '@/hooks/useBookmarks';
@@ -14,11 +11,20 @@ import { useDeleteRecipe } from '@/hooks/useDeleteRecipe';
 import { useEditRecipe } from '@/hooks/useEditRecipe';
 import { useRecipePublic } from '@/hooks/useRecipePublic';
 import { cn } from '@/lib/utils';
+
 import { Button } from './ui/button';
 
 // Lazy load the dialog components
-const EditDialog = lazy(() => import('./recipe-options/EditDialog').then(mod => ({ default: mod.EditDialog })));
-const DeleteDialog = lazy(() => import('./recipe-options/DeleteDialog').then(mod => ({ default: mod.DeleteDialog })));
+const EditDialog = lazy(() =>
+  import('./recipe-options/EditDialog').then((mod) => ({
+    default: mod.EditDialog,
+  })),
+);
+const DeleteDialog = lazy(() =>
+  import('./recipe-options/DeleteDialog').then((mod) => ({
+    default: mod.DeleteDialog,
+  })),
+);
 
 // Moved animations outside component to prevent recreation
 const itemVariants = {
@@ -36,28 +42,10 @@ const itemVariants = {
 type Props = {
   id: number;
   isPublic: boolean;
+  isOwned: boolean;
 };
 
-type Status = 'QUEUED' | 'EXECUTING' | 'COMPLETED' | 'FAILED';
-
-const mapRunStatusToStatus = (runStatus: string): Status => {
-  switch (runStatus) {
-    case 'COMPLETED':
-      return 'COMPLETED';
-    case 'FAILED':
-    case 'CRASHED':
-    case 'INTERRUPTED':
-    case 'SYSTEM_FAILURE':
-      return 'FAILED';
-    case 'EXECUTING':
-    case 'REATTEMPTING':
-      return 'EXECUTING';
-    default:
-      return 'QUEUED';
-  }
-};
-
-const RecipeOptionsContent = ({ id, isPublic }: Props) => {
+const RecipeOptionsContent = ({ id, isPublic, isOwned }: Props) => {
   const bookmarkMutation = useBookmarkRecipe();
   const deleteMutation = useDeleteRecipe();
   const { data: bookmarks } = useBookmarks();
@@ -141,31 +129,47 @@ const RecipeOptionsContent = ({ id, isPublic }: Props) => {
         </Button>
       </Link>
 
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={handlePublicToggle}
-      >
-        <Share2 className={cn('md:mr-2 h-4 w-4', isPublic && 'fill-primary')} />
-        <span className="sr-only md:not-sr-only">
-          {isPublic ? 'Public' : 'Private'}
-        </span>
-      </Button>
+      {isOwned && (
+        <Button variant="outline" size="sm" onClick={handlePublicToggle}>
+          <Share2
+            className={cn('md:mr-2 h-4 w-4', isPublic && 'fill-primary')}
+          />
+          <span className="sr-only md:not-sr-only">
+            {isPublic ? 'Public' : 'Private'}
+          </span>
+        </Button>
+      )}
 
-      <Suspense fallback={<Button variant="outline" size="sm" disabled>Edit</Button>}>
-        <EditDialog 
-          onEdit={handleEdit}
-          isLoading={editRecipe.isLoading}
-          run={editRecipe.run}
-        />
-      </Suspense>
+      {isOwned && (
+        <Suspense
+          fallback={
+            <Button variant="outline" size="sm" disabled>
+              Edit
+            </Button>
+          }
+        >
+          <EditDialog
+            onEdit={handleEdit}
+            isLoading={editRecipe.isLoading}
+            run={editRecipe.run}
+          />
+        </Suspense>
+      )}
 
-      <Suspense fallback={<Button variant="outline" size="sm" disabled>Delete</Button>}>
-        <DeleteDialog
-          onDelete={handleDelete}
-          isPending={deleteMutation.isPending}
-        />
-      </Suspense>
+      {isOwned && (
+        <Suspense
+          fallback={
+            <Button variant="outline" size="sm" disabled>
+              Delete
+            </Button>
+          }
+        >
+          <DeleteDialog
+            onDelete={handleDelete}
+            isPending={deleteMutation.isPending}
+          />
+        </Suspense>
+      )}
     </motion.div>
   );
 };

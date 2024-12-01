@@ -2,8 +2,6 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import bookmarkRecipeFn from '@/server-fns/bookmark-recipe';
 
-import type { SelectBookmark } from '@/db/schema';
-
 export function useBookmarkRecipe() {
   const queryClient = useQueryClient();
 

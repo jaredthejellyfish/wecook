@@ -14,7 +14,7 @@ const BodySchema = z.object({
 })
 
 export const Route = createAPIFileRoute('/api/recipes/public')({
-    POST: async ({ request, params }) => {
+    POST: async ({ request }) => {
         const { userId } = await getAuth(request);
 
         console.log(userId);

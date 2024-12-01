@@ -6,6 +6,7 @@ import {
     LayoutDashboard,
     type LucideIcon,
     Settings,
+    Share2,
     ShoppingBag,
     UserCircle,
 } from 'lucide-react';
@@ -42,6 +43,11 @@ const sidebarItems: SidebarItem[] = [
         label: 'Shopping List',
         icon: ShoppingBag,
         path: '/shopping-list',
+    },
+    {
+        label: 'Public Recipes',
+        icon: Share2,
+        path: '/recipes/public',
     },
 ];
 

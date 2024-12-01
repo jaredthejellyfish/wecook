@@ -2,7 +2,6 @@ import { db } from '@/db/db';
 import { bookmarksTable, recipesTable } from '@/db/schema';
 import { DeleteRecipeSchema } from '@/schemas/delete-recipe';
 import { getAuth } from '@clerk/tanstack-start/server';
-import { redirect } from '@tanstack/react-router';
 import { json } from '@tanstack/start'
 import { createAPIFileRoute } from '@tanstack/start/api'
 import { eq } from 'drizzle-orm';

@@ -20,6 +20,7 @@ import { Route as appDashboardIndexImport } from './routes/(app)/dashboard/index
 import { Route as appSettingsPreferencesIndexImport } from './routes/(app)/settings/preferences/index'
 import { Route as appSettingsPlanIndexImport } from './routes/(app)/settings/plan/index'
 import { Route as appRecipesSavedIndexImport } from './routes/(app)/recipes/saved/index'
+import { Route as appRecipesPublicIndexImport } from './routes/(app)/recipes/public/index'
 import { Route as appRecipesIdIndexImport } from './routes/(app)/recipes/$id/index'
 import { Route as appRecipesIdPrintIndexImport } from './routes/(app)/recipes/$id/print/index'
 
@@ -77,6 +78,12 @@ const appSettingsPlanIndexRoute = appSettingsPlanIndexImport.update({
 const appRecipesSavedIndexRoute = appRecipesSavedIndexImport.update({
   id: '/(app)/recipes/saved/',
   path: '/recipes/saved/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const appRecipesPublicIndexRoute = appRecipesPublicIndexImport.update({
+  id: '/(app)/recipes/public/',
+  path: '/recipes/public/',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -145,6 +152,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appRecipesIdIndexImport
       parentRoute: typeof rootRoute
     }
+    '/(app)/recipes/public/': {
+      id: '/(app)/recipes/public/'
+      path: '/recipes/public'
+      fullPath: '/recipes/public'
+      preLoaderRoute: typeof appRecipesPublicIndexImport
+      parentRoute: typeof rootRoute
+    }
     '/(app)/recipes/saved/': {
       id: '/(app)/recipes/saved/'
       path: '/recipes/saved'
@@ -186,6 +200,7 @@ export interface FileRoutesByFullPath {
   '/recipes': typeof appRecipesIndexRoute
   '/weekly-prep': typeof appWeeklyPrepIndexRoute
   '/recipes/$id': typeof appRecipesIdIndexRoute
+  '/recipes/public': typeof appRecipesPublicIndexRoute
   '/recipes/saved': typeof appRecipesSavedIndexRoute
   '/settings/plan': typeof appSettingsPlanIndexRoute
   '/settings/preferences': typeof appSettingsPreferencesIndexRoute
@@ -200,6 +215,7 @@ export interface FileRoutesByTo {
   '/recipes': typeof appRecipesIndexRoute
   '/weekly-prep': typeof appWeeklyPrepIndexRoute
   '/recipes/$id': typeof appRecipesIdIndexRoute
+  '/recipes/public': typeof appRecipesPublicIndexRoute
   '/recipes/saved': typeof appRecipesSavedIndexRoute
   '/settings/plan': typeof appSettingsPlanIndexRoute
   '/settings/preferences': typeof appSettingsPreferencesIndexRoute
@@ -215,6 +231,7 @@ export interface FileRoutesById {
   '/(app)/recipes/': typeof appRecipesIndexRoute
   '/(app)/weekly-prep/': typeof appWeeklyPrepIndexRoute
   '/(app)/recipes/$id/': typeof appRecipesIdIndexRoute
+  '/(app)/recipes/public/': typeof appRecipesPublicIndexRoute
   '/(app)/recipes/saved/': typeof appRecipesSavedIndexRoute
   '/(app)/settings/plan/': typeof appSettingsPlanIndexRoute
   '/(app)/settings/preferences/': typeof appSettingsPreferencesIndexRoute
@@ -231,6 +248,7 @@ export interface FileRouteTypes {
     | '/recipes'
     | '/weekly-prep'
     | '/recipes/$id'
+    | '/recipes/public'
     | '/recipes/saved'
     | '/settings/plan'
     | '/settings/preferences'
@@ -244,6 +262,7 @@ export interface FileRouteTypes {
     | '/recipes'
     | '/weekly-prep'
     | '/recipes/$id'
+    | '/recipes/public'
     | '/recipes/saved'
     | '/settings/plan'
     | '/settings/preferences'
@@ -257,6 +276,7 @@ export interface FileRouteTypes {
     | '/(app)/recipes/'
     | '/(app)/weekly-prep/'
     | '/(app)/recipes/$id/'
+    | '/(app)/recipes/public/'
     | '/(app)/recipes/saved/'
     | '/(app)/settings/plan/'
     | '/(app)/settings/preferences/'
@@ -272,6 +292,7 @@ export interface RootRouteChildren {
   appRecipesIndexRoute: typeof appRecipesIndexRoute
   appWeeklyPrepIndexRoute: typeof appWeeklyPrepIndexRoute
   appRecipesIdIndexRoute: typeof appRecipesIdIndexRoute
+  appRecipesPublicIndexRoute: typeof appRecipesPublicIndexRoute
   appRecipesSavedIndexRoute: typeof appRecipesSavedIndexRoute
   appSettingsPlanIndexRoute: typeof appSettingsPlanIndexRoute
   appSettingsPreferencesIndexRoute: typeof appSettingsPreferencesIndexRoute
@@ -286,6 +307,7 @@ const rootRouteChildren: RootRouteChildren = {
   appRecipesIndexRoute: appRecipesIndexRoute,
   appWeeklyPrepIndexRoute: appWeeklyPrepIndexRoute,
   appRecipesIdIndexRoute: appRecipesIdIndexRoute,
+  appRecipesPublicIndexRoute: appRecipesPublicIndexRoute,
   appRecipesSavedIndexRoute: appRecipesSavedIndexRoute,
   appSettingsPlanIndexRoute: appSettingsPlanIndexRoute,
   appSettingsPreferencesIndexRoute: appSettingsPreferencesIndexRoute,
@@ -309,6 +331,7 @@ export const routeTree = rootRoute
         "/(app)/recipes/",
         "/(app)/weekly-prep/",
         "/(app)/recipes/$id/",
+        "/(app)/recipes/public/",
         "/(app)/recipes/saved/",
         "/(app)/settings/plan/",
         "/(app)/settings/preferences/",
@@ -335,6 +358,9 @@ export const routeTree = rootRoute
     },
     "/(app)/recipes/$id/": {
       "filePath": "(app)/recipes/$id/index.tsx"
+    },
+    "/(app)/recipes/public/": {
+      "filePath": "(app)/recipes/public/index.tsx"
     },
     "/(app)/recipes/saved/": {
       "filePath": "(app)/recipes/saved/index.tsx"

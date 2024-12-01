@@ -4,6 +4,7 @@ import { ChevronRight } from 'lucide-react';
 
 type Props = {
   title: string;
+  isOwned: boolean;
 };
 
 const itemVariants = {
@@ -19,7 +20,7 @@ const itemVariants = {
   },
 };
 
-export default function RecipeNavigation({ title }: Props) {
+export default function RecipeNavigation({ title, isOwned }: Props) {
   return (
     <motion.div
       className="flex items-center gap-2 text-md"
@@ -28,10 +29,10 @@ export default function RecipeNavigation({ title }: Props) {
       variants={itemVariants}
     >
       <Link
-        to="/recipes"
+        to={isOwned ? '/recipes' : '/recipes/public'}
         className="text-primary hover:text-primary/80 transition-colors"
       >
-        All Recipes
+        {isOwned ? 'All Recipes' : 'Public Recipes'}
       </Link>
       <ChevronRight className="h-4 w-4 text-muted-foreground" />
       <span className="text-muted-foreground font-medium">{title}</span>

@@ -7,7 +7,7 @@ import { db } from '@/db/db';
 import { bookmarksTable } from '@/db/schema';
 
 export const Route = createAPIFileRoute('/api/bookmarks')({
-  GET: async ({ request, params }) => {
+  GET: async ({ request }) => {
     const { userId } = await getAuth(request);
 
     if (!userId) {

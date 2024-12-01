@@ -6,11 +6,10 @@ import { motion } from 'framer-motion';
 import { Clock } from 'lucide-react';
 import { Bookmark } from 'lucide-react';
 
-import bookmarkRecipeFn from '@/server-fns/bookmark-recipe';
-
 import type { SelectBookmark } from '@/db/schema';
 import { cn } from '@/lib/utils';
 import type { Recipe } from '@/schemas/recipe';
+import bookmarkRecipeFn from '@/server-fns/bookmark-recipe';
 
 import { Button } from './ui/button';
 
@@ -41,24 +40,6 @@ function RecipeCard({ recipe, refetchBookmarks, bookmarks }: Props) {
     setIsBookmarked(bookmarks?.some((b) => b.recipeId === recipe.id) ?? false);
   }, [bookmarks, recipe.id]);
 
-  const handleBookmark = async (e: React.MouseEvent) => {
-    e.preventDefault();
-
-    // Optimistically update UI
-    setIsBookmarked((prev) => !prev);
-
-    try {
-      await bookmarkRecipeFn({
-        data: { recipe_id: recipe.id },
-      });
-      // Refetch to reconcile with server state
-      refetchBookmarks();
-    } catch (error) {
-      // Revert optimistic update on error
-      setIsBookmarked((prev) => !prev);
-      console.error('Failed to bookmark recipe:', error);
-    }
-  };
   return (
     <Link
       to={`/recipes/${recipe.id}`}
