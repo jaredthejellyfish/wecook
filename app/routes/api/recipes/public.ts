@@ -17,7 +17,6 @@ export const Route = createAPIFileRoute('/api/recipes/public')({
     POST: async ({ request }) => {
         const { userId } = await getAuth(request);
 
-        console.log(userId);
 
         if (!userId) {
             // This will error because you're redirecting to a path that doesn't exist yet
@@ -27,7 +26,6 @@ export const Route = createAPIFileRoute('/api/recipes/public')({
 
         const { recipeId, isPublic } = BodySchema.parse(await request.json());
 
-        console.log(recipeId, isPublic);
 
         await db
             .update(recipesTable)

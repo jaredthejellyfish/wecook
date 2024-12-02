@@ -14,7 +14,6 @@ const BodySchema = z.object({
 
 export const Route = createAPIFileRoute('/api/recipes/edit')({
   POST: async ({ request }) => {
-    console.log('Generating recipe...')
 
     try {
       const body = await request.json()

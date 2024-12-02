@@ -22,7 +22,7 @@ const QuerySchema = z.object({
 
 export const Route = createAPIFileRoute('/api/recipes/generate')({
   GET: async ({ request }) => {
-    console.log('Generating recipe...')
+
 
     try {
       const url = new URL(request.url)
@@ -51,8 +51,6 @@ export const Route = createAPIFileRoute('/api/recipes/generate')({
           userId,
         },
       )
-
-      console.log('handle', handle)
 
       if (!handle.id) {
         return json(

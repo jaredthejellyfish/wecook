@@ -8,7 +8,7 @@ export function useMutatePreferences() {
 
   return useMutation({
     mutationFn: async (preferences: Partial<SelectPreference>) => {
-      const response = await fetch('/api/set-preferences', {
+      const response = await fetch('/api/preferences', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -154,7 +154,6 @@ function PreferencesPage() {
   const { mutate: updatePreferences } = useMutatePreferences();
 
   const handleSavePreferences = async () => {
-    console.log('preferences', preferences);
     updatePreferences(preferences);
     toast.success('Preferences updated successfully!');
   };

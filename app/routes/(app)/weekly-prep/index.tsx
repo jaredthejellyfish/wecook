@@ -1,16 +1,14 @@
-import { lazy } from 'react';
-
 import { getAuth } from '@clerk/tanstack-start/server';
 import { createFileRoute, redirect } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/start';
 import { eq } from 'drizzle-orm';
 import { getWebRequest } from 'vinxi/http';
 
+import Calendar from '@/components/Calendar';
+
 import { db } from '@/db/db';
 import { eventsTable, recipesTable } from '@/db/schema';
 import authStateFn from '@/server-fns/auth-redirect';
-
-const LazyCalendar = lazy(() => import('@/components/Calendar/index'));
 
 const eventsWithRecipesByUserId = createServerFn({ method: 'GET' }).handler(
   async () => {
@@ -51,7 +49,7 @@ export const Route = createFileRoute('/(app)/weekly-prep/')({
 function WeeklyPrepPage() {
   const { events } = Route.useLoaderData();
 
-  console.log("events", events);
+  console.log('events', events);
 
-  return <LazyCalendar />;
+  return <Calendar />;
 }
