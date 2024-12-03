@@ -16,6 +16,16 @@ interface TimelineProps {
 }
 
 export function Timeline({ date, events }: TimelineProps) {
+
+const filteredEvents = events.filter(event => {
+    const eventDate = new Date(event.time);
+    return (
+      eventDate.getFullYear() === date.getFullYear() &&
+      eventDate.getMonth() === date.getMonth() &&
+      eventDate.getDate() === date.getDate()
+    );
+  });
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -26,9 +36,9 @@ export function Timeline({ date, events }: TimelineProps) {
       <h3 className="text-lg font-semibold mb-4">
         Timeline for {isToday(date) ? 'Today' : format(date, 'MMMM d, yyyy')}
       </h3>
-      {events.length > 0 ? (
+      {filteredEvents.length > 0 ? (
         <div className="space-y-4">
-          {events.map((event) => (
+          {filteredEvents.map((event) => (
             <motion.div
               key={event.id}
               initial={{ opacity: 0, x: -20 }}

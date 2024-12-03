@@ -49,7 +49,5 @@ export const Route = createFileRoute('/(app)/weekly-prep/')({
 function WeeklyPrepPage() {
   const { events } = Route.useLoaderData();
 
-  console.log('events', events);
-
-  return <Calendar />;
+  return <Calendar events={events} />;
 }

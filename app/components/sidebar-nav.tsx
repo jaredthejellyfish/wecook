@@ -21,7 +21,7 @@ import { sidebarItems, sidebarSettings } from '@/lib/nav-items';
 
 
 
-export function SidebarNav() {
+export default function SidebarNav() {
   const { pathname } = usePathname();
 
   return (

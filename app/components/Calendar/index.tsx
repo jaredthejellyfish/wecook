@@ -16,44 +16,14 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 
-import { Timeline } from './timeline';
+import type { SelectEvent } from '@/db/schema';
 import { cn } from '@/lib/utils';
 
-// Mock data for events
-const mockEvents = [
-  {
-    id: 1,
-    time: '09:00',
-    title: 'Breakfast',
-    description: 'Start the day with a healthy breakfast',
-  },
-  {
-    id: 2,
-    time: '10:30',
-    title: 'Snack',
-    description: 'A healthy snack to keep you going',
-  },
-  {
-    id: 3,
-    time: '12:00',
-    title: 'Lunch',
-    description: 'Enjoy lunch and take a short break',
-  },
-  {
-    id: 4,
-    time: '14:00',
-    title: 'Snack',
-    description: 'A healthy snack to keep you going',
-  },
-  {
-    id: 5,
-    time: '16:30',
-    title: 'Dinner',
-    description: 'A healthy dinner to keep you going',
-  },
-];
+import { Timeline } from './timeline';
 
-export default function Calendar() {
+
+
+export default function Calendar({ events }: { events: SelectEvent[] }) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
@@ -178,7 +148,7 @@ export default function Calendar() {
           <Timeline
             key={selectedDate.toISOString()}
             date={selectedDate}
-            events={mockEvents}
+            events={events}
           />
         </AnimatePresence>
       </motion.div>
