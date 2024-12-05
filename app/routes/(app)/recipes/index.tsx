@@ -5,7 +5,6 @@ import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, redirect } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/start';
 import { eq } from 'drizzle-orm';
-import { motion } from "motion/react";
 import { Filter, Search, SortAsc } from 'lucide-react';
 import { getWebRequest } from 'vinxi/http';
 
@@ -75,28 +74,6 @@ function RecipesPage() {
     return titleMatch && categoryMatch;
   });
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        type: 'spring',
-        stiffness: 100,
-      },
-    },
-  };
-
   const { data: bookmarks, refetch: refetchBookmarks } = useQuery({
     queryKey: ['bookmarks'],
     queryFn: async () => {
@@ -108,10 +85,7 @@ function RecipesPage() {
 
   return (
     <>
-      <motion.div
-        variants={itemVariants}
-        className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
-      >
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h2 className="text-2xl font-bold tracking-tight dark:text-white">
             All Recipes
@@ -148,9 +122,9 @@ function RecipesPage() {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-      </motion.div>
+      </div>
 
-      <motion.div variants={itemVariants} className="space-y-4">
+      <div className="space-y-4">
         <div className="relative">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
@@ -174,19 +148,13 @@ function RecipesPage() {
             ))}
           </TabsList>
         </Tabs>
-      </motion.div>
+      </div>
 
-      <motion.div
-        variants={containerVariants}
-        className="flex flex-col gap-y-4 sm:grid sm:gap-6 sm:grid-cols-2 lg:grid-cols-3 w-full"
-      >
+      <div className="flex flex-col gap-y-4 sm:grid sm:gap-6 sm:grid-cols-2 lg:grid-cols-3 w-full">
         {filteredRecipes.length === 0 && (
-          <motion.div
-            variants={itemVariants}
-            className="col-span-full text-center text-muted-foreground dark:text-neutral-400"
-          >
+          <div className="col-span-full text-center text-muted-foreground dark:text-neutral-400">
             No recipes found
-          </motion.div>
+          </div>
         )}
 
         {filteredRecipes.map((recipe) => (
@@ -197,7 +165,7 @@ function RecipesPage() {
             bookmarks={bookmarks ?? []}
           />
         ))}
-      </motion.div>
+      </div>
     </>
   );
 }
