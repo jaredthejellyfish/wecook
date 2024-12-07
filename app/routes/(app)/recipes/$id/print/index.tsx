@@ -118,14 +118,16 @@ function PrintableRecipePage() {
             .recipe-header {
               text-align: center;
               margin-bottom: 2cm;
-              page-break-inside: avoid;
-              page-break-after: always;
             }
 
             .recipe-title {
               font-size: 24pt;
               font-weight: bold;
               margin-bottom: 0.5cm;
+            }
+
+            .recipe-description {
+              margin-bottom: 1cm;
             }
 
             .recipe-meta {
@@ -139,15 +141,22 @@ function PrintableRecipePage() {
               display: flex;
               align-items: center;
               gap: 0.25cm;
-                
             }
 
             .recipe-image {
               max-width: 100%;
               height: auto;
-              margin: 1cm 0;
-              page-break-inside: avoid;
+              margin: 1cm auto;
               border-radius: 20px;
+              display: block;
+            }
+
+            .first-page-content {
+              page-break-after: always;
+            }
+
+            .remaining-content {
+              page-break-before: always;
             }
 
             .recipe-section {
@@ -220,95 +229,101 @@ function PrintableRecipePage() {
         `}
       </style>
 
-      <div className="recipe-header">
-        <h1 className="recipe-title">{recipeData.title}</h1>
-        <p className="recipe-description">{recipeData.description}</p>
-
-        <div className="recipe-meta">
-          <div className="recipe-meta-item">
-            <Clock className="h-4 w-4" />
-            <span>{recipeData.totalTime} min</span>
-          </div>
-          <div className="recipe-meta-item">
-            <Users className="h-4 w-4" />
-            <span>{recipeData.servings} servings</span>
-          </div>
-          <div className="recipe-meta-item">
-            <ChefHat className="h-4 w-4" />
-            <span>{recipeData.difficulty}</span>
-          </div>
-        </div>
-
-        <div className="recipe-tags">
-          {recipeData.tags?.map((tag) => (
-            <span key={tag} className="recipe-tag">
-              {tag}
-            </span>
-          ))}
-        </div>
-
-        <img
-          src={recipeData.image}
-          alt={recipeData.title}
-          className="recipe-image"
-        />
-      </div>
-
-      <div className="recipe-section">
-        <h2>Ingredients</h2>
-        <div className="ingredients-list">
-          {recipeData.ingredients.map((ingredient, index) => (
-            <div key={index} className="ingredient-item">
-              <strong>
-                {ingredient.amount} {ingredient.unit}
-              </strong>{' '}
-              {ingredient.name}
-              {ingredient.notes && (
-                <div className="text-sm text-gray-600">{ingredient.notes}</div>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="page-break" />
-
-      <div className="recipe-section">
-        <h2>Instructions</h2>
-        <div className="instructions-list">
-          {recipeData.instructions.map((step) => (
-            <div key={step.stepNumber} className="instruction-item">
-              <span className="instruction-number">{step.stepNumber}.</span>
-              <div>
-                <div>{step.instruction}</div>
-                {step.timingInMinutes && (
-                  <div className="text-sm text-gray-600">
-                    Time: {step.timingInMinutes} minutes
-                  </div>
-                )}
+      <div className="print-recipe">
+        <div className="first-page-content">
+          <div className="recipe-header">
+            <h1 className="recipe-title">{recipeData.title}</h1>
+            <div className="recipe-meta">
+              <div className="recipe-meta-item">
+                <Clock className="h-4 w-4" />
+                <span>{recipeData.totalTime} min</span>
+              </div>
+              <div className="recipe-meta-item">
+                <Users className="h-4 w-4" />
+                <span>{recipeData.servings} servings</span>
+              </div>
+              <div className="recipe-meta-item">
+                <ChefHat className="h-4 w-4" />
+                <span>{recipeData.difficulty}</span>
               </div>
             </div>
-          ))}
-        </div>
-      </div>
 
-      {recipeData.notes && recipeData.notes.length > 0 && (
-        <div className="recipe-section">
-          <h2>Notes</h2>
-          <div className="notes-list">
-            {recipeData.notes.map((note, index) => (
-              <div key={index} className="note-item">
-                <div>{note.note}</div>
-                {note.category && (
-                  <div className="text-sm text-gray-600">
-                    Category: {note.category}
-                  </div>
-                )}
-              </div>
+            <img
+              src={recipeData.image}
+              alt={recipeData.title}
+              className="recipe-image"
+            />
+          </div>
+        </div>
+
+        <div className="remaining-content">
+          <p className="recipe-description">{recipeData.description}</p>
+
+          <div className="recipe-tags">
+            {recipeData.tags?.map((tag) => (
+              <span key={tag} className="recipe-tag">
+                {tag}
+              </span>
             ))}
           </div>
+
+          <div className="recipe-section">
+            <h2>Ingredients</h2>
+            <div className="ingredients-list">
+              {recipeData.ingredients.map((ingredient, index) => (
+                <div key={index} className="ingredient-item">
+                  <strong>
+                    {ingredient.amount} {ingredient.unit}
+                  </strong>{' '}
+                  {ingredient.name}
+                  {ingredient.notes && (
+                    <div className="text-sm text-gray-600">{ingredient.notes}</div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="page-break" />
+
+          <div className="recipe-section">
+            <h2>Instructions</h2>
+            <div className="instructions-list">
+              {recipeData.instructions.map((step) => (
+                <div key={step.stepNumber} className="instruction-item">
+                  <span className="instruction-number">{step.stepNumber}.</span>
+                  <div>
+                    <div>{step.instruction}</div>
+                    {step.timingInMinutes && (
+                      <div className="text-sm text-gray-600">
+                        Time: {step.timingInMinutes} minutes
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {recipeData.notes && recipeData.notes.length > 0 && (
+            <div className="recipe-section">
+              <h2>Notes</h2>
+              <div className="notes-list">
+                {recipeData.notes.map((note, index) => (
+                  <div key={index} className="note-item">
+                    <div>{note.note}</div>
+                    {note.category && (
+                      <div className="text-sm text-gray-600">
+                        Category: {note.category}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }
