@@ -6,7 +6,7 @@ import { zodResponseFormat } from 'openai/helpers/zod';
 import { z } from 'zod';
 
 import { db } from '@/db/db';
-import { type InsertRecipe, recipesTable } from '@/db/schema';
+import { eventsTable, type InsertRecipe, recipesTable } from '@/db/schema';
 import { RecipeSchema } from '@/schemas/recipe';
 
 const openai = new OpenAI({
@@ -160,10 +160,11 @@ interface RecipeTaskPayload {
   specialNotes?: string;
   budget: string;
   userId: string;
+  date: string;
 }
 
-export const recipeGenerationTask = task({
-  id: 'recipe-generation-task',
+export const recipeGenerationTaskWithEvent = task({
+  id: 'recipe-generation-task-with-event',
   retry: {
     maxAttempts: 5,
     factor: 1.8,
@@ -262,12 +263,22 @@ export const recipeGenerationTask = task({
 
       console.log('Inserting recipe into database...');
 
-      const result = await db.insert(recipesTable).values(recipeInsert);
+      const result = await db.insert(recipesTable).values(recipeInsert)
+
+      console.log('Inserting event into database...');
+
+      const event = await db.insert(eventsTable).values({
+        userId: payload.userId,
+        date: payload.date,
+        mealType: payload.mealType,
+        recipeId: Number(result.lastInsertRowid),
+      });
 
       return {
         success: true,
         recipeId: result.lastInsertRowid,
         recipe: recipeInsert,
+        eventId: event.lastInsertRowid,
       };
     } catch (error) {
       console.error('Error in recipe generation task:', error);

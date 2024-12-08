@@ -10,7 +10,7 @@ export function usePathname() {
   }, [router.state.location.pathname]);
 
   useEffect(() => {
-    router.subscribe('onLoad', updatePathname);
+    router.subscribe('onBeforeLoad', updatePathname);
   }, [router, updatePathname]);
 
   return { pathname };

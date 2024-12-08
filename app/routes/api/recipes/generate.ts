@@ -5,20 +5,10 @@ import { tasks } from '@trigger.dev/sdk/v3'
 import { z } from 'zod'
 
 import { recipeGenerationTask } from '@/trigger/generate-recipe'
+import { QuerySchema } from '@/schemas/query-schema'
 
 // Query parameter validation schema
-const QuerySchema = z.object({
-  mealType: z.string(),
-  dietaryType: z.string(),
-  allergies: z.string().optional(),
-  cookingTime: z.string(),
-  skillLevel: z.string(),
-  servings: z.string(),
-  cuisineType: z.string(),
-  spiceLevel: z.string(),
-  specialNotes: z.string().optional(),
-  budget: z.string(),
-})
+
 
 export const Route = createAPIFileRoute('/api/recipes/generate')({
   GET: async ({ request }) => {

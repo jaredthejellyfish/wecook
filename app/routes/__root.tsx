@@ -1,5 +1,5 @@
 // app/routes/__root.tsx
-import { type ReactNode, Suspense, lazy, useEffect, useState } from 'react';
+import { type ReactNode, Suspense, lazy } from 'react';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
@@ -7,7 +7,6 @@ import {
   Outlet,
   ScrollRestoration,
   createRootRoute,
-  useRouter,
 } from '@tanstack/react-router';
 import { Meta, Scripts } from '@tanstack/start';
 
@@ -16,6 +15,7 @@ import { SidebarProvider } from '@/components/ui/sidebar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Toaster } from '@/components/ui/sonner';
 
+import { usePathname } from '@/hooks/usePathname';
 import ClerkProviderThemed from '@/providers/clerk-provider-themed';
 import { ThemeProvider } from '@/providers/theme-provider';
 import { themeScript } from '@/scripts/theme-script';
@@ -78,22 +78,7 @@ function RootComponent() {
 const queryClient = new QueryClient();
 
 function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
-  const router = useRouter();
-  const [isLandingPage, setIsLandingPage] = useState(false);
-
-  useEffect(() => {
-    const updateIsLandingPage = () => {
-      setIsLandingPage(router.state.location.pathname === '/');
-    };
-
-    // Set initial value
-    updateIsLandingPage();
-
-    // Subscribe to router changes
-    return router.subscribe('onBeforeLoad', () => {
-      updateIsLandingPage();
-    });
-  }, [router]);
+  const { pathname } = usePathname();
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -104,7 +89,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
               <Meta />
             </head>
             <body>
-              {!isLandingPage ? (
+              {pathname !== '/' ? (
                 <SidebarProvider>
                   <Suspense fallback={<Skeleton className="w-full h-16" />}>
                     <LazyHeader />

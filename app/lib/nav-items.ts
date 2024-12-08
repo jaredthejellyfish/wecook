@@ -69,4 +69,12 @@ const sidebarSettings: SidebarItem[] = [
     },
 ];
 
-export { sidebarItems, sidebarSettings };
+const sidebarGeneration: SidebarItem[] = [
+    {
+        label: 'Generate a plan',
+        icon: CalendarDays,
+        path: '/generate/plan',
+    },
+];
+
+export { sidebarItems, sidebarSettings, sidebarGeneration };

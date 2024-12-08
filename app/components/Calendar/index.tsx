@@ -5,7 +5,6 @@ import {
   eachDayOfInterval,
   endOfMonth,
   format,
-  isSameDay,
   isSameMonth,
   isToday,
   startOfMonth,
@@ -22,16 +21,29 @@ import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import { Timeline } from './timeline';
 
+// Helper function to format dates consistently
+const formatDate = (date: Date): string => {
+  return date.toLocaleDateString('en-US', {
+    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  });
+};
+
 export default function Calendar({ events }: { events: CalendarEvent[] }) {
-  const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [currentMonth, setCurrentMonth] = useState(formatDate(new Date()));
+  const [selectedDate, setSelectedDate] = useState<string>(
+    formatDate(new Date()),
+  );
 
   useEffect(() => {
-    // Set the selected date to today when the component mounts
-    setSelectedDate(new Date());
+    setSelectedDate(formatDate(new Date()));
   }, []);
 
-  const monthStart = startOfMonth(currentMonth);
+  // Convert string date back to Date object for date-fns operations
+  const currentMonthDate = new Date(currentMonth);
+  const monthStart = startOfMonth(currentMonthDate);
   const monthEnd = endOfMonth(monthStart);
   const startDate = startOfMonth(monthStart);
   const endDate = endOfMonth(monthEnd);
@@ -40,33 +52,38 @@ export default function Calendar({ events }: { events: CalendarEvent[] }) {
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   const onDateClick = (day: Date) => {
-    setSelectedDate(day);
+    setSelectedDate(formatDate(day));
   };
 
   const nextMonth = () => {
-    setCurrentMonth(addMonths(currentMonth, 1));
+    setCurrentMonth(formatDate(addMonths(currentMonthDate, 1)));
   };
 
   const prevMonth = () => {
-    setCurrentMonth(subMonths(currentMonth, 1));
+    setCurrentMonth(formatDate(subMonths(currentMonthDate, 1)));
   };
 
-  const hasEventsOnDay = (day: Date) => {
-    return events.some((event) => {
-      // Parse the UTC date and adjust to local timezone
-      const eventDate = new Date(event.date);
-      const utcDate = new Date(
-        eventDate.getUTCFullYear(),
-        eventDate.getUTCMonth(),
-        eventDate.getUTCDate()
+  const hasEventsOnDay = (
+    day: Date,
+  ): { doesIt: boolean; hasPassed: boolean } => {
+    const today = new Date();
+    const normalizedDay = formatDate(day);
+
+    const doesIt = events.some((event) => {
+      const normalizedEventDate = new Date(event.date).toLocaleDateString(
+        'en-US',
+        {
+          timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+        },
       );
-      
-      return (
-        utcDate.getFullYear() === day.getFullYear() &&
-        utcDate.getMonth() === day.getMonth() &&
-        utcDate.getDate() === day.getDate()
-      );
+      return normalizedEventDate === normalizedDay;
     });
+
+    const hasPassed = day.getTime() < today.setHours(0, 0, 0, 0);
+    return { doesIt, hasPassed };
   };
 
   const renderDays = () => {
@@ -77,7 +94,7 @@ export default function Calendar({ events }: { events: CalendarEvent[] }) {
     });
 
     return dates.map((day, idx) => {
-      const isSelected = isSameDay(day, selectedDate);
+      const isSelected = formatDate(day) === selectedDate;
       const isCurrentDay = isToday(day);
       const hasEvents = hasEventsOnDay(day);
 
@@ -100,7 +117,7 @@ export default function Calendar({ events }: { events: CalendarEvent[] }) {
             },
           }}
         >
-          {hasEvents ? (
+          {hasEvents.doesIt ? (
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
@@ -118,7 +135,7 @@ export default function Calendar({ events }: { events: CalendarEvent[] }) {
                   )}
                 >
                   {format(day, dateFormat)}
-                  {hasEvents && isSameMonth(day, monthStart) && (
+                  {hasEvents.doesIt && isSameMonth(day, monthStart) && (
                     <div
                       className={cn(
                         'absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full transition-opacity duration-100',
@@ -131,9 +148,7 @@ export default function Calendar({ events }: { events: CalendarEvent[] }) {
               </TooltipTrigger>
 
               <TooltipContent>
-                <p>
-                  There are {hasEvents ? 'events' : 'no events'} on this day
-                </p>
+                <p>There are events on this day</p>
               </TooltipContent>
             </Tooltip>
           ) : (
@@ -152,15 +167,6 @@ export default function Calendar({ events }: { events: CalendarEvent[] }) {
               )}
             >
               {format(day, dateFormat)}
-              {hasEvents && isSameMonth(day, monthStart) && (
-                <div
-                  className={cn(
-                    'absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full transition-opacity duration-100',
-                    !isSelected ? 'opacity-100' : 'opacity-0',
-                    'group-hover/button:opacity-0',
-                  )}
-                />
-              )}
             </Button>
           )}
         </motion.div>
@@ -190,7 +196,7 @@ export default function Calendar({ events }: { events: CalendarEvent[] }) {
             <span className="sr-only">Previous month</span>
           </Button>
           <span className="text-lg font-bold">
-            {format(currentMonth, dateFormat)}
+            {format(currentMonthDate, dateFormat)}
           </span>
           <Button variant="ghost" size="icon" onClick={nextMonth}>
             <ChevronRight className="h-4 w-4" />
@@ -214,8 +220,8 @@ export default function Calendar({ events }: { events: CalendarEvent[] }) {
       >
         <AnimatePresence mode="wait">
           <Timeline
-            key={selectedDate.toISOString()}
-            date={selectedDate}
+            key={selectedDate}
+            date={new Date(selectedDate)}
             events={events}
           />
         </AnimatePresence>

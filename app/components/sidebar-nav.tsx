@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/sidebar';
 
 import { usePathname } from '@/hooks/usePathname';
-import { sidebarItems, sidebarSettings } from '@/lib/nav-items';
+import { sidebarGeneration, sidebarItems, sidebarSettings } from '@/lib/nav-items';
 import { cn } from '@/lib/utils';
 
 import GenerateRecipeButton from './generate-recipe-button';
@@ -34,6 +34,31 @@ export default function SidebarNav() {
           <SidebarGroupContent>
             <SidebarMenu>
               {sidebarItems.map((item) => (
+                <SidebarMenuItem
+                  key={item.path}
+                  className={cn(
+                    pathname === item.path && 'bg-sidebar-accent rounded-md',
+                  )}
+                >
+                  <Link to={item.path}>
+                    <SidebarMenuButton>
+                      <item.icon className="mr-2 h-4 w-4" />
+                      <span>{item.label}</span>
+                    </SidebarMenuButton>
+                  </Link>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel className="dark:text-neutral-400">
+            Generation
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {sidebarGeneration.map((item) => (
                 <SidebarMenuItem
                   key={item.path}
                   className={cn(

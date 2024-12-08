@@ -3,7 +3,7 @@
 export const dietTypes = {
   none: {
     label: 'Standard',
-    options: [{ value: 'none', label: 'None' }],
+    options: [{ value: 'none', label: 'None' }, { value: 'high_protein', label: 'High Protein' }, { value: 'low_carb', label: 'Low Carb' }, { value: 'calorie_restricted', label: 'Calorie Restricted' }],
   },
   plantBased: {
     label: 'Plant-Based Diets',
