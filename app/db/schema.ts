@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { integer, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core';
 
 export const recipesTable = sqliteTable('recipes', {
   id: integer('id').primaryKey(),
@@ -65,14 +65,15 @@ export const preferencesTable = sqliteTable('preferences', {
 
 export const eventsTable = sqliteTable('events', {
   id: integer('id').primaryKey(),
-  time: text('time').notNull(),
-  title: text('title').notNull(),
-  description: text('description').notNull(),
+  date: text('date').notNull(),
+  mealType: text('meal_type').notNull(),
   userId: text('user_id').notNull(),
   recipeId: integer('recipe_id')
     .notNull()
     .references(() => recipesTable.id, { onDelete: 'cascade' }),
-});
+}, (table) => ({
+  unique_event: uniqueIndex('unique_event').on(table.userId, table.date, table.mealType)
+}));
 
 export type InsertRecipe = typeof recipesTable.$inferInsert;
 export type SelectRecipe = typeof recipesTable.$inferSelect;

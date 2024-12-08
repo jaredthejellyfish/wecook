@@ -7,8 +7,16 @@ import { getWebRequest } from 'vinxi/http';
 import Calendar from '@/components/Calendar';
 
 import { db } from '@/db/db';
-import { eventsTable, recipesTable } from '@/db/schema';
+import { type SelectEvent, eventsTable, recipesTable } from '@/db/schema';
+import type { CalendarEvent } from '@/lib/types';
 import authStateFn from '@/server-fns/auth-redirect';
+
+const transformEvents = (events: SelectEvent[]): CalendarEvent[] => {
+  return events.map((event) => ({
+    ...event,
+    date: new Date(event.date),
+  }));
+};
 
 const eventsWithRecipesByUserId = createServerFn({ method: 'GET' }).handler(
   async () => {
@@ -25,18 +33,21 @@ const eventsWithRecipesByUserId = createServerFn({ method: 'GET' }).handler(
     const data = await db
       .select({
         id: eventsTable.id,
-        title: eventsTable.title,
-        description: eventsTable.description,
-        time: eventsTable.time,
+        date: eventsTable.date,
+        mealType: eventsTable.mealType,
         userId: eventsTable.userId,
         recipeId: eventsTable.recipeId,
         recipeTitle: recipesTable.title,
+        recipeImage: recipesTable.image,
+        recipeDescription: recipesTable.description,
       })
       .from(eventsTable)
       .leftJoin(recipesTable, eq(eventsTable.recipeId, recipesTable.id))
       .where(eq(eventsTable.userId, userId));
 
-    return { events: data };
+    const events = transformEvents(data);
+
+    return { events } as { events: CalendarEvent[] };
   },
 );
 
@@ -49,5 +60,5 @@ export const Route = createFileRoute('/(app)/weekly-prep/')({
 function WeeklyPrepPage() {
   const { events } = Route.useLoaderData();
 
-  return <Calendar events={events} />;
+  return <Calendar events={events as CalendarEvent[]} />;
 }

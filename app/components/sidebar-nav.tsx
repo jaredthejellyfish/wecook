@@ -1,6 +1,5 @@
 import { Link } from '@tanstack/react-router';
 
-
 import {
   Sidebar,
   SidebarContent,
@@ -14,12 +13,10 @@ import {
 } from '@/components/ui/sidebar';
 
 import { usePathname } from '@/hooks/usePathname';
+import { sidebarItems, sidebarSettings } from '@/lib/nav-items';
 import { cn } from '@/lib/utils';
 
 import GenerateRecipeButton from './generate-recipe-button';
-import { sidebarItems, sidebarSettings } from '@/lib/nav-items';
-
-
 
 export default function SidebarNav() {
   const { pathname } = usePathname();

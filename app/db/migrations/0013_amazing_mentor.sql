@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX `unique_event` ON `events` (`user_id`,`date`,`meal_type`);

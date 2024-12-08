@@ -16,14 +16,13 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 
-import type { SelectEvent } from '@/db/schema';
+import type { CalendarEvent } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import { Timeline } from './timeline';
 
-
-
-export default function Calendar({ events }: { events: SelectEvent[] }) {
+export default function Calendar({ events }: { events: CalendarEvent[] }) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
@@ -52,6 +51,24 @@ export default function Calendar({ events }: { events: SelectEvent[] }) {
     setCurrentMonth(subMonths(currentMonth, 1));
   };
 
+  const hasEventsOnDay = (day: Date) => {
+    return events.some((event) => {
+      // Parse the UTC date and adjust to local timezone
+      const eventDate = new Date(event.date);
+      const utcDate = new Date(
+        eventDate.getUTCFullYear(),
+        eventDate.getUTCMonth(),
+        eventDate.getUTCDate()
+      );
+      
+      return (
+        utcDate.getFullYear() === day.getFullYear() &&
+        utcDate.getMonth() === day.getMonth() &&
+        utcDate.getDate() === day.getDate()
+      );
+    });
+  };
+
   const renderDays = () => {
     const dateFormat = 'd';
     const dates = eachDayOfInterval({
@@ -62,9 +79,13 @@ export default function Calendar({ events }: { events: SelectEvent[] }) {
     return dates.map((day, idx) => {
       const isSelected = isSameDay(day, selectedDate);
       const isCurrentDay = isToday(day);
+      const hasEvents = hasEventsOnDay(day);
+
       return (
         <motion.div
-          className={'py-2 px-3 text-center cursor-pointer rounded-full '}
+          className={
+            'py-2 px-3 text-center cursor-pointer rounded-full relative'
+          }
           key={idx}
           onClick={() => onDateClick(day)}
           variants={{
@@ -79,22 +100,69 @@ export default function Calendar({ events }: { events: SelectEvent[] }) {
             },
           }}
         >
-          <Button
-            variant="ghost"
-            size="icon"
-            className={cn(
-              'text-sm',
-              !isSameMonth(day, monthStart)
-                ? 'text-gray-400'
-                : isSelected
-                  ? 'bg-primary text-primary-foreground'
-                  : isCurrentDay
-                    ? 'bg-secondary text-secondary-foreground'
-                    : '',
-            )}
-          >
-            {format(day, dateFormat)}
-          </Button>
+          {hasEvents ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={cn(
+                    'text-sm relative group/button',
+                    !isSameMonth(day, monthStart)
+                      ? 'text-gray-400'
+                      : isSelected
+                        ? 'bg-primary text-primary-foreground'
+                        : isCurrentDay
+                          ? 'bg-secondary text-secondary-foreground'
+                          : '',
+                  )}
+                >
+                  {format(day, dateFormat)}
+                  {hasEvents && isSameMonth(day, monthStart) && (
+                    <div
+                      className={cn(
+                        'absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full transition-opacity duration-100',
+                        !isSelected ? 'opacity-100' : 'opacity-0',
+                        'group-hover/button:opacity-0',
+                      )}
+                    />
+                  )}
+                </Button>
+              </TooltipTrigger>
+
+              <TooltipContent>
+                <p>
+                  There are {hasEvents ? 'events' : 'no events'} on this day
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          ) : (
+            <Button
+              variant="ghost"
+              size="icon"
+              className={cn(
+                'text-sm relative group/button',
+                !isSameMonth(day, monthStart)
+                  ? 'text-gray-400'
+                  : isSelected
+                    ? 'bg-primary text-primary-foreground'
+                    : isCurrentDay
+                      ? 'bg-secondary text-secondary-foreground'
+                      : '',
+              )}
+            >
+              {format(day, dateFormat)}
+              {hasEvents && isSameMonth(day, monthStart) && (
+                <div
+                  className={cn(
+                    'absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full transition-opacity duration-100',
+                    !isSelected ? 'opacity-100' : 'opacity-0',
+                    'group-hover/button:opacity-0',
+                  )}
+                />
+              )}
+            </Button>
+          )}
         </motion.div>
       );
     });
@@ -103,7 +171,7 @@ export default function Calendar({ events }: { events: SelectEvent[] }) {
   return (
     <div>
       <motion.div
-        className="w-full shadow-lg rounded-lg overflow-hidden bg-black"
+        className="w-full shadow-lg rounded-lg overflow-hidden dark:bg-black"
         initial="hidden"
         animate="visible"
         variants={{
