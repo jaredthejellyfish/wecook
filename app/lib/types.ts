@@ -8,3 +8,4 @@ export interface CalendarEvent {
   recipeImage?: string;
   recipeDescription?: string;
 }
+export type MealType = 'breakfast' | 'brunch' | 'lunch' | 'snack' | 'dinner';

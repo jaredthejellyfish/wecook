@@ -7,34 +7,43 @@ import { createAPIFileRoute } from '@tanstack/start/api'
 import { z } from 'zod';
 
 const EventListSchema = z.object({
-    from: z.string().datetime().optional(),
-    to: z.string().datetime().optional(),
+    from: z.string().transform((date) => {
+        return date;
+    }).optional(),
+    to: z.string().transform((date) => {
+        return date;
+    }).optional(),
 }).transform((data) => {
     let { from, to } = data;
-
-    const formatLocalDate = (date: Date) => {
-        return new Date(
-            date.getFullYear(),
-            date.getMonth(),
-            date.getDate()
-        ).toISOString().split('T')[0];
-    };
 
     if (!from && !to) {
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
-        from = formatLocalDate(yesterday);
+        
+        from = yesterday.toLocaleDateString('en-US', {
+            month: '2-digit',
+            day: '2-digit',
+            year: 'numeric',
+        });
         to = undefined;
     } else {
         if (!from && to) {
             const toDate = new Date(to);
             toDate.setMonth(toDate.getMonth() - 1);
-            from = formatLocalDate(toDate);
+            from = toDate.toLocaleDateString('en-US', {
+                month: '2-digit',
+                day: '2-digit',
+                year: 'numeric',
+            });
         }
         if (!to && from) {
             const fromDate = new Date(from);
             fromDate.setMonth(fromDate.getMonth() + 1, 0);
-            to = formatLocalDate(fromDate);
+            to = fromDate.toLocaleDateString('en-US', {
+                month: '2-digit',
+                day: '2-digit',
+                year: 'numeric',
+            });
         }
     }
 
@@ -46,10 +55,12 @@ export const Route = createAPIFileRoute('/api/events/list')({
         try {
             const url = new URL(request.url);
             const params = Object.fromEntries(url.searchParams);
+
+            console.log(params);
             const parsedParams = EventListSchema.safeParse(params);
 
             if (!parsedParams.success) {
-                return json({ success: false, error: 'Invalid parameters' }, { status: 400 });
+                return json({ success: false, error: 'Invalid parameters', reason: parsedParams.error.errors }, { status: 400 });
             }
 
             const { userId } = await getAuth(request);

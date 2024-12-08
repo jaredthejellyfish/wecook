@@ -41,6 +41,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from './ui/select';
+import type { MealType } from '@/lib/types';
 
 // Lazy load the dialog components
 const EditDialog = lazy(() =>
@@ -73,7 +74,7 @@ type Props = {
   isOwned: boolean;
 };
 
-type MealType = 'breakfast' | 'brunch' | 'lunch' | 'snack' | 'dinner';
+
 
 const RecipeOptionsContent = ({ id, isPublic, isOwned }: Props) => {
   const bookmarkMutation = useBookmarkRecipe();
@@ -93,10 +94,15 @@ const RecipeOptionsContent = ({ id, isPublic, isOwned }: Props) => {
   useEffect(() => {
     if (!events || !date) return;
 
-    setExistingEvent(
-      events.some((event) => event.date === date.toISOString().split('T')[0]),
-    );
-  }, [events, date]);
+    const formattedDate = new Date(date).toLocaleDateString('en-US', {
+      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
+
+    setExistingEvent(events.some((event) => event.date === formattedDate && event.mealType === mealType));
+  }, [events, date, mealType]);
 
   const handleBookmark = useCallback(
     (e: React.MouseEvent) => {

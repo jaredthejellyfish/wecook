@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useRouter } from '@tanstack/react-router';
 import { toast } from 'sonner';
 
 interface AddEventData {
@@ -9,7 +10,8 @@ interface AddEventData {
 
 export function useAddEvent() {
     const queryClient = useQueryClient();
-
+    const router = useRouter();
+    
     return useMutation({
         mutationFn: async (data: AddEventData) => {
             const response = await fetch('/api/events/add', {
@@ -31,6 +33,7 @@ export function useAddEvent() {
             // Invalidate and refetch events list
             queryClient.invalidateQueries({ queryKey: ['events'] });
             toast.success('Event added successfully!');
+            router.invalidate();
         },
         onError: (error: Error) => {
             toast.error(error.message);
