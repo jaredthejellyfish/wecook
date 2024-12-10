@@ -105,7 +105,7 @@ function SettingsPlanPage() {
   );
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-8">
+    <>
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Plans</h1>
@@ -192,6 +192,6 @@ function SettingsPlanPage() {
       <div className="text-center text-sm text-muted-foreground mt-8">
         All plans include a 14-day free trial. No credit card required.
       </div>
-    </div>
+    </>
   );
 }
