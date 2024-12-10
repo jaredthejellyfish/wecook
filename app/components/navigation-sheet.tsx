@@ -1,10 +1,14 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { Link } from '@tanstack/react-router';
 import { Menu } from 'lucide-react';
 
 import { usePathname } from '@/hooks/usePathname';
-import { sidebarGeneration, sidebarItems, sidebarSettings } from '@/lib/nav-items';
+import {
+  sidebarGeneration,
+  sidebarItems,
+  sidebarSettings,
+} from '@/lib/nav-items';
 import { cn } from '@/lib/utils';
 
 import GenerateRecipeButton from './generate-recipe-button';
@@ -21,8 +25,15 @@ type Props = {};
 
 function NavigationSheet({}: Props) {
   const { pathname } = usePathname();
+
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    setIsOpen(false);
+  }, [pathname]);
+
   return (
-    <Sheet>
+    <Sheet open={isOpen} onOpenChange={() => setIsOpen((open) => !open)}>
       <SheetTrigger asChild>
         <button className="md:hidden p-0 mr-1">
           <Menu className="h-8 w-8" />
@@ -62,7 +73,7 @@ function NavigationSheet({}: Props) {
             ))}
           </div>
           <div className="duration-200 flex h-8 shrink-0 items-center rounded-md px-2 text-xs font-medium text-sidebar-foreground/70 outline-none ring-sidebar-ring transition-[margin,opa] ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink mt-4">
-              Generation
+            Generation
           </div>
           <div className="flex flex-col gap-2">
             {sidebarGeneration.map((item) => (
