@@ -23,6 +23,7 @@ import { Route as appRecipesSavedIndexImport } from './routes/(app)/recipes/save
 import { Route as appRecipesPublicIndexImport } from './routes/(app)/recipes/public/index'
 import { Route as appRecipesIdIndexImport } from './routes/(app)/recipes/$id/index'
 import { Route as appGeneratePlanIndexImport } from './routes/(app)/generate/plan/index'
+import { Route as appSettingsPlanPlanIdIndexImport } from './routes/(app)/settings/plan/$planId/index'
 import { Route as appRecipesIdPrintIndexImport } from './routes/(app)/recipes/$id/print/index'
 
 // Create/Update Routes
@@ -99,6 +100,14 @@ const appGeneratePlanIndexRoute = appGeneratePlanIndexImport.update({
   path: '/generate/plan/',
   getParentRoute: () => rootRoute,
 } as any)
+
+const appSettingsPlanPlanIdIndexRoute = appSettingsPlanPlanIdIndexImport.update(
+  {
+    id: '/(app)/settings/plan/$planId/',
+    path: '/settings/plan/$planId/',
+    getParentRoute: () => rootRoute,
+  } as any,
+)
 
 const appRecipesIdPrintIndexRoute = appRecipesIdPrintIndexImport.update({
   id: '/(app)/recipes/$id/print/',
@@ -201,6 +210,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appRecipesIdPrintIndexImport
       parentRoute: typeof rootRoute
     }
+    '/(app)/settings/plan/$planId/': {
+      id: '/(app)/settings/plan/$planId/'
+      path: '/settings/plan/$planId'
+      fullPath: '/settings/plan/$planId'
+      preLoaderRoute: typeof appSettingsPlanPlanIdIndexImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -220,6 +236,7 @@ export interface FileRoutesByFullPath {
   '/settings/plan': typeof appSettingsPlanIndexRoute
   '/settings/preferences': typeof appSettingsPreferencesIndexRoute
   '/recipes/$id/print': typeof appRecipesIdPrintIndexRoute
+  '/settings/plan/$planId': typeof appSettingsPlanPlanIdIndexRoute
 }
 
 export interface FileRoutesByTo {
@@ -236,6 +253,7 @@ export interface FileRoutesByTo {
   '/settings/plan': typeof appSettingsPlanIndexRoute
   '/settings/preferences': typeof appSettingsPreferencesIndexRoute
   '/recipes/$id/print': typeof appRecipesIdPrintIndexRoute
+  '/settings/plan/$planId': typeof appSettingsPlanPlanIdIndexRoute
 }
 
 export interface FileRoutesById {
@@ -253,6 +271,7 @@ export interface FileRoutesById {
   '/(app)/settings/plan/': typeof appSettingsPlanIndexRoute
   '/(app)/settings/preferences/': typeof appSettingsPreferencesIndexRoute
   '/(app)/recipes/$id/print/': typeof appRecipesIdPrintIndexRoute
+  '/(app)/settings/plan/$planId/': typeof appSettingsPlanPlanIdIndexRoute
 }
 
 export interface FileRouteTypes {
@@ -271,6 +290,7 @@ export interface FileRouteTypes {
     | '/settings/plan'
     | '/settings/preferences'
     | '/recipes/$id/print'
+    | '/settings/plan/$planId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -286,6 +306,7 @@ export interface FileRouteTypes {
     | '/settings/plan'
     | '/settings/preferences'
     | '/recipes/$id/print'
+    | '/settings/plan/$planId'
   id:
     | '__root__'
     | '/'
@@ -301,6 +322,7 @@ export interface FileRouteTypes {
     | '/(app)/settings/plan/'
     | '/(app)/settings/preferences/'
     | '/(app)/recipes/$id/print/'
+    | '/(app)/settings/plan/$planId/'
   fileRoutesById: FileRoutesById
 }
 
@@ -318,6 +340,7 @@ export interface RootRouteChildren {
   appSettingsPlanIndexRoute: typeof appSettingsPlanIndexRoute
   appSettingsPreferencesIndexRoute: typeof appSettingsPreferencesIndexRoute
   appRecipesIdPrintIndexRoute: typeof appRecipesIdPrintIndexRoute
+  appSettingsPlanPlanIdIndexRoute: typeof appSettingsPlanPlanIdIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -334,6 +357,7 @@ const rootRouteChildren: RootRouteChildren = {
   appSettingsPlanIndexRoute: appSettingsPlanIndexRoute,
   appSettingsPreferencesIndexRoute: appSettingsPreferencesIndexRoute,
   appRecipesIdPrintIndexRoute: appRecipesIdPrintIndexRoute,
+  appSettingsPlanPlanIdIndexRoute: appSettingsPlanPlanIdIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -358,7 +382,8 @@ export const routeTree = rootRoute
         "/(app)/recipes/saved/",
         "/(app)/settings/plan/",
         "/(app)/settings/preferences/",
-        "/(app)/recipes/$id/print/"
+        "/(app)/recipes/$id/print/",
+        "/(app)/settings/plan/$planId/"
       ]
     },
     "/": {
@@ -399,6 +424,9 @@ export const routeTree = rootRoute
     },
     "/(app)/recipes/$id/print/": {
       "filePath": "(app)/recipes/$id/print/index.tsx"
+    },
+    "/(app)/settings/plan/$planId/": {
+      "filePath": "(app)/settings/plan/$planId/index.tsx"
     }
   }
 }

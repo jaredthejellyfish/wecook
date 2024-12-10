@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { createFileRoute } from '@tanstack/react-router';
 import { CalendarDays, Filter } from 'lucide-react';
 import { toast } from 'sonner';
+import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -34,8 +35,34 @@ import {
   spiceLevels,
 } from '@/constants/recipe-form';
 import { usePreferences } from '@/hooks/usePreferences';
+import {
+  BudgetEnum,
+  CookingTimeEnum,
+  CuisineTypeEnum,
+  DietaryTypeEnum,
+  ServingSizeEnum,
+  SkillLevelEnum,
+  SpiceLevelEnum,
+} from '@/schemas/query-schema';
 
-const MEAL_PLAN_TEMPLATES = {
+// Add type for template settings that matches the state type
+type MealPlanSettings = {
+  dietaryType: string;
+  mealsPerDay: string;
+  mealPreferences: {
+    breakfast: boolean;
+    lunch: boolean;
+    dinner: boolean;
+    snacks: boolean;
+  };
+  specialNotes?: string;
+  leftoverPreference: 'none' | 'some' | 'lots';
+};
+
+const MEAL_PLAN_TEMPLATES: Record<
+  string,
+  { name: string; settings: MealPlanSettings }
+> = {
   weightLoss: {
     name: 'Weight Loss',
     settings: {
@@ -106,29 +133,51 @@ export const Route = createFileRoute('/(app)/generate/plan/')({
   component: GeneratePlanPage,
 });
 
+const _MealPlanGenerationSchema = z.object({
+  numberOfDays: z.string(),
+  dietaryType: DietaryTypeEnum,
+  allergies: z.string().max(255).optional(),
+  cookingTime: CookingTimeEnum,
+  skillLevel: SkillLevelEnum,
+  servings: ServingSizeEnum,
+  spiceLevel: SpiceLevelEnum,
+  budget: BudgetEnum,
+  cuisinePreferences: CuisineTypeEnum,
+  mealPreferences: z.object({
+    breakfast: z.boolean(),
+    lunch: z.boolean(),
+    dinner: z.boolean(),
+    snacks: z.boolean(),
+  }),
+  weekendCooking: z.enum(['same', 'more', 'less']),
+  leftoverPreference: z.enum(['none', 'some', 'lots']),
+  specialNotes: z.string().max(255).optional(),
+});
+
 function GeneratePlanPage() {
   const { data: preferences } = usePreferences();
   const [loading, setLoading] = useState(false);
-  const [planData, setPlanData] = useState({
-    numberOfDays: '7',
-    mealsPerDay: '3',
-    dietaryType: preferences?.dietaryType ?? 'none',
+  const [planData, setPlanData] = useState<
+    z.infer<typeof _MealPlanGenerationSchema>
+  >({
+    numberOfDays: '',
+    dietaryType: preferences?.dietaryType ?? '',
     allergies: preferences?.allergies ?? '',
-    cookingTime: preferences?.cookingTime ?? '30 minutes',
-    skillLevel: preferences?.skillLevel ?? 'Beginner',
-    servings: preferences?.servings ?? '2',
+    cookingTime: preferences?.cookingTime ?? '',
+    skillLevel: preferences?.skillLevel ?? '',
+    servings: preferences?.servings ?? '',
     cuisinePreferences: preferences?.cuisineType ?? '',
-    spiceLevel: preferences?.spiceLevel ?? 'Medium',
-    budget: preferences?.budget ?? '$$',
+    spiceLevel: preferences?.spiceLevel ?? '',
+    budget: preferences?.budget ?? '',
     specialNotes: preferences?.specialNotes ?? '',
     mealPreferences: {
-      breakfast: true,
-      lunch: true,
-      dinner: true,
+      breakfast: false,
+      lunch: false,
+      dinner: false,
       snacks: false,
     },
     weekendCooking: 'same', // 'same', 'more', 'less'
-    leftoverPreference: 'some', // 'none', 'some', 'lots'
+    leftoverPreference: 'none', // 'none', 'some', 'lots'
   });
 
   const handleInputChange = (field: string, value: string | boolean) => {
@@ -252,30 +301,6 @@ function GeneratePlanPage() {
             </div>
 
             <div className="space-y-2">
-              <Label>Meals per Day</Label>
-              <Select
-                value={planData.mealsPerDay}
-                onValueChange={(value) =>
-                  handleInputChange('mealsPerDay', value)
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select meals per day" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="1">1 meal</SelectItem>
-                  <SelectItem value="2">2 meals</SelectItem>
-                  <SelectItem value="3">3 meals</SelectItem>
-                  <SelectItem value="4">4 meals</SelectItem>
-                  <SelectItem value="5">5 meals</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {/* Dietary Preferences */}
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
               <Label>Dietary Requirements</Label>
               <Select
                 value={planData.dietaryType}
@@ -300,7 +325,10 @@ function GeneratePlanPage() {
                 </SelectContent>
               </Select>
             </div>
+          </div>
 
+          {/* Dietary Preferences */}
+          <div className="grid gap-4 sm:grid-cols-13">
             <div className="space-y-2">
               <Label>Allergies/Restrictions</Label>
               <Input
