@@ -22,6 +22,7 @@ import { Route as appSettingsPlanIndexImport } from './routes/(app)/settings/pla
 import { Route as appRecipesSavedIndexImport } from './routes/(app)/recipes/saved/index'
 import { Route as appRecipesPublicIndexImport } from './routes/(app)/recipes/public/index'
 import { Route as appRecipesIdIndexImport } from './routes/(app)/recipes/$id/index'
+import { Route as appGeneratingBatchIndexImport } from './routes/(app)/generating/batch/index'
 import { Route as appGeneratePlanIndexImport } from './routes/(app)/generate/plan/index'
 import { Route as appSettingsPlanPlanIdIndexImport } from './routes/(app)/settings/plan/$planId/index'
 import { Route as appRecipesIdPrintIndexImport } from './routes/(app)/recipes/$id/print/index'
@@ -92,6 +93,12 @@ const appRecipesPublicIndexRoute = appRecipesPublicIndexImport.update({
 const appRecipesIdIndexRoute = appRecipesIdIndexImport.update({
   id: '/(app)/recipes/$id/',
   path: '/recipes/$id/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const appGeneratingBatchIndexRoute = appGeneratingBatchIndexImport.update({
+  id: '/(app)/generating/batch/',
+  path: '/generating/batch/',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -168,6 +175,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appGeneratePlanIndexImport
       parentRoute: typeof rootRoute
     }
+    '/(app)/generating/batch/': {
+      id: '/(app)/generating/batch/'
+      path: '/generating/batch'
+      fullPath: '/generating/batch'
+      preLoaderRoute: typeof appGeneratingBatchIndexImport
+      parentRoute: typeof rootRoute
+    }
     '/(app)/recipes/$id/': {
       id: '/(app)/recipes/$id/'
       path: '/recipes/$id'
@@ -230,6 +244,7 @@ export interface FileRoutesByFullPath {
   '/recipes': typeof appRecipesIndexRoute
   '/weekly-prep': typeof appWeeklyPrepIndexRoute
   '/generate/plan': typeof appGeneratePlanIndexRoute
+  '/generating/batch': typeof appGeneratingBatchIndexRoute
   '/recipes/$id': typeof appRecipesIdIndexRoute
   '/recipes/public': typeof appRecipesPublicIndexRoute
   '/recipes/saved': typeof appRecipesSavedIndexRoute
@@ -247,6 +262,7 @@ export interface FileRoutesByTo {
   '/recipes': typeof appRecipesIndexRoute
   '/weekly-prep': typeof appWeeklyPrepIndexRoute
   '/generate/plan': typeof appGeneratePlanIndexRoute
+  '/generating/batch': typeof appGeneratingBatchIndexRoute
   '/recipes/$id': typeof appRecipesIdIndexRoute
   '/recipes/public': typeof appRecipesPublicIndexRoute
   '/recipes/saved': typeof appRecipesSavedIndexRoute
@@ -265,6 +281,7 @@ export interface FileRoutesById {
   '/(app)/recipes/': typeof appRecipesIndexRoute
   '/(app)/weekly-prep/': typeof appWeeklyPrepIndexRoute
   '/(app)/generate/plan/': typeof appGeneratePlanIndexRoute
+  '/(app)/generating/batch/': typeof appGeneratingBatchIndexRoute
   '/(app)/recipes/$id/': typeof appRecipesIdIndexRoute
   '/(app)/recipes/public/': typeof appRecipesPublicIndexRoute
   '/(app)/recipes/saved/': typeof appRecipesSavedIndexRoute
@@ -284,6 +301,7 @@ export interface FileRouteTypes {
     | '/recipes'
     | '/weekly-prep'
     | '/generate/plan'
+    | '/generating/batch'
     | '/recipes/$id'
     | '/recipes/public'
     | '/recipes/saved'
@@ -300,6 +318,7 @@ export interface FileRouteTypes {
     | '/recipes'
     | '/weekly-prep'
     | '/generate/plan'
+    | '/generating/batch'
     | '/recipes/$id'
     | '/recipes/public'
     | '/recipes/saved'
@@ -316,6 +335,7 @@ export interface FileRouteTypes {
     | '/(app)/recipes/'
     | '/(app)/weekly-prep/'
     | '/(app)/generate/plan/'
+    | '/(app)/generating/batch/'
     | '/(app)/recipes/$id/'
     | '/(app)/recipes/public/'
     | '/(app)/recipes/saved/'
@@ -334,6 +354,7 @@ export interface RootRouteChildren {
   appRecipesIndexRoute: typeof appRecipesIndexRoute
   appWeeklyPrepIndexRoute: typeof appWeeklyPrepIndexRoute
   appGeneratePlanIndexRoute: typeof appGeneratePlanIndexRoute
+  appGeneratingBatchIndexRoute: typeof appGeneratingBatchIndexRoute
   appRecipesIdIndexRoute: typeof appRecipesIdIndexRoute
   appRecipesPublicIndexRoute: typeof appRecipesPublicIndexRoute
   appRecipesSavedIndexRoute: typeof appRecipesSavedIndexRoute
@@ -351,6 +372,7 @@ const rootRouteChildren: RootRouteChildren = {
   appRecipesIndexRoute: appRecipesIndexRoute,
   appWeeklyPrepIndexRoute: appWeeklyPrepIndexRoute,
   appGeneratePlanIndexRoute: appGeneratePlanIndexRoute,
+  appGeneratingBatchIndexRoute: appGeneratingBatchIndexRoute,
   appRecipesIdIndexRoute: appRecipesIdIndexRoute,
   appRecipesPublicIndexRoute: appRecipesPublicIndexRoute,
   appRecipesSavedIndexRoute: appRecipesSavedIndexRoute,
@@ -377,6 +399,7 @@ export const routeTree = rootRoute
         "/(app)/recipes/",
         "/(app)/weekly-prep/",
         "/(app)/generate/plan/",
+        "/(app)/generating/batch/",
         "/(app)/recipes/$id/",
         "/(app)/recipes/public/",
         "/(app)/recipes/saved/",
@@ -406,6 +429,9 @@ export const routeTree = rootRoute
     },
     "/(app)/generate/plan/": {
       "filePath": "(app)/generate/plan/index.tsx"
+    },
+    "/(app)/generating/batch/": {
+      "filePath": "(app)/generating/batch/index.tsx"
     },
     "/(app)/recipes/$id/": {
       "filePath": "(app)/recipes/$id/index.tsx"

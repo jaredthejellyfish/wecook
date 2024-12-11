@@ -13,7 +13,11 @@ import {
 } from '@/components/ui/sidebar';
 
 import { usePathname } from '@/hooks/usePathname';
-import { sidebarGeneration, sidebarItems, sidebarSettings } from '@/lib/nav-items';
+import {
+  sidebarGeneration,
+  sidebarItems,
+  sidebarSettings,
+} from '@/lib/nav-items';
 import { cn } from '@/lib/utils';
 
 import GenerateRecipeButton from './generate-recipe-button';
@@ -40,12 +44,12 @@ export default function SidebarNav() {
                     pathname === item.path && 'bg-sidebar-accent rounded-md',
                   )}
                 >
-                  <Link to={item.path}>
-                    <SidebarMenuButton>
+                  <SidebarMenuButton asChild>
+                    <Link to={item.path}>
                       <item.icon className="mr-2 h-4 w-4" />
                       <span>{item.label}</span>
-                    </SidebarMenuButton>
-                  </Link>
+                    </Link>
+                  </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
@@ -65,12 +69,12 @@ export default function SidebarNav() {
                     pathname === item.path && 'bg-sidebar-accent rounded-md',
                   )}
                 >
-                  <Link to={item.path}>
-                    <SidebarMenuButton>
+                  <SidebarMenuButton asChild>
+                    <Link to={item.path}>
                       <item.icon className="mr-2 h-4 w-4" />
                       <span>{item.label}</span>
-                    </SidebarMenuButton>
-                  </Link>
+                    </Link>
+                  </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
@@ -90,12 +94,12 @@ export default function SidebarNav() {
                     pathname === item.path && 'bg-sidebar-accent rounded-md',
                   )}
                 >
-                  <Link to={item.path}>
-                    <SidebarMenuButton>
+                  <SidebarMenuButton asChild>
+                    <Link to={item.path}>
                       <item.icon className="mr-2 h-4 w-4" />
                       <span>{item.label}</span>
-                    </SidebarMenuButton>
-                  </Link>
+                    </Link>
+                  </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>

@@ -6,7 +6,7 @@ import { json } from '@tanstack/start'
 import { createAPIFileRoute } from '@tanstack/start/api'
 import { eq } from 'drizzle-orm';
 
-export const Route = createAPIFileRoute('/api/recipes/delete')({
+export const APIRoute = createAPIFileRoute('/api/recipes/delete')({
     GET: async ({ request }) => {
 
         const url = new URL(request.url);

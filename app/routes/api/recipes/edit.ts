@@ -12,7 +12,7 @@ const BodySchema = z.object({
   note: z.string(),
 })
 
-export const Route = createAPIFileRoute('/api/recipes/edit')({
+export const APIRoute = createAPIFileRoute('/api/recipes/edit')({
   POST: async ({ request }) => {
 
     try {

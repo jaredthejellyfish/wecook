@@ -10,7 +10,7 @@ import { QuerySchema } from '@/schemas/query-schema'
 // Query parameter validation schema
 
 
-export const Route = createAPIFileRoute('/api/recipes/generate')({
+export const APIRoute = createAPIFileRoute('/api/recipes/generate')({
   GET: async ({ request }) => {
 
 

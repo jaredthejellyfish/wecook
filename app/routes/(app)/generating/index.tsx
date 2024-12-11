@@ -3,13 +3,20 @@ import { useEffect, useState } from 'react';
 import { Link, createFileRoute } from '@tanstack/react-router';
 import { useRealtimeRun } from '@trigger.dev/react-hooks';
 import { AlertTriangle, CheckCircle, Clock, XCircle } from 'lucide-react';
+import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
 
 import authStateFn from '@/server-fns/auth-redirect';
 
+const SearchSchema = z.object({
+  recipeId: z.string(),
+  publicAccessToken: z.string(),
+});
+
 export const Route = createFileRoute('/(app)/generating/')({
   component: GeneratingPage,
+  validateSearch: SearchSchema,
   beforeLoad: () => authStateFn(),
 });
 
@@ -53,11 +60,9 @@ const getStatusIcon = (status: string) => {
 };
 
 function GeneratingPage() {
-  const [recipeId, setRecipeId] = useState<string | null>(null);
-  const [publicAccessToken, setPublicAccessToken] = useState<string | null>(
-    null,
-  );
   const [completed, setCompleted] = useState(false);
+
+  const { recipeId, publicAccessToken } = Route.useSearch();
 
   const { run, error } = useRealtimeRun(recipeId ?? '', {
     accessToken: publicAccessToken ?? '',
@@ -65,17 +70,13 @@ function GeneratingPage() {
   });
 
   useEffect(() => {
-    const searchParams = window.location.search;
-    const urlParams = new URLSearchParams(searchParams);
-    setRecipeId(urlParams.get('recipeId') ?? null);
-    setPublicAccessToken(urlParams.get('publicAccessToken') ?? null);
-  }, []);
-
-  useEffect(() => {
     if (run?.status === 'COMPLETED') {
       setCompleted(true);
     }
   }, [run?.status]);
+
+  // Add loading state based on whether we have the run data
+  const isLoading = !!recipeId && !!publicAccessToken && !run && !error;
 
   return (
     <>
@@ -99,6 +100,44 @@ function GeneratingPage() {
               <p className="text-red-700 dark:text-red-300 mt-1">
                 {error.message}
               </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isLoading && (
+        <div className="bg-white dark:bg-neutral-800/50 rounded-xl shadow-lg shadow-neutral-200/50 dark:shadow-neutral-900/50 backdrop-blur-sm">
+          <div className="p-6 space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-semibold">Run Status</h2>
+              <div className="w-32 h-10 rounded-full bg-neutral-200 dark:bg-neutral-700 animate-pulse" />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {[1, 2].map((i) => (
+                <div
+                  key={i}
+                  className="p-4 rounded-lg bg-neutral-50 dark:bg-neutral-800"
+                >
+                  <div className="w-24 h-4 bg-neutral-200 dark:bg-neutral-700 rounded animate-pulse" />
+                  <div className="mt-1 w-48 h-4 bg-neutral-200 dark:bg-neutral-700 rounded animate-pulse" />
+                </div>
+              ))}
+            </div>
+
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Timeline</h3>
+              <div className="space-y-3">
+                {[1, 2, 3, 4].map((i) => (
+                  <div
+                    key={i}
+                    className="flex items-center justify-between p-3 rounded-lg bg-neutral-50 dark:bg-neutral-800"
+                  >
+                    <div className="w-20 h-4 bg-neutral-200 dark:bg-neutral-700 rounded animate-pulse" />
+                    <div className="w-32 h-4 bg-neutral-200 dark:bg-neutral-700 rounded animate-pulse" />
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>

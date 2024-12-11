@@ -1,12 +1,12 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { motion } from "motion/react"
+import { createFileRoute } from '@tanstack/react-router'
+import { motion } from 'motion/react'
 
-import authStateFn from '@/server-fns/auth-redirect';
+import authStateFn from '@/server-fns/auth-redirect'
 
 export const Route = createFileRoute('/(app)/dashboard/')({
   component: DashboardPage,
   beforeLoad: () => authStateFn(),
-});
+})
 
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -18,7 +18,7 @@ const itemVariants = {
       stiffness: 100,
     },
   },
-};
+}
 
 function DashboardPage() {
   return (
@@ -145,5 +145,5 @@ function DashboardPage() {
         </div>
       </motion.div>
     </>
-  );
+  )
 }

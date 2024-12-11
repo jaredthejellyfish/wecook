@@ -1,24 +1,24 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { Link } from '@tanstack/react-router';
-import { Check, ChevronRight, X } from 'lucide-react';
+import { createFileRoute } from '@tanstack/react-router'
+import { Link } from '@tanstack/react-router'
+import { Check, ChevronRight, X } from 'lucide-react'
 
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
-} from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+} from '@/components/ui/card'
+import { Separator } from '@/components/ui/separator'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
-import authStateFn from '@/server-fns/auth-redirect';
+import authStateFn from '@/server-fns/auth-redirect'
 
 export const Route = createFileRoute('/(app)/settings/plan/$planId/')({
   component: PlanDetailsPage,
   beforeLoad: () => authStateFn(),
-});
+})
 
 const plans = {
   hobby: {
@@ -96,14 +96,14 @@ const plans = {
       '24/7 dedicated support for business accounts',
     ],
   },
-};
+}
 
 function PlanDetailsPage() {
-  const { planId } = Route.useParams();
-  const plan = plans[planId as keyof typeof plans];
+  const { planId } = Route.useParams()
+  const plan = plans[planId as keyof typeof plans]
 
   if (!plan) {
-    return <div>Plan not found</div>;
+    return <div>Plan not found</div>
   }
 
   return (
@@ -201,5 +201,5 @@ function PlanDetailsPage() {
         All plans include a 14-day free trial. No credit card required.
       </div>
     </>
-  );
+  )
 }

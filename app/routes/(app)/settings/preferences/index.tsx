@@ -4,8 +4,7 @@ import { getAuth } from '@clerk/tanstack-start/server';
 import { createFileRoute, redirect } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/start';
 import { eq } from 'drizzle-orm';
-import { motion } from "motion/react";
-import { toast } from 'sonner';
+import { motion } from 'motion/react';
 import { getWebRequest } from 'vinxi/http';
 
 import { Button } from '@/components/ui/button';
@@ -23,6 +22,15 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 
+import {
+  budgetOptions,
+  cookingTimes,
+  cuisineTypes,
+  dietTypes,
+  servingSizes,
+  skillLevels,
+  spiceLevels,
+} from '@/constants/recipe-form';
 import { db } from '@/db/db';
 import { type SelectPreference, preferencesTable } from '@/db/schema';
 import { useMutatePreferences } from '@/hooks/useMutatePreferences';
@@ -67,74 +75,6 @@ export const Route = createFileRoute('/(app)/settings/preferences/')({
   loader: () => preferencesByUserId(),
 });
 
-const dietTypes = {
-  none: {
-    label: 'Standard',
-    options: [{ value: 'none', label: 'None' }],
-  },
-  plantBased: {
-    label: 'Plant-Based Diets',
-    options: [
-      { value: 'vegan', label: 'Vegan' },
-      { value: 'vegetarian', label: 'Vegetarian' },
-      { value: 'pescatarian', label: 'Pescatarian' },
-      { value: 'flexitarian', label: 'Flexitarian' },
-    ],
-  },
-  healthRelated: {
-    label: 'Health-Related Diets',
-    options: [
-      { value: 'gluten-free', label: 'Gluten-Free' },
-      { value: 'low-fodmap', label: 'Low-FODMAP' },
-      { value: 'keto', label: 'Ketogenic' },
-      { value: 'diabetic', label: 'Diabetic' },
-      { value: 'low-sodium', label: 'Low-Sodium' },
-    ],
-  },
-  religiousCultural: {
-    label: 'Religious & Cultural',
-    options: [
-      { value: 'kosher', label: 'Kosher' },
-      { value: 'halal', label: 'Halal' },
-      { value: 'hindu-veg', label: 'Hindu Vegetarian' },
-    ],
-  },
-  lifestyle: {
-    label: 'Lifestyle Diets',
-    options: [
-      { value: 'mediterranean', label: 'Mediterranean' },
-      { value: 'paleo', label: 'Paleo' },
-      { value: 'raw', label: 'Raw Food' },
-      { value: 'whole30', label: 'Whole30' },
-      { value: 'dash', label: 'DASH' },
-      { value: 'macrobiotic', label: 'Macrobiotic' },
-    ],
-  },
-};
-
-const skillLevels = ['Beginner', 'Intermediate', 'Advanced'];
-const cookingTimes = [
-  '15 minutes',
-  '30 minutes',
-  '45 minutes',
-  '1 hour',
-  '1+ hours',
-];
-const servingSizes = ['1', '2', '3-4', '5-6', '7+'];
-const cuisineTypes = [
-  'Italian',
-  'Mexican',
-  'Thai',
-  'Indian',
-  'Chinese',
-  'Japanese',
-  'Mediterranean',
-  'American',
-  'French',
-];
-const spiceLevels = ['None', 'Mild', 'Medium', 'Hot', 'Extra Hot'];
-const budgetOptions = ['$', '$$', '$$$', '$$$$'];
-
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
   visible: {
@@ -155,7 +95,6 @@ function PreferencesPage() {
 
   const handleSavePreferences = async () => {
     updatePreferences(preferences);
-    toast.success('Preferences updated successfully!');
   };
 
   return (

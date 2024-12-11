@@ -1,14 +1,14 @@
-import { useState } from 'react';
+import { useState } from 'react'
 
-import { getAuth } from '@clerk/tanstack-start/server';
-import { Link, createFileRoute, redirect } from '@tanstack/react-router';
-import { createServerFn } from '@tanstack/start';
-import { eq } from 'drizzle-orm';
-import { Check } from 'lucide-react';
-import { getWebRequest } from 'vinxi/http';
+import { getAuth } from '@clerk/tanstack-start/server'
+import { Link, createFileRoute, redirect } from '@tanstack/react-router'
+import { createServerFn } from '@tanstack/start'
+import { eq } from 'drizzle-orm'
+import { Check } from 'lucide-react'
+import { getWebRequest } from 'vinxi/http'
 
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
@@ -16,47 +16,47 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+} from '@/components/ui/card'
+import { Separator } from '@/components/ui/separator'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
-import { db } from '@/db/db';
-import { recipesTable } from '@/db/schema';
-import { cn } from '@/lib/utils';
-import { transformDbRecord } from '@/schemas/recipe';
-import authStateFn from '@/server-fns/auth-redirect';
+import { db } from '@/db/db'
+import { recipesTable } from '@/db/schema'
+import { cn } from '@/lib/utils'
+import { transformDbRecord } from '@/schemas/recipe'
+import authStateFn from '@/server-fns/auth-redirect'
 
 const recipesByUserId = createServerFn({ method: 'GET' }).handler(async () => {
-  const { userId } = await getAuth(getWebRequest());
+  const { userId } = await getAuth(getWebRequest())
 
   if (!userId) {
     // This will error because you're redirecting to a path that doesn't exist yet
     // You can create a sign-in route to handle this
     throw redirect({
       to: '/',
-    });
+    })
   }
 
   const data = await db
     .select()
     .from(recipesTable)
-    .where(eq(recipesTable.userId, userId));
+    .where(eq(recipesTable.userId, userId))
 
-  const transformedRecipes = [];
+  const transformedRecipes = []
 
   for (const recipe of data) {
-    const transformedRecipe = transformDbRecord(recipe);
-    transformedRecipes.push(transformedRecipe);
+    const transformedRecipe = transformDbRecord(recipe)
+    transformedRecipes.push(transformedRecipe)
   }
 
-  return { recipes: transformedRecipes };
-});
+  return { recipes: transformedRecipes }
+})
 
 export const Route = createFileRoute('/(app)/settings/plan/')({
   component: SettingsPlanPage,
   beforeLoad: () => authStateFn(),
   loader: () => recipesByUserId(),
-});
+})
 
 const plans = [
   {
@@ -97,12 +97,12 @@ const plans = [
       'Team collaboration',
     ],
   },
-];
+]
 
 function SettingsPlanPage() {
   const [billingInterval, setBillingInterval] = useState<'monthly' | 'yearly'>(
     'monthly',
-  );
+  )
 
   return (
     <>
@@ -132,7 +132,10 @@ function SettingsPlanPage() {
         {plans.map((plan) => (
           <Card
             key={plan.name}
-            className={cn('relative flex flex-col justify-between', plan.popular ? 'border-primary' : '')}
+            className={cn(
+              'relative flex flex-col justify-between',
+              plan.popular ? 'border-primary' : '',
+            )}
           >
             {plan.popular && (
               <Badge className="absolute top-4 right-4" variant="secondary">
@@ -193,5 +196,5 @@ function SettingsPlanPage() {
         All plans include a 14-day free trial. No credit card required.
       </div>
     </>
-  );
+  )
 }

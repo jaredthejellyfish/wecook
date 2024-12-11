@@ -13,7 +13,7 @@ const BodySchema = z.object({
     isPublic: z.boolean(),
 })
 
-export const Route = createAPIFileRoute('/api/recipes/public')({
+export const APIRoute = createAPIFileRoute('/api/recipes/public')({
     POST: async ({ request }) => {
         const { userId } = await getAuth(request);
 

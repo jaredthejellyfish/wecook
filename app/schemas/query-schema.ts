@@ -3,12 +3,12 @@ import { cuisineTypes, spiceLevels, cookingTimes, servingSizes, mealTypes, skill
 import { z } from "zod";
 
 // Define the enums based on the provided arrays and objects
-export const MealTypeEnum = z.enum(mealTypes as [string, ...string[]]);
-export const SkillLevelEnum = z.enum(skillLevels as [string, ...string[]]);
-export const CookingTimeEnum = z.enum(cookingTimes as [string, ...string[]]);
-export const ServingSizeEnum = z.enum(servingSizes as [string, ...string[]]);
-export const CuisineTypeEnum = z.enum(cuisineTypes as [string, ...string[]]);
-export const SpiceLevelEnum = z.enum(spiceLevels as [string, ...string[]]);
+export const MealTypeEnum = z.enum(mealTypes.map(type => type.toLowerCase()) as [string, ...string[]]);
+export const SkillLevelEnum = z.enum(skillLevels.map(level => level.toLowerCase()) as [string, ...string[]]);
+export const CookingTimeEnum = z.enum(cookingTimes.map(time => time.toLowerCase()) as [string, ...string[]]);
+export const ServingSizeEnum = z.enum(servingSizes.map(size => size.toLowerCase()) as [string, ...string[]]);
+export const CuisineTypeEnum = z.enum(cuisineTypes.map(cuisine => cuisine.toLowerCase()) as [string, ...string[]]);
+export const SpiceLevelEnum = z.enum(spiceLevels.map(level => level.toLowerCase()) as [string, ...string[]]);
 export const BudgetEnum = z.enum(budgetOptions as [string, ...string[]]);
 
 // Create a union of all diet type options
@@ -43,7 +43,7 @@ export type RecipeQuery = z.infer<typeof QuerySchema>;
 
 // Export helper function to get all valid options for a field
 export const getValidOptions = {
-  mealTypes: Object.values(mealTypes),
+  mealTypes: Object.values(mealTypes).map(type => type.toLowerCase()),
   dietaryTypes: allDietOptions.map(option => ({
     value: option.value,
     label: option.label,
@@ -51,11 +51,11 @@ export const getValidOptions = {
       group.options.some(opt => opt.value === option.value)
     )?.[1].label
   })),
-  skillLevels: Object.values(skillLevels),
-  cookingTimes: Object.values(cookingTimes),
-  servingSizes: Object.values(servingSizes),
-  cuisineTypes: Object.values(cuisineTypes),
-  spiceLevels: Object.values(spiceLevels),
+  skillLevels: Object.values(skillLevels).map(level => level.toLowerCase()),
+  cookingTimes: Object.values(cookingTimes).map(time => time.toLowerCase()),
+  servingSizes: Object.values(servingSizes).map(size => size.toLowerCase()),
+  cuisineTypes: Object.values(cuisineTypes).map(cuisine => cuisine.toLowerCase()),
+  spiceLevels: Object.values(spiceLevels).map(level => level.toLowerCase()),
   budgetOptions: Object.values(budgetOptions),
 };
 

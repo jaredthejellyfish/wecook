@@ -1,9 +1,10 @@
-import { useState } from 'react';
-
-import { createFileRoute } from '@tanstack/react-router';
+import { getAuth } from '@clerk/tanstack-start/server';
+import { createFileRoute, redirect } from '@tanstack/react-router';
+import { createServerFn } from '@tanstack/start';
+import { eq } from 'drizzle-orm';
 import { CalendarDays, Filter } from 'lucide-react';
 import { toast } from 'sonner';
-import { z } from 'zod';
+import { getWebRequest } from 'vinxi/http';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -30,20 +31,16 @@ import { Textarea } from '@/components/ui/textarea';
 
 import {
   budgetOptions,
+  cookingTimes,
   cuisineTypes,
   dietTypes,
+  servingSizes,
+  skillLevels,
   spiceLevels,
 } from '@/constants/recipe-form';
-import { usePreferences } from '@/hooks/usePreferences';
-import {
-  BudgetEnum,
-  CookingTimeEnum,
-  CuisineTypeEnum,
-  DietaryTypeEnum,
-  ServingSizeEnum,
-  SkillLevelEnum,
-  SpiceLevelEnum,
-} from '@/schemas/query-schema';
+import { db } from '@/db/db';
+import { preferencesTable } from '@/db/schema';
+import { useGenerateBatchRecipe } from '@/hooks/useGenerateBatchRecipe';
 
 // Add type for template settings that matches the state type
 type MealPlanSettings = {
@@ -129,56 +126,50 @@ const MEAL_PLAN_TEMPLATES: Record<
   },
 };
 
+const preferencesByUserId = createServerFn({ method: 'GET' }).handler(
+  async () => {
+    try {
+      const { userId } = await getAuth(getWebRequest());
+
+      if (!userId) {
+        throw redirect({
+          to: '/',
+        });
+      }
+
+      const data = await db
+        .select()
+        .from(preferencesTable)
+        .where(eq(preferencesTable.userId, userId));
+
+      if (!data.length) {
+        const data = await db
+          .insert(preferencesTable)
+          .values({ userId })
+          .returning();
+
+        return { preferences: data[0] };
+      }
+
+      return { preferences: data[0] };
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  },
+);
+
 export const Route = createFileRoute('/(app)/generate/plan/')({
   component: GeneratePlanPage,
-});
-
-const _MealPlanGenerationSchema = z.object({
-  numberOfDays: z.string(),
-  dietaryType: DietaryTypeEnum,
-  allergies: z.string().max(255).optional(),
-  cookingTime: CookingTimeEnum,
-  skillLevel: SkillLevelEnum,
-  servings: ServingSizeEnum,
-  spiceLevel: SpiceLevelEnum,
-  budget: BudgetEnum,
-  cuisinePreferences: CuisineTypeEnum,
-  mealPreferences: z.object({
-    breakfast: z.boolean(),
-    lunch: z.boolean(),
-    dinner: z.boolean(),
-    snacks: z.boolean(),
-  }),
-  weekendCooking: z.enum(['same', 'more', 'less']),
-  leftoverPreference: z.enum(['none', 'some', 'lots']),
-  specialNotes: z.string().max(255).optional(),
+  loader: () => preferencesByUserId(),
 });
 
 function GeneratePlanPage() {
-  const { data: preferences } = usePreferences();
-  const [loading, setLoading] = useState(false);
-  const [planData, setPlanData] = useState<
-    z.infer<typeof _MealPlanGenerationSchema>
-  >({
-    numberOfDays: '',
-    dietaryType: preferences?.dietaryType ?? '',
-    allergies: preferences?.allergies ?? '',
-    cookingTime: preferences?.cookingTime ?? '',
-    skillLevel: preferences?.skillLevel ?? '',
-    servings: preferences?.servings ?? '',
-    cuisinePreferences: preferences?.cuisineType ?? '',
-    spiceLevel: preferences?.spiceLevel ?? '',
-    budget: preferences?.budget ?? '',
-    specialNotes: preferences?.specialNotes ?? '',
-    mealPreferences: {
-      breakfast: false,
-      lunch: false,
-      dinner: false,
-      snacks: false,
-    },
-    weekendCooking: 'same', // 'same', 'more', 'less'
-    leftoverPreference: 'none', // 'none', 'some', 'lots'
-  });
+  const { preferences } = Route.useLoaderData();
+  const { mutation, planData, setPlanData, isSubmittable } =
+    useGenerateBatchRecipe({
+      preferences,
+    });
 
   const handleInputChange = (field: string, value: string | boolean) => {
     setPlanData((prev) => ({
@@ -195,37 +186,6 @@ function GeneratePlanPage() {
         [meal]: value,
       },
     }));
-  };
-
-  const handleGeneratePlan = async () => {
-    try {
-      setLoading(true);
-
-      const requestData = {
-        ...planData,
-        cuisinePreferences: Array.isArray(planData.cuisinePreferences)
-          ? planData.cuisinePreferences.join(',')
-          : planData.cuisinePreferences,
-      };
-
-      console.log('requestData', requestData);
-
-      const response = await fetch('/api/meal-plan/generate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestData),
-      });
-
-      const data = await response.json();
-      console.log('data', data);
-    } catch (error) {
-      console.error(error);
-      toast.error('An error occurred while generating the meal plan');
-    } finally {
-      setLoading(false);
-    }
   };
 
   const applyTemplate = (templateKey: keyof typeof MEAL_PLAN_TEMPLATES) => {
@@ -277,7 +237,7 @@ function GeneratePlanPage() {
           <CardTitle>Plan Settings</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Basic Plan Settings */}
+          {/* Plan Duration and Basic Settings */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label>Number of Days</Label>
@@ -301,6 +261,28 @@ function GeneratePlanPage() {
             </div>
 
             <div className="space-y-2">
+              <Label>Servings</Label>
+              <Select
+                value={planData.servings}
+                onValueChange={(value) => handleInputChange('servings', value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select number of servings" />
+                </SelectTrigger>
+                <SelectContent>
+                  {servingSizes.map((size: string) => (
+                    <SelectItem key={size} value={size.toLocaleLowerCase()}>
+                      {size}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Dietary Requirements and Restrictions */}
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
               <Label>Dietary Requirements</Label>
               <Select
                 value={planData.dietaryType}
@@ -316,7 +298,10 @@ function GeneratePlanPage() {
                     <SelectGroup key={key}>
                       <SelectLabel>{group.label}</SelectLabel>
                       {group.options.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
+                        <SelectItem
+                          key={option.value}
+                          value={option.value.toLocaleLowerCase()}
+                        >
                           {option.label}
                         </SelectItem>
                       ))}
@@ -325,10 +310,7 @@ function GeneratePlanPage() {
                 </SelectContent>
               </Select>
             </div>
-          </div>
 
-          {/* Dietary Preferences */}
-          <div className="grid gap-4 sm:grid-cols-13">
             <div className="space-y-2">
               <Label>Allergies/Restrictions</Label>
               <Input
@@ -339,30 +321,77 @@ function GeneratePlanPage() {
             </div>
           </div>
 
-          {/* Meal Preferences */}
-          <div className="space-y-2">
-            <Label>Meal Types</Label>
-            <div className="grid gap-4 sm:grid-cols-4">
-              {Object.entries(planData.mealPreferences).map(
-                ([meal, enabled]) => (
-                  <div key={meal} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={meal}
-                      checked={enabled}
-                      onCheckedChange={(checked) =>
-                        handleMealPreferenceChange(meal, checked as boolean)
-                      }
-                    />
-                    <Label htmlFor={meal} className="capitalize">
-                      {meal}
-                    </Label>
-                  </div>
-                ),
-              )}
+          {/* Meal Schedule */}
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Meal Types</Label>
+              <div className="grid gap-4 sm:grid-cols-4">
+                {Object.entries(planData.mealPreferences).map(
+                  ([meal, enabled]) => (
+                    <div key={meal} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={meal}
+                        checked={enabled}
+                        onCheckedChange={(checked) =>
+                          handleMealPreferenceChange(meal, checked as boolean)
+                        }
+                      />
+                      <Label htmlFor={meal} className="capitalize">
+                        {meal}
+                      </Label>
+                    </div>
+                  ),
+                )}
+              </div>
             </div>
           </div>
 
-          {/* Additional Preferences */}
+          {/* Cooking Preferences */}
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label>Cooking Time</Label>
+              <Select
+                value={planData.cookingTime}
+                onValueChange={(value) =>
+                  handleInputChange('cookingTime', value)
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select cooking time" />
+                </SelectTrigger>
+                <SelectContent>
+                  {cookingTimes.map((time: string) => (
+                    <SelectItem key={time} value={time.toLocaleLowerCase()}>
+                      {time}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Skill Level</Label>
+              <Select
+                value={planData.skillLevel}
+                onValueChange={(value) =>
+                  handleInputChange('skillLevel', value)
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select skill level" />
+                </SelectTrigger>
+                <SelectContent>
+                  {skillLevels.map((level: string) => (
+                    <SelectItem key={level} value={level.toLocaleLowerCase()}>
+                      {level}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Schedule Preferences */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label>Weekend Cooking</Label>
@@ -403,32 +432,32 @@ function GeneratePlanPage() {
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label>Cuisine Preferences</Label>
-            <Select
-              value={planData.cuisinePreferences ?? ''}
-              onValueChange={(value) =>
-                handleInputChange('cuisinePreferences', value)
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select cuisine preferences">
-                  {Array.isArray(planData.cuisinePreferences)
-                    ? planData.cuisinePreferences.join(', ')
-                    : planData.cuisinePreferences}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                {cuisineTypes.map((option) => (
-                  <SelectItem key={option} value={option}>
-                    {option}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          {/* Food Preferences */}
+          <div className="grid gap-4 sm:grid-cols-3">
+            <div className="space-y-2">
+              <Label>Cuisine Preferences</Label>
+              <Select
+                value={planData.cuisinePreferences}
+                onValueChange={(value) =>
+                  handleInputChange('cuisinePreferences', value)
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select cuisine preferences" />
+                </SelectTrigger>
+                <SelectContent>
+                  {cuisineTypes.map((cuisine) => (
+                    <SelectItem
+                      key={cuisine}
+                      value={cuisine.toLocaleLowerCase()}
+                    >
+                      {cuisine}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label>Spice Level</Label>
               <Select
@@ -442,7 +471,7 @@ function GeneratePlanPage() {
                 </SelectTrigger>
                 <SelectContent>
                   {spiceLevels.map((level) => (
-                    <SelectItem key={level} value={level}>
+                    <SelectItem key={level} value={level.toLocaleLowerCase()}>
                       {level}
                     </SelectItem>
                   ))}
@@ -470,7 +499,7 @@ function GeneratePlanPage() {
             </div>
           </div>
 
-          {/* Notes */}
+          {/* Additional Notes */}
           <div className="space-y-2">
             <Label>Additional Notes</Label>
             <Textarea
@@ -482,20 +511,25 @@ function GeneratePlanPage() {
             />
           </div>
 
+          {/* Generate Button */}
           <div className="flex justify-end pt-4">
             <Button
-              onClick={handleGeneratePlan}
-              disabled={loading}
+              onClick={() => mutation.mutate()}
               className="w-full sm:w-auto"
+              disabled={!isSubmittable || mutation.isPending}
             >
               <div className="flex items-center justify-center">
-                {loading && (
+                {mutation.isPending && (
                   <div className="mr-2">
                     <LoadingSpinner />
                   </div>
                 )}
-                {loading ? 'Generating Plan...' : 'Generate Meal Plan'}
-                {!loading && <CalendarDays className="ml-2 h-4 w-4" />}
+                {mutation.isPending
+                  ? 'Generating Plan...'
+                  : 'Generate Meal Plan'}
+                {!mutation.isPending && (
+                  <CalendarDays className="ml-2 h-4 w-4" />
+                )}
               </div>
             </Button>
           </div>

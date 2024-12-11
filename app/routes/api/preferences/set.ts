@@ -18,7 +18,7 @@ const preferencesSchema = z.object({
   budget: z.string().nullable().optional(),
 })
 
-export const Route = createAPIFileRoute('/api/preferences/set')({
+export const APIRoute = createAPIFileRoute('/api/preferences/set')({
   POST: async ({ request }) => {
     try {
       const { userId } = await getAuth(request)
