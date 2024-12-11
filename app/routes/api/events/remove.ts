@@ -10,7 +10,7 @@ const RemoveEventSchema = z.object({
     id: z.number().int().positive()
 });
 
-export const Route = createAPIFileRoute('/api/events/remove')({
+export const APIRoute = createAPIFileRoute('/api/events/remove')({
     DELETE: async ({ request }) => {
         try {
             const { userId } = await getAuth(request);

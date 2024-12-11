@@ -11,7 +11,7 @@ const AddEventSchema = z.object({
     recipeId: z.number().int().positive()
 });
 
-export const Route = createAPIFileRoute('/api/events/add')({
+export const APIRoute = createAPIFileRoute('/api/events/add')({
     POST: async ({ request }) => {
         try {
             const { userId } = await getAuth(request);

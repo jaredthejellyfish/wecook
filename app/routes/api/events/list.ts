@@ -1,9 +1,9 @@
+import { json } from '@tanstack/start'
+import { createAPIFileRoute } from '@tanstack/start/api'
 import { db } from '@/db/db';
 import { eventsTable } from '@/db/schema';
 import { getAuth } from '@clerk/tanstack-start/server';
 import { eq, and, gte, lte } from 'drizzle-orm';
-import { json } from '@tanstack/start'
-import { createAPIFileRoute } from '@tanstack/start/api'
 import { z } from 'zod';
 
 const EventListSchema = z.object({
@@ -19,7 +19,7 @@ const EventListSchema = z.object({
     if (!from && !to) {
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
-        
+
         from = yesterday.toLocaleDateString('en-US', {
             month: '2-digit',
             day: '2-digit',
@@ -50,13 +50,12 @@ const EventListSchema = z.object({
     return { from, to };
 });
 
-export const Route = createAPIFileRoute('/api/events/list')({
+export const APIRoute = createAPIFileRoute('/api/events/list')({
     GET: async ({ request }) => {
         try {
             const url = new URL(request.url);
             const params = Object.fromEntries(url.searchParams);
 
-            console.log(params);
             const parsedParams = EventListSchema.safeParse(params);
 
             if (!parsedParams.success) {
@@ -69,17 +68,18 @@ export const Route = createAPIFileRoute('/api/events/list')({
             }
 
             const { from, to } = parsedParams.data;
+
             const events = await db.select()
                 .from(eventsTable)
                 .where(and(
                     eq(eventsTable.userId, userId),
                     ...(from ? [gte(eventsTable.date, from)] : []),
                     ...(to ? [lte(eventsTable.date, to)] : [])
-                ));
+                ))
 
             return json({ success: true, events, from, to });
         } catch {
             return json({ success: false, error: `Internal Server Error` }, { status: 500 });
         }
     },
-});
+})

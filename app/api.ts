@@ -1,6 +1,7 @@
+// app/api.ts
 import {
   createStartAPIHandler,
   defaultAPIFileRouteHandler,
-} from '@tanstack/start/api';
+} from '@tanstack/start/api'
 
-export default createStartAPIHandler(defaultAPIFileRouteHandler);
+export default createStartAPIHandler(defaultAPIFileRouteHandler)

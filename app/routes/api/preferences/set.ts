@@ -1,11 +1,10 @@
+import { preferencesTable } from '@/db/schema'
+import { db } from '@/db/db'
 import { getAuth } from '@clerk/tanstack-start/server'
 import { json } from '@tanstack/start'
 import { createAPIFileRoute } from '@tanstack/start/api'
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
-
-import { db } from '@/db/db'
-import { preferencesTable } from '@/db/schema'
 
 const preferencesSchema = z.object({
   dietaryType: z.string().nullable().optional(),
@@ -19,7 +18,7 @@ const preferencesSchema = z.object({
   budget: z.string().nullable().optional(),
 })
 
-export const Route = createAPIFileRoute('/api/preferences')({
+export const Route = createAPIFileRoute('/api/preferences/set')({
   POST: async ({ request }) => {
     try {
       const { userId } = await getAuth(request)
@@ -80,19 +79,5 @@ export const Route = createAPIFileRoute('/api/preferences')({
         { status: 500 },
       )
     }
-  },
-  GET: async ({ request }) => {
-    const { userId } = await getAuth(request)
-
-    if (!userId) {
-      return json({ preferences: null })
-    }
-
-    const preferences = await db
-      .select()
-      .from(preferencesTable)
-      .where(eq(preferencesTable.userId, userId))
-
-    return json({ preferences: preferences[0] })
   },
 })
