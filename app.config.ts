@@ -6,6 +6,9 @@ const ReactCompilerConfig = {
 };
 
 export default defineConfig({
+  server: {
+    preset: 'vercel',
+  },
   react: {
     babel: {
       plugins: [
