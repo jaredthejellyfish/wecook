@@ -183,24 +183,24 @@ function DashboardPage() {
       {/* Welcome Section */}
       <motion.div
         variants={itemVariants}
-        className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
+        className="flex flex-col gap-4 sm:gap-6 md:flex-row md:items-center md:justify-between"
       >
         <div>
-          <h2 className="text-3xl font-bold tracking-tight dark:text-white">
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight dark:text-white">
             Welcome back, Chef! 👋
           </h2>
-          <p className="text-muted-foreground dark:text-neutral-400">
+          <p className="text-sm sm:text-base text-muted-foreground dark:text-neutral-400">
             Your weekly cooking progress is looking great
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button asChild>
+        <div className="flex flex-wrap gap-2">
+          <Button className="w-full sm:w-auto" asChild>
             <Link to="/recipes" search={{ new: true }}>
               <Plus className="mr-2 h-4 w-4" />
               New Recipe
             </Link>
           </Button>
-          <Button variant="outline" asChild>
+          <Button className="w-full sm:w-auto" variant="outline" asChild>
             <Link to="/recipes">View All Recipes</Link>
           </Button>
         </div>
@@ -212,9 +212,9 @@ function DashboardPage() {
       </Suspense>
 
       {/* Main Content Grid */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+      <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-7">
         {/* Recent Activity & Recommendations */}
-        <motion.div variants={itemVariants} className="md:col-span-4 space-y-4">
+        <motion.div variants={itemVariants} className="min-w-0 md:col-span-4 space-y-4 sm:space-y-6">
           <Suspense fallback={<Skeleton className="h-[300px] w-full" />}>
             <RecentActivity
               activities={activities}
@@ -228,7 +228,7 @@ function DashboardPage() {
         </motion.div>
 
         {/* Meal Plan & Achievements */}
-        <motion.div variants={itemVariants} className="md:col-span-3 space-y-4">
+        <motion.div variants={itemVariants} className="min-w-0 md:col-span-3 space-y-4 sm:space-y-6">
           <Suspense fallback={<Skeleton className="h-[250px] w-full" />}>
             <MealPlan
               meals={meals}

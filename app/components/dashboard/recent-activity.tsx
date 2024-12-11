@@ -43,7 +43,7 @@ export default function RecentActivity({ activities, onLike, onStar }: RecentAct
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
+      <CardHeader className="flex sm:flex-row items-center justify-between pb-2 mb-4 sm:mb-0">
         <CardTitle className="text-lg font-semibold">Recent Activity</CardTitle>
         <Tabs value={filter} onValueChange={(value) => setFilter(value as typeof filter)} className="w-[300px]">
           <TabsList className="grid w-full grid-cols-3">
