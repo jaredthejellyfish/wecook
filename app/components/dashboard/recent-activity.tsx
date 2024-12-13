@@ -100,7 +100,7 @@ export default function RecentActivity({ activities }: RecentActivityProps) {
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate max-w-[180px] xs:max-w-[250px] sm:max-w-full">
+                        <p className="text-sm font-medium truncate max-w-[180px] xs:max-w-[250px] md:max-w-[300px] lg:max-w-[350px] xl:max-w-[400px]">
                           {activity.title}
                         </p>
                         <p className="text-xs text-muted-foreground truncate">
