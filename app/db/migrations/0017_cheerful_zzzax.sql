@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX `unique_cooked_recipe` ON `cooked_recipes` (`recipe_id`,`user_id`,`created_at`);

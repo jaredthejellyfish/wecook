@@ -9,16 +9,19 @@ import React, {
 
 import { useRouter } from '@tanstack/react-router';
 import { Link } from '@tanstack/react-router';
-import { Bookmark, Calendar, Printer, Share2 } from 'lucide-react';
+import { Bookmark, Calendar, ChefHat, Printer, Share2 } from 'lucide-react';
 import { motion } from 'motion/react';
 
 import { useAddEvent } from '@/hooks/useAddEvent';
 import { useBookmarkRecipe } from '@/hooks/useBookmarkRecipe';
 import { useBookmarks } from '@/hooks/useBookmarks';
+import { useCookedRecipes } from '@/hooks/useCookedRecipes';
 import { useDeleteRecipe } from '@/hooks/useDeleteRecipe';
 import { useEditRecipe } from '@/hooks/useEditRecipe';
 import { useEvents } from '@/hooks/useEvents';
+import { useMutateCookedRecipe } from '@/hooks/useMutateCookedRecipe';
 import { useRecipePublic } from '@/hooks/useRecipePublic';
+import type { MealType } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 import { DatePicker } from './date-picker';
@@ -41,7 +44,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from './ui/select';
-import type { MealType } from '@/lib/types';
 
 // Lazy load the dialog components
 const EditDialog = lazy(() =>
@@ -74,8 +76,6 @@ type Props = {
   isOwned: boolean;
 };
 
-
-
 const RecipeOptionsContent = ({ id, isPublic, isOwned }: Props) => {
   const bookmarkMutation = useBookmarkRecipe();
   const deleteMutation = useDeleteRecipe();
@@ -85,6 +85,8 @@ const RecipeOptionsContent = ({ id, isPublic, isOwned }: Props) => {
   const addEvent = useAddEvent();
   const router = useRouter();
   const { data: events } = useEvents();
+  const cookedMutation = useMutateCookedRecipe();
+  const { data: cookedRecipes } = useCookedRecipes(id);
 
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [mealType, setMealType] = useState<MealType>('breakfast');
@@ -101,14 +103,18 @@ const RecipeOptionsContent = ({ id, isPublic, isOwned }: Props) => {
       year: 'numeric',
     });
 
-    setExistingEvent(events.some((event) => event.date === formattedDate && event.mealType === mealType));
+    setExistingEvent(
+      events.some(
+        (event) => event.date === formattedDate && event.mealType === mealType,
+      ),
+    );
   }, [events, date, mealType]);
 
   const handleBookmark = useCallback(
     (e: React.MouseEvent) => {
       e.preventDefault();
       return bookmarkMutation.mutateAsync({
-        data: { recipe_id: id },
+        data: { recipe_id: id.toString() },
       });
     },
     [bookmarkMutation, id],
@@ -166,6 +172,10 @@ const RecipeOptionsContent = ({ id, isPublic, isOwned }: Props) => {
     },
     [addEvent, date, id],
   );
+
+  const handleCooked = useCallback(() => {
+    cookedMutation.mutateAsync(id.toString());
+  }, [cookedMutation, id]);
 
   React.useEffect(() => {
     if (editRecipe.run?.status === 'COMPLETED') {
@@ -257,6 +267,13 @@ const RecipeOptionsContent = ({ id, isPublic, isOwned }: Props) => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <Button variant="outline" size="sm" onClick={handleCooked}>
+        <ChefHat
+          className={cn('md:mr-2 h-4 w-4', !!cookedRecipes && 'fill-primary')}
+        />
+        <span className="sr-only md:not-sr-only">Cooked Today</span>
+      </Button>
 
       {isOwned && (
         <Button variant="outline" size="sm" onClick={handlePublicToggle}>

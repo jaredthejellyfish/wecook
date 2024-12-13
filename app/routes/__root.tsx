@@ -29,6 +29,11 @@ export const Route = createRootRoute({
     links: [
       { rel: 'stylesheet', href: appCss },
       {
+        rel: 'preconnect',
+        href: '//images.wecook.dev',
+      },
+
+      {
         rel: 'icon',
         type: 'image/svg+xml',
         href: 'https://images.wecook.dev/favicon.svg',

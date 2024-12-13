@@ -1,5 +1,10 @@
 import { sql } from 'drizzle-orm';
-import { integer, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core';
+import {
+  integer,
+  sqliteTable,
+  text,
+  uniqueIndex,
+} from 'drizzle-orm/sqlite-core';
 
 export const recipesTable = sqliteTable('recipes', {
   id: integer('id').primaryKey(),
@@ -30,7 +35,9 @@ export const recipesTable = sqliteTable('recipes', {
   // Meta Information
   userId: text('user_id').notNull(),
 
-  isPublic: integer('public', { mode: 'boolean' }).notNull().default(sql`false`),
+  isPublic: integer('public', { mode: 'boolean' })
+    .notNull()
+    .default(sql`false`),
 
   // Timestamps
   createdAt: text('created_at')
@@ -47,6 +54,9 @@ export const bookmarksTable = sqliteTable('bookmarks', {
     .notNull()
     .references(() => recipesTable.id, { onDelete: 'cascade' }),
   userId: text('user_id').notNull(),
+  createdAt: text('created_at')
+    .notNull()
+    .default(sql`CURRENT_TIMESTAMP`),
 });
 
 export const preferencesTable = sqliteTable('preferences', {
@@ -63,17 +73,46 @@ export const preferencesTable = sqliteTable('preferences', {
   budget: text('budget'),
 });
 
-export const eventsTable = sqliteTable('events', {
-  id: integer('id').primaryKey(),
-  date: text('date').notNull(),
-  mealType: text('meal_type').notNull(),
-  userId: text('user_id').notNull(),
-  recipeId: integer('recipe_id')
-    .notNull()
-    .references(() => recipesTable.id, { onDelete: 'cascade' }),
-}, (table) => ({
-  unique_event: uniqueIndex('unique_event').on(table.userId, table.date, table.mealType)
-}));
+export const eventsTable = sqliteTable(
+  'events',
+  {
+    id: integer('id').primaryKey(),
+    date: text('date').notNull(),
+    mealType: text('meal_type').notNull(),
+    userId: text('user_id').notNull(),
+    recipeId: integer('recipe_id')
+      .notNull()
+      .references(() => recipesTable.id, { onDelete: 'cascade' }),
+  },
+  (table) => ({
+    unique_event: uniqueIndex('unique_event').on(
+      table.userId,
+      table.date,
+      table.mealType,
+    ),
+  }),
+);
+
+export const cookedRecipesTable = sqliteTable(
+  'cooked_recipes',
+  {
+    id: integer('id').primaryKey(),
+    recipeId: integer('recipe_id')
+      .notNull()
+      .references(() => recipesTable.id, { onDelete: 'cascade' }),
+    userId: text('user_id').notNull(),
+    createdAt: text('created_at')
+      .notNull()
+      .default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => ({
+    unique_cooked_recipe: uniqueIndex('unique_cooked_recipe').on(
+      table.recipeId,
+      table.userId,
+      table.createdAt
+    ),
+  })
+);
 
 export type InsertRecipe = typeof recipesTable.$inferInsert;
 export type SelectRecipe = typeof recipesTable.$inferSelect;
@@ -86,3 +125,6 @@ export type SelectPreference = typeof preferencesTable.$inferSelect;
 
 export type InsertEvent = typeof eventsTable.$inferInsert;
 export type SelectEvent = typeof eventsTable.$inferSelect;
+
+export type InsertCookedRecipe = typeof cookedRecipesTable.$inferInsert;
+export type SelectCookedRecipe = typeof cookedRecipesTable.$inferSelect;

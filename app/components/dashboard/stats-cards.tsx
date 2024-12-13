@@ -2,7 +2,6 @@ import { motion } from 'framer-motion';
 import { BookOpen, Clock, Flame, Utensils } from 'lucide-react';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
 
 interface StatsCardsProps {
   stats: {
@@ -34,7 +33,6 @@ export default function StatsCards({ stats }: StatsCardsProps) {
       value: stats.recipesCooked,
       change: `+${stats.recipesLastWeek} from last week`,
       icon: Utensils,
-      progress: 75,
     },
     {
       title: 'Saved Recipes',
@@ -45,17 +43,15 @@ export default function StatsCards({ stats }: StatsCardsProps) {
     },
     {
       title: 'Cooking Streak',
-      value: `${stats.streakDays} days`,
+      value: `${stats.streakDays} ${stats.streakDays === 1 ? 'day' : 'days'}`,
       change: 'Keep it up!',
       icon: Flame,
-      progress: 85,
     },
     {
       title: 'Time Saved',
-      value: `${stats.timeSaved} hrs`,
+      value: `${Math.round(stats.timeSaved * 100) / 100} hrs`,
       change: 'This week',
       icon: Clock,
-      progress: 45,
     },
   ];
 
@@ -71,7 +67,6 @@ export default function StatsCards({ stats }: StatsCardsProps) {
             <CardContent>
               <div className="text-2xl font-bold">{card.value}</div>
               <div className="text-xs text-muted-foreground">{card.change}</div>
-              <Progress value={card.progress} className="mt-3 h-1" />
             </CardContent>
           </Card>
         </motion.div>

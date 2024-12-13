@@ -1,21 +1,26 @@
 import { motion } from 'framer-motion';
-import { Heart, Star, Timer } from 'lucide-react';
+import { Heart, Timer } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
+import { useBookmarks } from '@/hooks/useBookmarks';
+
 interface Recipe {
-  id: string;
-  title: string;
-  time: string;
-  difficulty: 'Easy' | 'Medium' | 'Hard';
-  rating: number;
-  saved?: boolean;
+  id: number;
+  date: string;
+  mealType: string;
+  userId: string;
+  recipeId: number;
+  recipeTitle: string | null;
+  recipeImage: string | null;
+  recipeDescription: string | null;
+  recipeTime: number | null;
+  recipeDifficulty: string | null;
 }
 
 interface RecommendedRecipesProps {
   recipes: Recipe[];
-  onSave: (id: string) => void;
 }
 
 const itemVariants = {
@@ -30,11 +35,16 @@ const itemVariants = {
   },
 };
 
-export default function RecommendedRecipes({ recipes, onSave }: RecommendedRecipesProps) {
+export default function RecommendedRecipes({
+  recipes,
+}: RecommendedRecipesProps) {
+  const { data: bookmarks } = useBookmarks();
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg font-semibold">Recommended Recipes</CardTitle>
+        <CardTitle className="text-lg font-semibold">
+          Recommended Recipes
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid gap-4 md:grid-cols-2">
@@ -45,12 +55,17 @@ export default function RecommendedRecipes({ recipes, onSave }: RecommendedRecip
               className="flex flex-col gap-2 rounded-lg border p-4"
             >
               <div className="flex justify-between">
-                <h4 className="font-medium">{recipe.title}</h4>
+                <h4 className="font-medium">{recipe.recipeTitle}</h4>
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => onSave(recipe.id)}
-                  className={recipe.saved ? 'text-red-500' : ''}
+                  className={
+                    bookmarks?.find(
+                      (bookmark) => bookmark.id === recipe.recipeId,
+                    )
+                      ? 'text-red-500'
+                      : ''
+                  }
                 >
                   <Heart className="h-4 w-4" />
                 </Button>
@@ -58,13 +73,9 @@ export default function RecommendedRecipes({ recipes, onSave }: RecommendedRecip
               <div className="flex items-center gap-4 text-sm text-muted-foreground">
                 <div className="flex items-center">
                   <Timer className="mr-1 h-4 w-4" />
-                  {recipe.time}
+                  {recipe.recipeTime}
                 </div>
-                <div>{recipe.difficulty}</div>
-                <div className="flex items-center">
-                  <Star className="mr-1 h-4 w-4 fill-current text-yellow-400" />
-                  {recipe.rating}
-                </div>
+                <div>{recipe.recipeDifficulty}</div>
               </div>
             </motion.div>
           ))}
@@ -72,4 +83,4 @@ export default function RecommendedRecipes({ recipes, onSave }: RecommendedRecip
       </CardContent>
     </Card>
   );
-} 
+}

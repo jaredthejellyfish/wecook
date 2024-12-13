@@ -1,0 +1,1 @@
+ALTER TABLE `cooked_recipes` ALTER COLUMN "recipe_id" TO "recipe_id" integer NOT NULL REFERENCES recipes(id) ON DELETE cascade ON UPDATE no action;

@@ -9,3 +9,11 @@ export interface CalendarEvent {
   recipeDescription?: string;
 }
 export type MealType = 'breakfast' | 'brunch' | 'lunch' | 'snack' | 'dinner';
+
+export type RecentActivity = {
+  id: string;
+  type: 'cooked' | 'saved';
+  title: string;
+  image: string;
+  description: string;
+};
