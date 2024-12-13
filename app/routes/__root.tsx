@@ -20,6 +20,7 @@ import ClerkProviderThemed from '@/providers/clerk-provider-themed';
 import { ThemeProvider } from '@/providers/theme-provider';
 import { themeScript } from '@/scripts/theme-script';
 import appCss from '@/styles/app.css?url';
+import { SpeedInsights } from "@vercel/speed-insights/react"
 
 const LazyHeader = lazy(() => import('@/components/header'));
 const LazySidebarNav = lazy(() => import('@/components/sidebar-nav'));
@@ -76,6 +77,7 @@ function RootComponent() {
     <RootDocument>
       <Outlet />
       <Devtools />
+      <SpeedInsights />
     </RootDocument>
   );
 }
@@ -113,8 +115,8 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
               ) : (
                 <div>{children}</div>
               )}
-              <ScrollRestoration />
               <Scripts />
+              <ScrollRestoration />
               <Toaster />
               <ReactQueryDevtools initialIsOpen={false} />
             </body>
