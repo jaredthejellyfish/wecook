@@ -155,11 +155,13 @@ export default function RecentActivity({ activities }: RecentActivityProps) {
           <p className="text-sm text-muted-foreground">No recent activity</p>
         )}
       </CardContent>
-      <CardFooter>
-        <Button variant="outline" className="w-full">
-          View All <ArrowRight className="ml-2 h-4 w-4" />
-        </Button>
-      </CardFooter>
+      {filteredActivities?.length > 0 && (
+        <CardFooter>
+          <Button variant="outline" className="w-full">
+            View All <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
+        </CardFooter>
+      )}
     </Card>
   );
 }

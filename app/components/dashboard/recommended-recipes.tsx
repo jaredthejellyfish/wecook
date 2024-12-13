@@ -79,6 +79,13 @@ export default function RecommendedRecipes({
               </div>
             </motion.div>
           ))}
+          {recipes.length === 0 && (
+            <div className="flex items-center justify-center">
+              <p className="text-sm text-muted-foreground">
+                No recommended recipes found
+              </p>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

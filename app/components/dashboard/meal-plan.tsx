@@ -66,6 +66,13 @@ export default function MealPlan({ meals }: MealPlanProps) {
               </motion.div>
             </Link>
           ))}
+          {meals.length === 0 && (
+            <div className="flex items-center justify-center">
+              <p className="text-sm text-muted-foreground">
+                You have no plans for this week
+              </p>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

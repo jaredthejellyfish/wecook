@@ -29,7 +29,7 @@ const containerVariants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.1,
+      staggerChildren: 0.015,
     },
   },
 };
@@ -43,6 +43,7 @@ const itemVariants = {
       type: 'spring',
       stiffness: 100,
     },
+    duration: 0.1,
   },
 };
 

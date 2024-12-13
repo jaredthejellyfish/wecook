@@ -1,39 +1,41 @@
-import { useState } from 'react'
+import { Suspense, lazy, useState } from 'react';
 
-import { getAuth } from '@clerk/tanstack-start/server'
-import { useQuery } from '@tanstack/react-query'
-import { createFileRoute, redirect } from '@tanstack/react-router'
-import { createServerFn } from '@tanstack/start'
-import { eq } from 'drizzle-orm'
-import { motion } from 'motion/react'
-import { Filter, Search, SortAsc } from 'lucide-react'
-import { getWebRequest } from 'vinxi/http'
+import { getAuth } from '@clerk/tanstack-start/server';
+import { useQuery } from '@tanstack/react-query';
+import { createFileRoute, redirect } from '@tanstack/react-router';
+import { createServerFn } from '@tanstack/start';
+import { eq } from 'drizzle-orm';
+import { Filter, Search, SortAsc } from 'lucide-react';
+import { motion } from 'motion/react';
+import { getWebRequest } from 'vinxi/http';
 
-import RecipeCard from '@/components/recipe-card'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Input } from '@/components/ui/input'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+} from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-import { db } from '@/db/db'
-import { bookmarksTable, recipesTable } from '@/db/schema'
-import { transformDbRecord } from '@/schemas/recipe'
-import authStateFn from '@/server-fns/auth-redirect'
+import { db } from '@/db/db';
+import { bookmarksTable, recipesTable } from '@/db/schema';
+import { transformDbRecord } from '@/schemas/recipe';
+import authStateFn from '@/server-fns/auth-redirect';
+import { Skeleton } from '@/components/ui/skeleton';
+
+const PaginatedRecipes = lazy(() => import('@/components/paginated-recipes'));
 
 const bookmarkedRecipesByUserId = createServerFn({ method: 'GET' }).handler(
   async () => {
     try {
-      const { userId } = await getAuth(getWebRequest())
+      const { userId } = await getAuth(getWebRequest());
 
       if (!userId) {
         throw redirect({
           to: '/',
-        })
+        });
       }
 
       const data = await db
@@ -42,70 +44,55 @@ const bookmarkedRecipesByUserId = createServerFn({ method: 'GET' }).handler(
         })
         .from(bookmarksTable)
         .innerJoin(recipesTable, eq(bookmarksTable.recipeId, recipesTable.id))
-        .where(eq(bookmarksTable.userId, userId))
+        .where(eq(bookmarksTable.userId, userId));
 
-      const transformedRecipes = []
+      const transformedRecipes = [];
 
       for (const { recipe } of data) {
-        const transformedRecipe = transformDbRecord(recipe)
-        transformedRecipes.push(transformedRecipe)
+        const transformedRecipe = transformDbRecord(recipe);
+        transformedRecipes.push(transformedRecipe);
       }
 
-      return { recipes: transformedRecipes ?? [], userId: userId }
+      return { recipes: transformedRecipes ?? [] };
     } catch (error) {
-      console.error(error)
-      return { recipes: [] }
+      console.error(error);
+      return { recipes: [] };
     }
   },
-)
+);
 
 export const Route = createFileRoute('/(app)/recipes/saved/')({
   component: SavedRecipesPage,
   beforeLoad: () => authStateFn(),
   loader: () => bookmarkedRecipesByUserId(),
-})
+});
 
 function SavedRecipesPage() {
-  const [activeTab, setActiveTab] = useState('all')
-  const [searchTerm, setSearchTerm] = useState('')
-  const categories = ['All', 'Breakfast', 'Brunch', 'Lunch', 'Dinner', 'Snack']
+  const [activeTab, setActiveTab] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
+  const categories = ['All', 'Breakfast', 'Brunch', 'Lunch', 'Dinner', 'Snack'];
 
-  const { recipes: initialData, userId } = Route.useLoaderData()
+  const { recipes: initialData } = Route.useLoaderData();
 
-  const { data: recipes, refetch: refetchBookmarks } = useQuery({
+  const { data: recipes } = useQuery({
     queryKey: ['bookmarked-recipes'],
     initialData: initialData,
     queryFn: async () => {
-      const { recipes } = await bookmarkedRecipesByUserId()
-      return recipes
+      const { recipes } = await bookmarkedRecipesByUserId();
+      return recipes;
     },
-  })
-
-  const bookmarks = recipes?.map((recipe) => ({
-    recipeId: recipe.id,
-    userId: userId ?? '',
-    id: 0,
-  }))
+  });
 
   const filteredRecipes = recipes.filter((recipe) => {
     const titleMatch = recipe.title
       .toLowerCase()
-      .includes(searchTerm.toLowerCase())
+      .includes(searchTerm.toLowerCase());
     const categoryMatch =
       activeTab.toLowerCase() === 'all' ||
-      recipe.category.toLowerCase() === activeTab.toLowerCase()
-    return titleMatch && categoryMatch
-  })
+      recipe.category.toLowerCase() === activeTab.toLowerCase();
+    return titleMatch && categoryMatch;
+  });
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
-  }
 
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -117,7 +104,7 @@ function SavedRecipesPage() {
         stiffness: 100,
       },
     },
-  }
+  };
 
   return (
     <>
@@ -189,28 +176,13 @@ function SavedRecipesPage() {
         </Tabs>
       </motion.div>
 
-      <motion.div
-        variants={containerVariants}
-        className="flex flex-col gap-y-4 sm:grid sm:gap-6 sm:grid-cols-2 lg:grid-cols-3 w-full"
-      >
-        {filteredRecipes.length === 0 && (
-          <motion.div
-            variants={itemVariants}
-            className="col-span-full text-center text-muted-foreground dark:text-neutral-400"
-          >
-            Looks like you haven't saved any recipes yet.
-          </motion.div>
-        )}
-
-        {filteredRecipes.map((recipe) => (
-          <RecipeCard
-            key={recipe.id}
-            recipe={recipe}
-            refetchBookmarks={refetchBookmarks}
-            bookmarks={bookmarks ?? []}
-          />
-        ))}
-      </motion.div>
+      <Suspense fallback={<Skeleton className="h-96 w-full" />}>
+        <PaginatedRecipes
+          activeTab={activeTab}
+          searchTerm={searchTerm}
+          filteredRecipes={filteredRecipes}
+        />
+      </Suspense>
     </>
-  )
+  );
 }

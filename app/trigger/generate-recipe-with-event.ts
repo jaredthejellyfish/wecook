@@ -6,7 +6,7 @@ import { zodResponseFormat } from 'openai/helpers/zod';
 import { z } from 'zod';
 
 import { db } from '@/db/db';
-import { eventsTable, type InsertRecipe, recipesTable } from '@/db/schema';
+import { type InsertRecipe, eventsTable, recipesTable } from '@/db/schema';
 import { RecipeSchema } from '@/schemas/recipe';
 
 const openai = new OpenAI({
@@ -32,6 +32,7 @@ Important: All fields must be provided. Use empty strings or arrays instead of n
 - notes should be a non-empty array (at least include one storage tip)`;
 
 const generateUserPrompt = ({
+  title,
   mealType,
   dietaryType,
   allergies,
@@ -43,6 +44,7 @@ const generateUserPrompt = ({
   specialNotes,
   budget,
 }: {
+  title?: string;
   mealType: string;
   dietaryType: string;
   allergies?: string;
@@ -63,8 +65,9 @@ const generateUserPrompt = ({
           ? 'premium'
           : 'luxury';
 
-  return `Create a recipe with the following specifications:
+  return `Create a recipe${title ? ` for ${title}` : ''} with the following specifications:
 
+${title ? `Title: ${title}` : ''}
 Meal Type: ${mealType}
 Dietary Requirements: ${dietaryType}
 Allergies/Restrictions: ${allergies || 'None'}
@@ -76,6 +79,7 @@ Spice Level: ${spiceLevel}
 Budget: ${budgetString}
 Additional Requirements: ${specialNotes || 'None'}
 
+${title ? 'Use the exact provided title in the recipe.' : 'The recipe should have a creative and appealing title.'}
 The recipe should be detailed, creative, and health-conscious while strictly adhering to the specified dietary restrictions and allergies. Ensure the complexity matches the skill level and the total cooking time stays within the specified limit.`;
 };
 
@@ -149,6 +153,7 @@ async function uploadToR2(imageBuffer: Buffer): Promise<string> {
 }
 
 interface RecipeTaskPayload {
+  title?: string;
   mealType: string;
   dietaryType: string;
   allergies?: string;
@@ -195,6 +200,11 @@ export const recipeGenerationTaskWithEvent = task({
 
       if (!recipe) {
         throw new Error('Failed to generate recipe');
+      }
+
+      // After generating the recipe, validate the title if one was provided
+      if (payload.title && recipe.title !== payload.title) {
+        recipe.title = payload.title; // Force the provided title
       }
 
       // Validate and fill missing fields
@@ -263,22 +273,28 @@ export const recipeGenerationTaskWithEvent = task({
 
       console.log('Inserting recipe into database...');
 
-      const result = await db.insert(recipesTable).values(recipeInsert)
+      const result = await db.insert(recipesTable).values(recipeInsert);
 
       console.log('Inserting event into database...');
 
-      const event = await db.insert(eventsTable).values({
-        userId: payload.userId,
-        date: payload.date,
-        mealType: payload.mealType,
-        recipeId: Number(result.lastInsertRowid),
-      });
+      let event = null;
+
+      try {
+        event = await db.insert(eventsTable).values({
+          userId: payload.userId,
+          date: payload.date,
+          mealType: payload.mealType,
+          recipeId: Number(result.lastInsertRowid),
+        });
+      } catch (error) {
+        console.error('Error in recipe generation task:', error);
+      }
 
       return {
         success: true,
         recipeId: result.lastInsertRowid,
         recipe: recipeInsert,
-        eventId: event.lastInsertRowid,
+        eventId: event?.lastInsertRowid,
       };
     } catch (error) {
       console.error('Error in recipe generation task:', error);

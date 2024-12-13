@@ -15,7 +15,7 @@ import { motion } from 'motion/react';
 import { useAddEvent } from '@/hooks/useAddEvent';
 import { useBookmarkRecipe } from '@/hooks/useBookmarkRecipe';
 import { useBookmarks } from '@/hooks/useBookmarks';
-import { useCookedRecipes } from '@/hooks/useCookedRecipes';
+import {  useIsRecipeCooked } from '@/hooks/useIsRecipeCooked';
 import { useDeleteRecipe } from '@/hooks/useDeleteRecipe';
 import { useEditRecipe } from '@/hooks/useEditRecipe';
 import { useEvents } from '@/hooks/useEvents';
@@ -86,7 +86,7 @@ const RecipeOptionsContent = ({ id, isPublic, isOwned }: Props) => {
   const router = useRouter();
   const { data: events } = useEvents();
   const cookedMutation = useMutateCookedRecipe();
-  const { data: cookedRecipes } = useCookedRecipes(id);
+  const { data: isRecipeCooked } = useIsRecipeCooked(id);
 
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [mealType, setMealType] = useState<MealType>('breakfast');
@@ -177,7 +177,7 @@ const RecipeOptionsContent = ({ id, isPublic, isOwned }: Props) => {
     cookedMutation.mutateAsync(id.toString());
   }, [cookedMutation, id]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (editRecipe.run?.status === 'COMPLETED') {
       router.invalidate();
     }
@@ -270,7 +270,10 @@ const RecipeOptionsContent = ({ id, isPublic, isOwned }: Props) => {
 
       <Button variant="outline" size="sm" onClick={handleCooked}>
         <ChefHat
-          className={cn('md:mr-2 h-4 w-4', !!cookedRecipes && 'fill-primary')}
+          className={cn(
+            'md:mr-2 h-4 w-4',
+            isRecipeCooked && 'fill-primary',
+          )}
         />
         <span className="sr-only md:not-sr-only">Cooked Today</span>
       </Button>
